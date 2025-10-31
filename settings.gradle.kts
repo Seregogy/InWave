@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "InWave"
 include(":app")
- 
+include(":domain")
