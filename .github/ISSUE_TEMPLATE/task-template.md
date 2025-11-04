@@ -1,7 +1,7 @@
 ---
 name: "🚀 Задача для разработки"
 about: "Шаблон для задач по разработке новой функциональности"
-title: "[FEATURE]: "
+title: "[TASK]: "
 labels: ["task", "todo"]
 assignees: ""
 ---
