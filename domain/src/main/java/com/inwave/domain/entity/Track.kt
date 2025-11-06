@@ -12,7 +12,7 @@ data class Track(
     val imageUrl : String,
     val indexInAlbum : Int,
     val duration : Int,
-    val lyrics : String,
+    val lyrics : Lyrics,
     val listening : String,
     val audioUrl : String,
     val album : String
