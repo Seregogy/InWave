@@ -4,9 +4,9 @@ import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.TrackRepository
 
 class GetRandomTrackUseCase(
-    val repository: TrackRepository
+    private val repository: TrackRepository
 ) {
-    suspend operator fun invoke(): Track? {
-        return null
+    suspend operator fun invoke(): Result<Track> {
+        return repository.getRandomTrack()
     }
 }
