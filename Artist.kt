@@ -1,3 +1,5 @@
+package com.inwave.domain.entity
+
 data class SocialMedia (
     val name: String,
     val link: String,
