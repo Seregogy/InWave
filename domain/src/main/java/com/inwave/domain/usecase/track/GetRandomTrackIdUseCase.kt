@@ -3,9 +3,9 @@ package com.inwave.domain.usecase.track
 import com.inwave.domain.repository.TrackRepository
 
 class GetRandomTrackIdUseCase(
-    val repository: TrackRepository
+    private val repository: TrackRepository
 ) {
-    suspend operator fun invoke(): String? {
-        return null
+    suspend operator fun invoke(): Result<String> {
+        return repository.getRandomTrackId()
     }
 }
