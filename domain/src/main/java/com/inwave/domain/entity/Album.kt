@@ -4,7 +4,7 @@ data class Album (
     val id: String,
     val name: String,
     val imageUrl: String,
-    val artists: List<String>,
+    val artists: List<Artist>,
     val likes: String,
     val listening: String,
     val releaseDate: Long,
