@@ -15,5 +15,5 @@ data class Track(
     val lyrics : Lyrics,
     val listening : String,
     val audioUrl : String,
-    val album : String
+    val album : Album
 )
