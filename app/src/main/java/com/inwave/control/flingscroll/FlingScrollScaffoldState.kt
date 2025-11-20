@@ -1,4 +1,4 @@
-package com.inwave.controls.flingscroll
+package com.inwave.control.flingscroll
 
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.lazy.LazyListState
