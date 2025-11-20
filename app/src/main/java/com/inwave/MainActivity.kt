@@ -36,17 +36,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column {
-        Text(
-            text = "${Domain().hello()}!",
-            modifier = modifier
-        )
 
-        Text(
-            text = "${Data().hello()}!",
-            modifier = modifier
-        )
-    }
 }
 
 @Preview(showBackground = true)
