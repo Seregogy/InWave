@@ -18,7 +18,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-class TrackUseCaseModule {
+object TrackUseCaseModule {
     @Provides
     fun provideGetAllTracksUseCase(
         repository: TrackRepository

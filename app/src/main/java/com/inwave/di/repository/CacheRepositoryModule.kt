@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class CacheRepositoryModule {
+object CacheRepositoryModule {
     @Provides
     @Singleton
     fun provideTrackCacheRepository(): CacheRepository<String, Track> {
