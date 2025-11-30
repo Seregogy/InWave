@@ -1,8 +1,8 @@
 package com.inwave.domain.entity
 
 data class Lyrics(
-    val plainText : String,
-    val syncedText : Map<Long, String>,
+    val plainText : String?,
+    val syncedText : Map<Long, String>?,
     val provider : String
 )
 

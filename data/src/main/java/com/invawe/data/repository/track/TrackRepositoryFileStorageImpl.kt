@@ -13,10 +13,6 @@ import com.inwave.domain.repository.TrackRepository
 class TrackRepositoryFileStorageImpl(
     private val context: Context
 ) : TrackRepository {
-    init {
-
-    }
-
     override suspend fun getTrack(id: String): Result<Track> {
         TODO("Not yet implemented")
     }
@@ -90,6 +86,10 @@ class TrackRepositoryFileStorageImpl(
     }
 
     override suspend fun getTrackLyrics(id: String): Result<Lyrics> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getTrackWithLyrics(id: String): Result<Track> {
         TODO("Not yet implemented")
     }
 
