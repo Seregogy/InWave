@@ -1,7 +1,6 @@
 package com.inwave.page
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,9 +42,9 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.inwave.R
-import com.inwave.control.flingscroll.FlingScrollScaffold
-import com.inwave.control.flingscroll.FlingScrollScaffoldState
-import com.inwave.control.flingscroll.rememberFlingScaffoldState
+import com.inwave.control.scaffold.fling.FlingScrollScaffold
+import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
+import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
 import com.inwave.viewmodel.TracksPlaylistViewModel
 import com.inwave.viewmodel.UiState
 import kotlin.collections.forEach

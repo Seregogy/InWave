@@ -1,4 +1,4 @@
-package com.inwave.control.flingscroll
+package com.inwave.control.scaffold.fling
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
