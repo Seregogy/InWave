@@ -1,7 +1,9 @@
 package com.invawe.data.repository.track
 
+import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
+import android.util.Log
 import com.inwave.domain.entity.Album
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Lyrics
@@ -30,17 +32,28 @@ class TrackRepositoryFileStorageImpl(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 null, null, null
             )?.use {
+                val audioIdColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
                 val trackNameColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)
                 val durationColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)
-                val albumNameColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AlbumColumns.ALBUM)
-                val artistNameColumn = it.getColumnIndexOrThrow(MediaStore.Audio.ArtistColumns.ARTIST)
 
                 while (it.moveToNext()) {
-
                     val trackName = it.getString(trackNameColumn)
                     val duration = it.getLong(durationColumn)
-                    val albumName = it.getString(albumNameColumn)
-                    val artistName = it.getString(artistNameColumn)
+                    val audioId = it.getLong(audioIdColumn)
+
+                    try {
+                        val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.GENRE))
+
+                        Log.d("Repository", "$trackName, $path")
+                    } catch (ex: Exception) { }
+
+
+                    val audioUri = ContentUris.withAppendedId(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        audioId
+                    )
+
+                    Log.d("Repository", "$trackName, $audioUri")
 
                     audioFiles.add(
                         Track(
@@ -51,29 +64,14 @@ class TrackRepositoryFileStorageImpl(
                             duration,
                             null,
                             0,
-                            "",
-                            Album(
-                                "0",
-                                albumName,
-                                "",
-                                listOf(
-                                    Artist(
-                                        "",
-                                        artistName
-                                    )
-                                ),
-                                0,
-                                0,
-                                0,
-                                "",
-                                ""
-                            )
+                            audioUri.toString(),
+                            null
                         )
                     )
                 }
             }
 
-            Result.success(audioFiles.take(size))
+            Result.success(audioFiles.chunked(size)[page])
         } catch (exc: Exception) {
             Result.failure(exc)
         }
@@ -91,6 +89,10 @@ class TrackRepositoryFileStorageImpl(
         TODO("Not yet implemented")
     }
 
+    override suspend fun getTrackWithLyrics(id: String): Result<Track> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun toggleLike(id: String): Result<Boolean> {
         TODO("Not yet implemented")
     }
@@ -101,5 +103,4 @@ class TrackRepositoryFileStorageImpl(
     ): Result<List<Track>> {
         TODO("Not yet implemented")
     }
-
 }
