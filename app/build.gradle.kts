@@ -53,6 +53,9 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
 
+    implementation(libs.material3)
+    implementation(libs.androidx.material.icons.extended)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -74,10 +77,19 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.session)
 
     implementation(libs.appyx.core)
 
+    implementation(libs.bottomsheet)
+
     implementation(libs.androidx.palette.ktx)
+
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
 
     implementation(libs.coil.compose)
     implementation(libs.accompanist.permissions)
