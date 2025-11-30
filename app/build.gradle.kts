@@ -77,6 +77,8 @@ dependencies {
 
     implementation(libs.appyx.core)
 
+    implementation(libs.androidx.palette.ktx)
+
     implementation(libs.coil.compose)
     implementation(libs.accompanist.permissions)
 }
