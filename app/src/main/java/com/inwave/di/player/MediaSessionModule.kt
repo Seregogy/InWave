@@ -29,6 +29,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -46,10 +47,11 @@ object DefaultPlayerConfig {
 }
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ServiceComponent::class)
 @OptIn(UnstableApi::class)
 object MediaSessionModule {
     @Provides
+    @ServiceScoped
     fun provideLoadControl(): DefaultLoadControl {
         return DefaultLoadControl.Builder()
             .setBackBuffer(DefaultPlayerConfig.backBufferMs, true)
@@ -64,7 +66,7 @@ object MediaSessionModule {
     }
 
     @Provides
-    @Singleton
+    @ServiceScoped
     fun provideExoPlayer(
         @ApplicationContext context: Context,
         loadControl: DefaultLoadControl
@@ -75,7 +77,7 @@ object MediaSessionModule {
     }
 
     @Provides
-    @Singleton
+    @ServiceScoped
     fun provideMediaSession(
         @ApplicationContext context: Context,
         player: ExoPlayer
