@@ -15,7 +15,7 @@ import javax.inject.Singleton
 object TrackRepositoryModule {
     @Provides
     @Singleton
-    fun getTrackRepository(
+    fun provideTrackRepository(
         @ApplicationContext context: Context
     ): TrackRepository = TrackRepositoryFileStorageImpl(context)
 }
