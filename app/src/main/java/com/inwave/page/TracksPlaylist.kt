@@ -48,11 +48,8 @@ import com.inwave.R
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
 import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
-import com.inwave.player.AudioPlayer
 import com.inwave.viewmodel.TracksPlaylistViewModel
 import com.inwave.viewmodel.UiState
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.collections.forEach
 
 @Composable

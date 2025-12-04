@@ -90,6 +90,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -100,7 +101,8 @@ import com.inwave.control.CircleButton
 import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
 import com.inwave.layout.AvatarRow
-import com.inwave.player.AudioPlayer
+import com.inwave.player.state.PlayerCommand
+import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
@@ -159,7 +161,6 @@ fun ColoredScaffoldState.TopBar(
 fun ColoredScaffoldState.MainContent(
     viewModel: AudioPlayerViewModel = hiltViewModel(),
     isLyricsOpen: MutableState<Boolean>,
-    currentPosition: MutableState<Long>,
     screenWidth: Dp,
 ) {
     val currentImage by viewModel.imagePaletteExtractor.bitmap.collectAsStateWithLifecycle()
@@ -380,7 +381,7 @@ fun ColoredScaffoldState.TrackInfo(
 @Composable
 fun ColoredScaffoldState.PlayerSlider(
     modifier: Modifier = Modifier,
-    currentPosition: MutableState<Long>,
+    currentPosition: State<Long>,
     currentTrackDuration: Long,
     viewModel: AudioPlayerViewModel,
     isSliding: MutableState<Boolean>,
@@ -398,7 +399,7 @@ fun ColoredScaffoldState.PlayerSlider(
     }
 
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = (currentPosition.value / currentTrackDuration.toFloat()).coerceIn(0f..currentTrackDuration.toFloat()),
+        targetValue = 1f,//(currentPosition.value / currentTrackDuration.toFloat()).coerceIn(0f..currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
         label = "slider animation"
     )
@@ -413,12 +414,12 @@ fun ColoredScaffoldState.PlayerSlider(
             onValueChange = {
                 if (!isSliding.value) isSliding.value = true
 
-                currentPosition.value = (it * currentTrackDuration.toFloat()).toLong()
+                viewModel.playerStateSource.seek((it * currentTrackDuration.toFloat()).toLong())
             },
             onValueChangeFinished = {
                 isSliding.value = false
 
-                viewModel.audioPlayer.seek(currentPosition.value)
+                viewModel.playerStateSource.seek(currentPosition.value)
             },
             colors = SliderDefaults.colors(
                 activeTrackColor = semiTransparentForeground * 1.5f,
@@ -459,7 +460,6 @@ fun ColoredScaffoldState.PlayerSlider(
             )
         }
     }
-
 }
 
 enum class TimingTextState {
@@ -470,12 +470,12 @@ enum class TimingTextState {
 @Composable
 fun ColoredScaffoldState.TimingText(
     secondaryColorWithLoadingState: Color,
-    currentPosition: MutableState<Long>,
+    currentPosition: State<Long>,
     currentTrackDuration: Long,
     isSliding: MutableState<Boolean>
 ) {
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = (currentPosition.value / currentTrackDuration.toFloat()).coerceIn(0f..currentTrackDuration.toFloat()),
+        targetValue = 1f,//(currentPosition.value / currentTrackDuration.toFloat()).coerceIn(0f..currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
         label = "slider animation"
     )
@@ -621,7 +621,7 @@ fun ColoredScaffoldState.BottomControls(
     isLyricsOpen: MutableState<Boolean>
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val repeatMode by viewModel.audioPlayer.repeatModeState.collectAsStateWithLifecycle()
+    val repeatMode by viewModel.playerStateSource.currentRepeatModeState.collectAsStateWithLifecycle()
 
     Row(
         modifier = modifier,
@@ -643,7 +643,7 @@ fun ColoredScaffoldState.BottomControls(
                 isLyricsOpen.value = !isLyricsOpen.value
 
                 coroutineScope.launch {
-                    viewModel.audioPlayer.fetchCurrentTrackWithLyrics()
+                    viewModel.playerStateSource.fetchCurrentTrackWithLyrics()
                 }
             },
         ) {
@@ -656,14 +656,14 @@ fun ColoredScaffoldState.BottomControls(
 
         IconButton(
             onClick = {
-                viewModel.audioPlayer.nextRepeatMode()
+                viewModel.playerStateSource.nextRepeatMode()
             }
         ) {
             Icon(
                 painter = when(repeatMode) {
-                    AudioPlayer.RepeatMode.Single -> painterResource(R.drawable.repeat_icon_1)
-                    AudioPlayer.RepeatMode.Playlist -> painterResource(R.drawable.repeat_icon)
-                    AudioPlayer.RepeatMode.None -> painterResource(R.drawable.repeat_off)
+                    PlayerState.RepeatMode.Single -> painterResource(R.drawable.repeat_icon_1)
+                    PlayerState.RepeatMode.Playlist -> painterResource(R.drawable.repeat_icon)
+                    PlayerState.RepeatMode.Forward -> painterResource(R.drawable.repeat_off)
                 },
                 contentDescription = "time icon",
                 tint = onBackgroundColorAnimated.value
@@ -679,10 +679,15 @@ fun ColoredScaffoldState.LyricsDrawer(
     val density = LocalDensity.current
     val trackName by remember {
         derivedStateOf {
-            viewModel.audioPlayer.currentPlayerTrack.value?.data?.name ?: "unknown"
+            viewModel.playerStateSource.currentTrack.value?.name ?: "unknown"
         }
     }
-    val lyrics by viewModel.audioPlayer.currentLyrics.collectAsStateWithLifecycle()
+    val track by viewModel.playerStateSource.currentTrack.collectAsStateWithLifecycle()
+    val lyrics by remember {
+        derivedStateOf {
+            track?.lyrics
+        }
+    }
 
     when {
         lyrics == null -> {
@@ -693,7 +698,7 @@ fun ColoredScaffoldState.LyricsDrawer(
             }
         }
         lyrics?.syncedText?.isNotEmpty() ?: false -> {
-            var currentPosition by remember { viewModel.audioPlayer.currentPosition }
+            val currentPosition by viewModel.playerStateSource.currentPosition.collectAsStateWithLifecycle()
             val lazyListState = rememberLazyListState()
             val syncedTextPairs = remember {
                 return@remember lyrics!!.syncedText!!.map { it.key to it.value.trim() }.toMutableList().apply {
@@ -746,7 +751,7 @@ fun ColoredScaffoldState.LyricsDrawer(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
                             .clickable {
-                                viewModel.audioPlayer.seek(item.first)
+                                viewModel.playerStateSource.seek(item.first)
                             },
                         onTextLayout = {
                             syncedTextSizes.put(item.first, it.size)
