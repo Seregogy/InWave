@@ -12,8 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.inwave.domain.entity.Track
-import com.inwave.player.AudioPlayer
+import com.inwave.player.state.PlayerCommand
 import com.inwave.viewmodel.AudioPlayerViewModel
 
 @Composable
@@ -22,12 +21,12 @@ fun MiniAudioPlayer(
     modifier: Modifier = Modifier,
     onExpandRequest: () -> Unit
 ) {
-    val currentTrack by viewModel.audioPlayer.currentPlayerTrack.collectAsStateWithLifecycle()
-    val currentState by viewModel.audioPlayer.currentState.collectAsStateWithLifecycle()
+    val currentTrack by viewModel.playerStateSource.currentTrack.collectAsStateWithLifecycle()
+    val currentState by viewModel.playerStateSource.currentCommand.collectAsStateWithLifecycle()
 
     val isPlay by remember {
         derivedStateOf {
-            currentState == AudioPlayer.AudioPlayerState.Play
+            currentState == PlayerCommand.Play()
         }
     }
 
@@ -35,6 +34,6 @@ fun MiniAudioPlayer(
         modifier = Modifier.fillMaxWidth().height(50.dp),
         contentAlignment = Alignment.CenterStart
     ) {
-        Text(currentTrack?.data?.name ?: "unknown")
+        Text(currentTrack?.name ?: "unknown")
     }
 }

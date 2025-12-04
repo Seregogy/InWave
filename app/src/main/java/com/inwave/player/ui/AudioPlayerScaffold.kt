@@ -97,7 +97,7 @@ fun AudioPlayerScaffold(
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.audioPlayer.release()
+            viewModel.playerStateSource.release()
         }
     }
 
