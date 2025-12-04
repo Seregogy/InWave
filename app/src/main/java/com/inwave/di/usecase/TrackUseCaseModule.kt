@@ -9,7 +9,7 @@ import com.inwave.domain.usecase.track.GetRandomTrackIdUseCase
 import com.inwave.domain.usecase.track.GetRandomTrackUseCase
 import com.inwave.domain.usecase.track.GetTrackLyricsUseCase
 import com.inwave.domain.usecase.track.GetTrackUseCase
-import com.inwave.domain.usecase.track.GetTrackWithLyrics
+import com.inwave.domain.usecase.track.GetTrackWithLyricsUseCase
 import com.inwave.domain.usecase.track.GetTracksUseCase
 import dagger.Module
 import dagger.Provides
@@ -56,5 +56,5 @@ object TrackUseCaseModule {
     fun provideGetTrackWithLyricsUseCase(
         trackUseCase: GetTrackUseCase,
         trackLyricsUseCase: GetTrackLyricsUseCase
-    ): GetTrackWithLyrics = GetTrackWithLyrics(trackUseCase, trackLyricsUseCase)
+    ): GetTrackWithLyricsUseCase = GetTrackWithLyricsUseCase(trackUseCase, trackLyricsUseCase)
 }

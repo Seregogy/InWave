@@ -2,7 +2,7 @@ package com.inwave.di.repository
 
 import android.graphics.Bitmap
 import androidx.palette.graphics.Palette
-import com.invawe.data.repository.cache.MemoryImagePaletteCacheRepository
+import com.invawe.data.repository.cache.GenericMemoryCacheRepository
 import com.inwave.domain.cache.CacheRepository
 import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
@@ -18,18 +18,18 @@ object CacheRepositoryModule {
     @Provides
     @Singleton
     fun provideTrackCacheRepository(): CacheRepository<String, Track> {
-        TODO("Not implemented")
+        return GenericMemoryCacheRepository()
     }
 
     @Provides
     @Singleton
     fun provideLyricsCacheRepository(): CacheRepository<String, Lyrics> {
-        TODO("Not implemented")
+        return GenericMemoryCacheRepository()
     }
 
     @Provides
     @Singleton
     fun provideImagePaletteCacheRepository(): CacheRepository<String, Pair<Bitmap, Palette>> {
-        return MemoryImagePaletteCacheRepository()
+        return GenericMemoryCacheRepository()
     }
 }

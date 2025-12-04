@@ -4,9 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.palette.graphics.Palette
 import com.inwave.domain.cache.CacheRepository
-import com.inwave.player.AudioPlayer
 import com.inwave.tool.ImagePaletteExtractor
-import com.inwave.viewmodel.AudioPlayerViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
