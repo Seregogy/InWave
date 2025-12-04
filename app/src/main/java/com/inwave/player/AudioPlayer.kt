@@ -230,12 +230,19 @@ class AudioPlayer(
         _playlist.value.clear()
         _playlist.value.addAll(cachedTracks)
 
+        Log.d("Playlist", tracks.toString())
+
+        _playlist.value.forEach {
+            Log.d("Playlist", it.toString())
+        }
         mediaController.apply {
             stop()
             setMediaItems(cachedTracks.map { it.mediaItem })
             prepare()
             seekToDefaultPosition(startTrackIndex)
             play()
+
+
         }
     }
 
@@ -244,7 +251,11 @@ class AudioPlayer(
 
         val fetchedTracks = repository.getTracks(tracks).fold(
             onSuccess = { it },
-            onFailure = { listOf() }
+            onFailure = {
+                throw it
+                Log.e("Playlist", it.stackTrace.toString())
+                listOf()
+            }
         )
 
         val playerTracks = fetchedTracks.map { track ->

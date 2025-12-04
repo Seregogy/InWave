@@ -1,8 +1,10 @@
 package com.inwave.page
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,8 +48,11 @@ import com.inwave.R
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
 import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
+import com.inwave.player.AudioPlayer
 import com.inwave.viewmodel.TracksPlaylistViewModel
 import com.inwave.viewmodel.UiState
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.collections.forEach
 
 @Composable
@@ -56,6 +62,7 @@ fun TracksPlaylist(
     viewModel: TracksPlaylistViewModel = hiltViewModel()
 ) {
     val tracksState by viewModel.tracksState
+    val coroutineScope = rememberCoroutineScope()
 
     val permissionState = rememberPermissionState(Manifest.permission.READ_MEDIA_AUDIO)
     LaunchedEffect(Unit) {
@@ -145,9 +152,13 @@ fun TracksPlaylist(
                                 .padding(horizontal = 10.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            tracksState.data!!.forEach { track ->
+                            tracksState.data!!.forEach { it ->
+                                Log.d("PLAYER", it.audioUrl)
                                 Row(
                                     modifier = Modifier
+                                        .clickable {
+                                            viewModel.launchTrack(it.audioUrl)
+                                        }
                                         .clip(MaterialTheme.shapes.small)
                                         .background(MaterialTheme.colorScheme.surfaceContainer)
                                         .fillMaxSize()
@@ -157,20 +168,20 @@ fun TracksPlaylist(
                                 ) {
                                     Column {
                                         Text(
-                                            text = track.name,
+                                            text = it.name,
                                             fontWeight = FontWeight.W600,
                                             overflow = TextOverflow.Clip,
                                             maxLines = 1
                                         )
 
                                         Text(
-                                            text = track.album?.artists?.joinToString(", ") { it.name }
+                                            text = it.album?.artists?.joinToString(", ") { it.name }
                                                 ?: "unknown"
                                         )
                                     }
 
                                     Text(
-                                        text = "${track.duration} ms"
+                                        text = "${it.duration} ms"
                                     )
                                 }
                             }
