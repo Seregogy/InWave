@@ -2,7 +2,7 @@ package com.inwave.domain.usecase.track
 
 import com.inwave.domain.entity.Track
 
-class GetTrackWithLyrics(
+class GetTrackWithLyricsUseCase(
     private val trackUseCase: GetTrackUseCase,
     private val lyricsUseCase: GetTrackLyricsUseCase
 ) {
