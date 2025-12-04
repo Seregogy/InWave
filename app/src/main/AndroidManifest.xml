@@ -15,6 +15,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InWave">
 
+        <service
+            android:name="com.inwave.player.InWaveMediaSessionService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true"
+            android:permission="FOREGROUND_SERVICE_MEDIA_PLAYBACK">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService"/>
+            </intent-filter>
+
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
