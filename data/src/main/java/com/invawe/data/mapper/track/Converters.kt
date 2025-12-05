@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.inwave.domain.entity.Track
 import androidx.core.net.toUri
+import com.inwave.domain.entity.Artist
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -39,11 +40,13 @@ fun Cursor.toDomainTrack(): Track {
     val albumIdColumn = this.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
     val trackNameColumn = this.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)
     val durationColumn = this.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)
+    val artistsColumn = this.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
 
     val audioId = this.getLong(audioIdColumn)
     val albumId = this.getLong(albumIdColumn)
     val trackName = this.getString(trackNameColumn)
     val duration = this.getLong(durationColumn)
+    val artists = this.getString(artistsColumn)
 
     Log.d("Mapper", "title: $trackName, id: $audioId albumId: $albumId")
 
@@ -55,74 +58,18 @@ fun Cursor.toDomainTrack(): Track {
     return Track(
         "",
         trackName,
-        getAlbumArtUri(audioUri.toString()),
+        "",
         0,
         duration,
         null,
         0,
         audioUri.toString(),
         null,
-        listOf()
+        listOf(
+            Artist(
+                id = "",
+                name = artists
+            )
+        )
     )
-}
-
-private fun getAlbumArtUri(audioPath: String): String {
-    val item = MediaItem.Builder()
-        .setUri(audioPath.toUri())
-        .build()
-    item.mediaMetadata.artworkData?.let {
-        val bitmap = byteArrayToBitmap(it)
-
-        return if (bitmap == null)
-            ""
-        else
-            saveBitmapToFile(
-                fileName = audioPath.split('/').last(),
-                bitmap = bitmap
-            )?.toUri().toString()
-    }
-
-    return ""
-}
-
-fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? {
-    return try {
-        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-fun saveBitmapToFile(
-    fileName: String,
-    bitmap: Bitmap,
-    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
-    quality: Int = 90
-): File? {
-    return try {
-        val fileName = when (format) {
-            Bitmap.CompressFormat.JPEG -> "$fileName.jpg"
-            Bitmap.CompressFormat.PNG -> "$fileName.png"
-            Bitmap.CompressFormat.WEBP -> "$fileName.webp"
-            else -> "$fileName.jpg"
-        }
-
-        val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        if (!storageDir.exists()) {
-            storageDir.mkdirs()
-        }
-
-        val imageFile = File(storageDir, fileName)
-
-        FileOutputStream(imageFile).use { out ->
-            bitmap.compress(format, quality, out)
-            out.flush()
-        }
-
-        imageFile
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
-    }
 }

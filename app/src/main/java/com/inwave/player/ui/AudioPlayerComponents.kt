@@ -308,7 +308,7 @@ fun ColoredScaffoldState.TrackInfo(
             )
 
             MarqueeText(
-                text = track?.album?.artists?.joinToString(", ") { it.name } ?: "unknown",
+                text = track?.artists?.joinToString(",") { it.name } ?: "unknown",
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
