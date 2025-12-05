@@ -45,6 +45,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.inwave.R
+import com.inwave.control.TrackMiniWithImage
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
 import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
@@ -102,16 +103,7 @@ fun TracksPlaylist(
                             blendMode = BlendMode.DstIn
                         )
                     }
-            ) {
-                Image(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    painter = painterResource(R.drawable.inwave_logo),
-                    contentDescription = "Background image",
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center
-                )
-            }
+            ) { }
         },
         headingContent = {
             Box(
@@ -149,37 +141,14 @@ fun TracksPlaylist(
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             tracksState.data!!.forEach { it ->
-                                Log.d("PLAYER", it.audioUrl)
-                                Row(
+                                TrackMiniWithImage(
                                     modifier = Modifier
-                                        .clickable {
-                                            viewModel.launchTrack(it.audioUrl)
-                                        }
-                                        .clip(MaterialTheme.shapes.small)
-                                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                                        .fillMaxSize()
-                                        .padding(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = it.name,
-                                            fontWeight = FontWeight.W600,
-                                            overflow = TextOverflow.Clip,
-                                            maxLines = 1
-                                        )
-
-                                        Text(
-                                            text = it.album?.artists?.joinToString(", ") { it.name }
-                                                ?: "unknown"
-                                        )
+                                        .padding(vertical = 5.dp),
+                                    track = it,
+                                    onClick = {
+                                        viewModel.launchTrack(it.audioUrl)
                                     }
-
-                                    Text(
-                                        text = "${it.duration} ms"
-                                    )
-                                }
+                                )
                             }
                         }
                     }

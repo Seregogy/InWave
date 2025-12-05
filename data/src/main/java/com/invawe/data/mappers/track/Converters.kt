@@ -113,6 +113,7 @@ fun Cursor.toDomainTrack(): Track {
         null,
         0,
         audioUri.toString(),
-        null
+        null,
+        listOf()
     )
 }
