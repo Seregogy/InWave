@@ -2,10 +2,13 @@ package com.inwave.tool
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.compose.ui.res.painterResource
 import androidx.palette.graphics.Palette
 import coil3.ImageLoader
 import coil3.request.ImageRequest
 import coil3.toBitmap
+import com.inwave.R
 import com.inwave.domain.cache.CacheRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,11 +32,17 @@ class ImagePaletteExtractor @Inject constructor(
                 _palette.value = it.second
             }
         } else {
-            _bitmap.value = ImageLoader(context).execute(
+            val image = ImageLoader(context).execute(
                 ImageRequest.Builder(context)
                     .data(imageUrl)
                     .build()
-            ).image?.toBitmap()
+            ).image
+
+            if (image == null) {
+                _bitmap.value = BitmapFactory.decodeResource(context.resources, R.drawable.image_item_placeholder)
+            } else {
+                _bitmap.value = image.toBitmap()
+            }
 
             tryExtractPaletteFromCurrentBitmap()
 

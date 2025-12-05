@@ -59,7 +59,6 @@ fun TracksPlaylist(
     viewModel: TracksPlaylistViewModel = hiltViewModel()
 ) {
     val tracksState by viewModel.tracksState
-    val coroutineScope = rememberCoroutineScope()
 
     val permissionState = rememberPermissionState(Manifest.permission.READ_MEDIA_AUDIO)
     LaunchedEffect(Unit) {
@@ -123,7 +122,7 @@ fun TracksPlaylist(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Local stored music",
+                    text = "Треки на устройстве",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.W600
                 )

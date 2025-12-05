@@ -277,7 +277,7 @@ fun ColoredScaffoldState.TrackInfo(
                                 .aspectRatio(1f)
                                 .clip(CircleShape)
                                 .clickable {
-                                    onArtistClicked(artist.id)
+                                    //TODO onArtistClicked
                                 },
                             contentDescription = "mini avatar"
                         )
@@ -301,7 +301,7 @@ fun ColoredScaffoldState.TrackInfo(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
-                        onAlbumClicked(track?.album?.id ?: "")
+                        //TODO onAlbumClicked
                     }
                     .alpha(textAlpha),
                 color = textOnPrimaryOrBackgroundColorAnimated.value
@@ -314,7 +314,7 @@ fun ColoredScaffoldState.TrackInfo(
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
                         if ((track?.album?.artists?.size ?: 0) == 1) {
-                            onArtistClicked(track?.album?.artists?.first()?.id ?: "")
+                            //TODO onArtistClicked
                         } else {
                             artistsSheet.value = true
                         }
@@ -386,6 +386,7 @@ fun ColoredScaffoldState.PlayerSlider(
     viewModel: AudioPlayerViewModel,
     isSliding: MutableState<Boolean>,
 ) {
+    val localCurrentPos = remember { mutableStateOf(0f) }
     val semiTransparentForeground by remember {
         derivedStateOf {
             onBackgroundColorAnimated.value.copy(.65f)
@@ -399,7 +400,7 @@ fun ColoredScaffoldState.PlayerSlider(
     }
 
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = 1f,//(currentPosition.value / currentTrackDuration.toFloat()).coerceIn(0f..currentTrackDuration.toFloat()),
+        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
         label = "slider animation"
     )
@@ -413,13 +414,13 @@ fun ColoredScaffoldState.PlayerSlider(
             value = currentPositionAnimated.value,
             onValueChange = {
                 if (!isSliding.value) isSliding.value = true
-
+                localCurrentPos.value = it
                 viewModel.playerStateSource.seek((it * currentTrackDuration.toFloat()).toLong())
             },
             onValueChangeFinished = {
                 isSliding.value = false
 
-                viewModel.playerStateSource.seek(currentPosition.value)
+                viewModel.playerStateSource.seek((localCurrentPos.value * currentTrackDuration.toFloat()).toLong())
             },
             colors = SliderDefaults.colors(
                 activeTrackColor = semiTransparentForeground * 1.5f,
@@ -475,7 +476,7 @@ fun ColoredScaffoldState.TimingText(
     isSliding: MutableState<Boolean>
 ) {
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = 1f,//(currentPosition.value / currentTrackDuration.toFloat()).coerceIn(0f..currentTrackDuration.toFloat()),
+        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
         label = "slider animation"
     )
@@ -643,7 +644,7 @@ fun ColoredScaffoldState.BottomControls(
                 isLyricsOpen.value = !isLyricsOpen.value
 
                 coroutineScope.launch {
-                    viewModel.playerStateSource.fetchCurrentTrackWithLyrics()
+                    //TODO viewModel.playerStateSource.fetchCurrentTrackWithLyrics()
                 }
             },
         ) {
