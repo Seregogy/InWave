@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.res.Resources
 import android.provider.MediaStore
+import com.invawe.data.mapper.track.toDomainTrack
 import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.TrackRepository
@@ -37,33 +38,8 @@ class TrackRepositoryFileStorageImpl(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 null, null, null
             )?.use {
-                val audioIdColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                val trackNameColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)
-                val durationColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)
-
                 while (it.moveToNext()) {
-                    val trackName = it.getString(trackNameColumn)
-                    val duration = it.getLong(durationColumn)
-                    val audioId = it.getLong(audioIdColumn)
-
-                    val audioUri = ContentUris.withAppendedId(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        audioId
-                    )
-
-                    audioFiles.add(
-                        Track(
-                            "",
-                            trackName,
-                            "",
-                            0,
-                            duration,
-                            null,
-                            0,
-                            audioUri.toString(),
-                            null
-                        )
-                    )
+                    audioFiles.add(it.toDomainTrack())
                 }
             }
 

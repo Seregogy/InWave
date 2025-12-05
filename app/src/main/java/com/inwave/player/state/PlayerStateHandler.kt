@@ -5,16 +5,14 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import androidx.media3.session.MediaSession
-import com.invawe.data.mappers.track.toMediaItem
+import com.invawe.data.mapper.track.toMediaItem
 import com.inwave.domain.entity.Track
-import dagger.hilt.android.scopes.ServiceScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class PlayerStateHandler(
     val playerStateSource: PlayerStateSource,
@@ -27,8 +25,23 @@ class PlayerStateHandler(
         mediaController.addListener(this)
         observeCommands()
         observeRepeatMode()
+        handlePosition()
 
         restoreState()
+    }
+
+    private fun handlePosition() {
+        handlerScope.launch {
+            do {
+                playerStateSource.currentPosition.value = mediaController.currentPosition
+
+                if (mediaController.duration != 0L && mediaController.duration == mediaController.contentDuration) {
+                    playerStateSource.currentTrackDuration.value = mediaController.contentDuration
+                }
+
+                delay(500)
+            } while (playerStateSource.currentState.value != PlayerState.Released())
+        }
     }
 
     private fun observeCommands() {
@@ -51,7 +64,10 @@ class PlayerStateHandler(
                 }
                 is PlayerCommand.Pause -> mediaController.pause()
                 is PlayerCommand.Stop -> mediaController.stop()
-                is PlayerCommand.Seek -> mediaController.seekTo(command.currentPosition)
+                is PlayerCommand.Seek -> {
+                    mediaController.seekTo(command.currentPosition)
+                    playerStateSource.currentPosition.value = mediaController.currentPosition
+                }
                 is PlayerCommand.Next -> mediaController.seekToNext()
                 is PlayerCommand.Prev -> mediaController.seekToPrevious()
                 is PlayerCommand.SeekToIndex -> {
@@ -119,6 +135,8 @@ class PlayerStateHandler(
             Player.STATE_ENDED -> PlayerState.Ended()
             else -> PlayerState.Idle()
         }
+
+        playerStateSource.isPlaying.value = mediaController.isPlaying
 
         playerStateSource.currentTrackDuration.value = mediaController.duration
 

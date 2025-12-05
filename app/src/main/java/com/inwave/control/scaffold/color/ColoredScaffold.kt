@@ -7,6 +7,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import com.inwave.tool.contrast
 
@@ -144,22 +145,27 @@ private fun ColoredScaffoldState.CalculateColorAnimations() {
 
 @Composable
 private fun ColoredScaffoldState.CalculateAdditionalGradient() {
-    currentPalette.value?.swatches?.takeLast(3)?.map {
-        animateColorAsState(
-            targetValue = Color(it.rgb).copy(.2f),
-            label = "gradient_color_anim",
-            animationSpec = animationSpec
-        ).value
-    }?.let {
-        additionalVerticalGradientBrush.value = remember(it) {
-            Brush.verticalGradient(
-                colors = it
-            )
-        }
-        additionalHorizontalGradientBrush.value = remember(it) {
-            Brush.horizontalGradient(
-                colors = it.take(2)
-            )
+    if ((currentPalette.value?.swatches?.size ?: 0) < 3) {
+        additionalVerticalGradientBrush.value = SolidColor(Color.Transparent)
+        additionalHorizontalGradientBrush.value = SolidColor(Color.Transparent)
+    } else {
+        currentPalette.value?.swatches?.takeLast(3)?.map {
+            animateColorAsState(
+                targetValue = Color(it.rgb).copy(.2f),
+                label = "gradient_color_anim",
+                animationSpec = animationSpec
+            ).value
+        }?.let {
+            additionalVerticalGradientBrush.value = remember(it) {
+                Brush.verticalGradient(
+                    colors = it
+                )
+            }
+            additionalHorizontalGradientBrush.value = remember(it) {
+                Brush.horizontalGradient(
+                    colors = it.take(2)
+                )
+            }
         }
     }
 }
