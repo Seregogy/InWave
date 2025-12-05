@@ -97,7 +97,7 @@ fun AudioPlayerScaffold(
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.audioPlayer.release()
+            viewModel.playerStateSource.release()
         }
     }
 
@@ -265,45 +265,6 @@ fun BottomSheetAudioPlayer(
                     viewModel = viewModel,
                     onExpandRequest = onExpandRequest
                 )
-
-                Box(
-                    modifier = Modifier
-                        .height(55.dp)
-                        .fillMaxWidth()
-                        .padding(horizontal = 25.dp)
-                        .padding(bottom = 10.dp)
-                ) {
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = bottomBarShown,
-                        enter = slideInVertically() + expandVertically() + fadeIn(),
-                        exit = slideOutVertically() + shrinkVertically() + fadeOut()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(MaterialTheme.shapes.small)
-                                .background(Color.Black.copy(.7f)),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            listOf(
-                                Icons.Rounded.Home,
-                                Icons.Rounded.Search,
-                                Icons.Rounded.AutoAwesome,
-                                Icons.Rounded.Person
-                            ).forEach {
-                                IconButton(
-                                    onClick = { }
-                                ) {
-                                    Icon(
-                                        imageVector = it,
-                                        contentDescription = ""
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }

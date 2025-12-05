@@ -22,7 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.ColoredScaffoldState
-import com.inwave.player.AudioPlayer
+import com.inwave.player.state.PlayerCommand
+import com.inwave.player.state.PlayerState
 import com.inwave.viewmodel.AudioPlayerViewModel
 
 const val animationsSpeed = 1200
@@ -38,31 +39,30 @@ fun FullAudioPlayer(
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
-    val currentTrack by viewModel.audioPlayer.currentPlayerTrack.collectAsStateWithLifecycle()
-    val currentLyrics by viewModel.audioPlayer.currentLyrics.collectAsStateWithLifecycle()
-    val currentTrackDuration by viewModel.audioPlayer.currentTrackDuration.collectAsStateWithLifecycle()
-    val state by viewModel.audioPlayer.currentState.collectAsStateWithLifecycle()
-    val currentPosition = viewModel.audioPlayer.currentPosition
-
-    val isLastTrack = viewModel.audioPlayer.isLastTrack
-
-    val isPlay = remember {
+    val track by viewModel.playerStateSource.currentTrack.collectAsStateWithLifecycle()
+    val lyrics by remember {
         derivedStateOf {
-            state == AudioPlayer.AudioPlayerState.Play
+            track?.lyrics
         }
     }
 
+    val trackDuration by viewModel.playerStateSource.currentTrackDuration.collectAsStateWithLifecycle()
+    val state by viewModel.playerStateSource.currentState.collectAsStateWithLifecycle()
+    val currentPosition = viewModel.playerStateSource.currentPosition.collectAsStateWithLifecycle()
+    val isLastTrack = viewModel.playerStateSource.isLastTrack.collectAsStateWithLifecycle()
+    val isPlay = viewModel.playerStateSource.isPlaying.collectAsStateWithLifecycle()
+
     val isLoading = remember {
         derivedStateOf {
-            state == AudioPlayer.AudioPlayerState.Loading
+            state == PlayerState.Loading()
         }
     }
 
     val isSliding = remember { mutableStateOf(false) }
     val isLyricsOpen = remember { mutableStateOf(false) }
 
-    LaunchedEffect(currentTrack) {
-        isLyricsOpen.value = isLyricsOpen.value && currentLyrics != null
+    LaunchedEffect(track) {
+        isLyricsOpen.value = isLyricsOpen.value && lyrics != null
     }
 
     ColoredScaffold(coloredScaffoldState) {
@@ -83,14 +83,13 @@ fun FullAudioPlayer(
                 .then(modifier)
         ) {
             TopBar(
-                track = currentTrack?.data,
+                track = track,
                 onCollapseRequest = onCollapseRequest
             )
 
             MainContent(
                 viewModel = viewModel,
                 isLyricsOpen = isLyricsOpen,
-                currentPosition = currentPosition,
                 screenWidth = screenWidth
             )
 
@@ -103,7 +102,7 @@ fun FullAudioPlayer(
             ) {
                 Column {
                     TrackInfo(
-                        track = currentTrack?.data,
+                        track = track,
                         isTrackLoading = isLoading,
                         onAlbumClicked = onAlbumClicked,
                         onArtistClicked = onArtistClicked
@@ -113,7 +112,7 @@ fun FullAudioPlayer(
 
                     PlayerSlider(
                         currentPosition = currentPosition,
-                        currentTrackDuration = currentTrackDuration,
+                        currentTrackDuration = trackDuration,
                         viewModel = viewModel,
                         isSliding = isSliding
                     )
@@ -121,7 +120,7 @@ fun FullAudioPlayer(
                     TimingText(
                         secondaryColorWithLoadingState = secondaryColorWithLoadingState,
                         currentPosition = currentPosition,
-                        currentTrackDuration =  currentTrackDuration,
+                        currentTrackDuration =  trackDuration,
                         isSliding = isSliding
                     )
                 }
@@ -132,9 +131,9 @@ fun FullAudioPlayer(
                     secondaryColorWithLoadingState = secondaryColorWithLoadingState,
                     isPlay = isPlay,
                     isLastTrack = isLastTrack,
-                    onNext = { viewModel.audioPlayer.seekToNext() },
-                    onPrev = { viewModel.audioPlayer.seekToPrev() },
-                    onPlayPause = { viewModel.audioPlayer.playPause() }
+                    onNext = { viewModel.playerStateSource.seekToNext() },
+                    onPrev = { viewModel.playerStateSource.seekToPrev() },
+                    onPlayPause = { viewModel.playerStateSource.playPause() }
                 )
 
                 BottomControls(

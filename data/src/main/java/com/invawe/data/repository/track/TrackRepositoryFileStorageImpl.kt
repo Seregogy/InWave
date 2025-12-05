@@ -2,10 +2,9 @@ package com.invawe.data.repository.track
 
 import android.content.ContentUris
 import android.content.Context
+import android.content.res.Resources
 import android.provider.MediaStore
-import android.util.Log
-import com.inwave.domain.entity.Album
-import com.inwave.domain.entity.Artist
+import com.invawe.data.mapper.track.toDomainTrack
 import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.TrackRepository
@@ -18,7 +17,14 @@ class TrackRepositoryFileStorageImpl(
     }
 
     override suspend fun getTracks(ids: List<String>): Result<List<Track>> {
-        TODO("Not yet implemented")
+        return getAllTracks(0, Int.MAX_VALUE).onSuccess {
+            it.forEach { track ->
+                if (track.audioUrl == ids.first())
+                    return@getTracks Result.success(listOf(track))
+            }
+
+            return Result.failure(Resources.NotFoundException())
+        }
     }
 
     override suspend fun getAllTracks(
@@ -32,42 +38,8 @@ class TrackRepositoryFileStorageImpl(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 null, null, null
             )?.use {
-                val audioIdColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                val trackNameColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)
-                val durationColumn = it.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)
-
                 while (it.moveToNext()) {
-                    val trackName = it.getString(trackNameColumn)
-                    val duration = it.getLong(durationColumn)
-                    val audioId = it.getLong(audioIdColumn)
-
-                    try {
-                        val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.GENRE))
-
-                        Log.d("Repository", "$trackName, $path")
-                    } catch (ex: Exception) { }
-
-
-                    val audioUri = ContentUris.withAppendedId(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        audioId
-                    )
-
-                    Log.d("Repository", "$trackName, $audioUri")
-
-                    audioFiles.add(
-                        Track(
-                            "",
-                            trackName,
-                            "",
-                            0,
-                            duration,
-                            null,
-                            0,
-                            audioUri.toString(),
-                            null
-                        )
-                    )
+                    audioFiles.add(it.toDomainTrack())
                 }
             }
 

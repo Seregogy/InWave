@@ -1,8 +1,10 @@
 package com.inwave.page
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,6 +45,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.inwave.R
+import com.inwave.control.TrackMiniWithImage
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
 import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
@@ -99,16 +103,7 @@ fun TracksPlaylist(
                             blendMode = BlendMode.DstIn
                         )
                     }
-            ) {
-                Image(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    painter = painterResource(R.drawable.inwave_logo),
-                    contentDescription = "Background image",
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center
-                )
-            }
+            ) { }
         },
         headingContent = {
             Box(
@@ -119,7 +114,7 @@ fun TracksPlaylist(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Local stored music",
+                    text = "Треки на устройстве",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.W600
                 )
@@ -145,34 +140,15 @@ fun TracksPlaylist(
                                 .padding(horizontal = 10.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            tracksState.data!!.forEach { track ->
-                                Row(
+                            tracksState.data!!.forEach { it ->
+                                TrackMiniWithImage(
                                     modifier = Modifier
-                                        .clip(MaterialTheme.shapes.small)
-                                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                                        .fillMaxSize()
-                                        .padding(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = track.name,
-                                            fontWeight = FontWeight.W600,
-                                            overflow = TextOverflow.Clip,
-                                            maxLines = 1
-                                        )
-
-                                        Text(
-                                            text = track.album?.artists?.joinToString(", ") { it.name }
-                                                ?: "unknown"
-                                        )
+                                        .padding(vertical = 5.dp),
+                                    track = it,
+                                    onClick = {
+                                        viewModel.launchTrack(it.audioUrl)
                                     }
-
-                                    Text(
-                                        text = "${track.duration} ms"
-                                    )
-                                }
+                                )
                             }
                         }
                     }
