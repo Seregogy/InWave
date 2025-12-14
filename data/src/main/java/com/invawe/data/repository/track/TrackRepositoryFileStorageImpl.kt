@@ -3,6 +3,7 @@ package com.invawe.data.repository.track
 import android.content.ContentUris
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
 import android.provider.MediaStore
 import com.invawe.data.mapper.track.toDomainTrack
 import com.inwave.domain.entity.Lyrics
@@ -32,12 +33,22 @@ class TrackRepositoryFileStorageImpl(
         size: Int
     ): Result<List<Track>> {
         return try {
+            val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+            } else {
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
+
             val audioFiles = mutableListOf<Track>()
 
             context.applicationContext.contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                collection,
                 null, null, null
             )?.use {
+                require(it.count > 0) {
+                    "Ничего не найдено"
+                }
+
                 while (it.moveToNext()) {
                     audioFiles.add(it.toDomainTrack())
                 }
