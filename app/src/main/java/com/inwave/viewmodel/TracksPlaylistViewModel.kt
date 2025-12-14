@@ -10,6 +10,7 @@ import com.inwave.domain.usecase.track.GetAllTracksUseCase
 import com.inwave.player.state.PlayerStateSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 
 data class UiState<T>(
@@ -33,20 +34,29 @@ class TracksPlaylistViewModel @Inject constructor(
     val tracksState: State<UiState<List<Track>>> = _tracksState
 
     suspend fun loadTracks() {
-        _tracksState.value = getAllTracksUseCase().fold(
-            onSuccess = {
-                UiState(
-                    state = UiState.State.Success,
-                    data = it
-                )
-            },
-            onFailure = {
-                UiState(
-                    state = UiState.State.Error,
-                    error = it.message
+        runCatching {
+            withTimeout(10000) {
+                _tracksState.value = getAllTracksUseCase().fold(
+                    onSuccess = {
+                        UiState(
+                            state = UiState.State.Success,
+                            data = it
+                        )
+                    },
+                    onFailure = {
+                        UiState(
+                            state = UiState.State.Error,
+                            error = it.message
+                        )
+                    }
                 )
             }
-        )
+        }.onFailure {
+            _tracksState.value = UiState(
+                state = UiState.State.Error,
+                error = it.message
+            )
+        }
     }
 
     fun launchTrack(path: String) {
