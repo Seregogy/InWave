@@ -179,12 +179,12 @@ class InWaveMediaSessionService: MediaSessionService() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        player.stop()
+        player.release()
+        mediaSession.release()
 
-        mediaSession.run {
-            player.release()
-            release()
-        }
+        super.onDestroy()
+        Log.d("InWaveMediaSessionService", "Media session destroyed")
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession {

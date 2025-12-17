@@ -55,7 +55,6 @@ class PlayerStateHandler(
 
                 Log.d("PlayerStateHandler", "Processing: ${command.javaClass.simpleName}")
                 executeCommand(command)
-                Log.d("PlayerStateHandler", "End processing: ${command.javaClass.simpleName}")
             }
         }
     }
@@ -178,12 +177,6 @@ class PlayerStateHandler(
         }
     }
 
-    override fun onPositionDiscontinuity(reason: Int) {
-        if (isProcessingExternalUpdate) return
-        Log.d("PlayerStateHandler", mediaController.currentPosition.coerceIn(0..Long.MAX_VALUE).toString())
-        //playerStateSource.currentPosition.value = mediaController.currentPosition.coerceIn(0..Long.MAX_VALUE)
-    }
-
     private fun observeRepeatMode() {
         handlerScope.launch {
             playerStateSource.currentRepeatModeState.collect { repeatMode ->
@@ -240,8 +233,11 @@ class PlayerStateHandler(
 
     fun release() {
         handlerScope.cancel()
-        mediaController.removeListener(this)
+
+        this.release()
+        mediaController.stop()
         mediaController.release()
+        mediaController.removeListener(this)
         playerStateSource.currentState.value = PlayerState.Released()
     }
 }
