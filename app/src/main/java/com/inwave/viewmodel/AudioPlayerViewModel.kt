@@ -2,15 +2,18 @@ package com.inwave.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.inwave.domain.entity.Track
+import com.inwave.player.state.PlayerState
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.tool.ImagePaletteExtractor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AudioPlayerViewModel @Inject constructor(
-    val playerStateSource: PlayerStateSource,
+    private val playerStateSource: PlayerStateSource,
     val imagePaletteExtractor: ImagePaletteExtractor
 ) : ViewModel() {
     init {
@@ -23,7 +26,54 @@ class AudioPlayerViewModel @Inject constructor(
         }
     }
 
+    val track: StateFlow<Track?> = playerStateSource.currentTrack
+
+    val currentPosition: StateFlow<Long> = playerStateSource.currentPosition
+    val trackDuration: StateFlow<Long> = playerStateSource.currentTrackDuration
+
+    val isLastTrack: StateFlow<Boolean> = playerStateSource.isLastTrack
+    val isPlaying: StateFlow<Boolean> = playerStateSource.isPlaying
+
+    val playerState: StateFlow<PlayerState> = playerStateSource.currentState
+    val repeatMode: StateFlow<PlayerState.RepeatMode> = playerStateSource.currentRepeatModeState
+
+    fun playPause() {
+        viewModelScope.launch {
+            playerStateSource.playPause()
+        }
+    }
+
+    fun seekToNext() {
+        viewModelScope.launch {
+            playerStateSource.seekToNext()
+        }
+    }
+
+    fun seekToPrev() {
+        viewModelScope.launch {
+            playerStateSource.seekToPrev()
+        }
+    }
+
+    fun nextRepeatMode() {
+        viewModelScope.launch {
+            playerStateSource.nextRepeatMode()
+        }
+    }
+
+    fun seek(position: Long) {
+        viewModelScope.launch {
+            playerStateSource.seek(position)
+        }
+    }
+
     override fun onCleared() {
-        playerStateSource.release()
+        releasePlayer()
+    }
+
+    fun releasePlayer() {
+        viewModelScope.launch {
+            playerStateSource.release()
+        }
     }
 }

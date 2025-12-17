@@ -10,7 +10,7 @@ data class Artist (
     val id: String,
     val name: String,
     val about: String = "",
-    val imageUrl: String? = null,
+    val imagesUrl: List<String> = listOf(),
     val listeningInMonth: Int = 0,
     val likes: Int = 0,
     val socialMedia: List<SocialMedia> = listOf()

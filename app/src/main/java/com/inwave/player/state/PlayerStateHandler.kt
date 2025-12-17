@@ -11,7 +11,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PlayerStateHandler(
@@ -21,9 +24,13 @@ class PlayerStateHandler(
     private var isProcessingExternalUpdate = false
     private val handlerScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
+    private val commandChannel = Channel<PlayerCommand>()
+
     init {
         mediaController.addListener(this)
         observeCommands()
+        commandProcessor()
+
         observeRepeatMode()
         handlePosition()
 
@@ -48,7 +55,19 @@ class PlayerStateHandler(
         handlerScope.launch {
             playerStateSource.currentCommand.collect { command ->
                 if (isProcessingExternalUpdate) return@collect
+                Log.d("PlayerStateHandler", "Catch command: ${command.javaClass.simpleName}")
+
+                commandChannel.send(command)
+            }
+        }
+    }
+
+    private fun commandProcessor() {
+        handlerScope.launch {
+            for (command in commandChannel) {
+                Log.d("PlayerStateHandler", "Processing: ${command.javaClass.simpleName}")
                 executeCommand(command)
+                Log.d("PlayerStateHandler", "End processing: ${command.javaClass.simpleName}")
             }
         }
     }
@@ -105,6 +124,7 @@ class PlayerStateHandler(
 
         mediaItem?.let { item ->
             updateCurrentTrack(item)
+            Log.d("Player", item.mediaMetadata.title.toString())
             checkIfLastTrack()
         }
     }
@@ -223,7 +243,9 @@ class PlayerStateHandler(
             }
 
             if (playerStateSource.isPlaying.value) {
-                playerStateSource.play()
+                handlerScope.launch {
+                    playerStateSource.play()
+                }
             }
         }
     }

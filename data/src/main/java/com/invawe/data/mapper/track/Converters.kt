@@ -56,7 +56,7 @@ fun Cursor.toDomainTrack(): Track {
     )
 
     return Track(
-        "",
+        "$audioId",
         trackName,
         "",
         0,

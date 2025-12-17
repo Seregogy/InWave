@@ -1,5 +1,7 @@
 package com.inwave.di.player
 
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import com.inwave.domain.usecase.track.GetTrackUseCase
 import com.inwave.domain.usecase.track.GetTrackWithLyricsUseCase
@@ -8,7 +10,6 @@ import com.inwave.player.state.PlayerStateSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -28,6 +29,7 @@ object DefaultPlayerConfig {
 @Module
 @InstallIn(SingletonComponent::class)
 class PlayerModule {
+    @OptIn(UnstableApi::class)
     @Provides
     @Singleton
     fun provideLoadControl(): DefaultLoadControl {

@@ -70,42 +70,42 @@ class PlayerStateSource(
         }
     }
 
-    fun seek(positionMs: Long) {
-        _currentCommand.value = PlayerCommand.Seek(positionMs)
+    suspend fun seek(positionMs: Long) {
+        _currentCommand.emit(PlayerCommand.Seek(positionMs))
     }
 
-    fun seekToNext() {
-        _currentCommand.value = PlayerCommand.Next()
+    suspend fun seekToNext() {
+        _currentCommand.emit(PlayerCommand.Next())
     }
 
-    fun seekToPrev() {
-        _currentCommand.value = PlayerCommand.Prev()
+    suspend fun seekToPrev() {
+        _currentCommand.emit(PlayerCommand.Prev())
     }
 
-    fun seekToIndex(index: Int) {
-        _currentCommand.value = PlayerCommand.SeekToIndex(index)
+    suspend fun seekToIndex(index: Int) {
+        _currentCommand.emit(PlayerCommand.SeekToIndex(index))
     }
 
-    fun play() {
-        _currentCommand.value = PlayerCommand.Play()
+    suspend fun play() {
+        _currentCommand.emit(PlayerCommand.Play())
     }
 
-    fun pause() {
-        _currentCommand.value = PlayerCommand.Pause()
+    suspend fun pause() {
+        _currentCommand.emit(PlayerCommand.Pause())
     }
 
-    fun release() {
-        _currentCommand.value = PlayerCommand.Release()
+    suspend fun release() {
+        _currentCommand.emit(PlayerCommand.Release())
     }
 
-    fun nextRepeatMode() {
+    suspend fun nextRepeatMode() {
         val repeatMode = when (currentRepeatModeState.value) {
             PlayerState.RepeatMode.Single -> PlayerState.RepeatMode.Playlist
             PlayerState.RepeatMode.Playlist -> PlayerState.RepeatMode.Forward
             PlayerState.RepeatMode.Forward -> PlayerState.RepeatMode.Single
         }
 
-        _currentCommand.value = PlayerCommand.SetRepeatMode(repeatMode)
+        _currentCommand.emit(PlayerCommand.SetRepeatMode(repeatMode))
     }
 
     suspend fun addToPlaylist(tracks: List<String>) {
@@ -117,14 +117,21 @@ class PlayerStateSource(
         _currentCommand.emit(PlayerCommand.AddTracks(newTracks))
     }
 
-    suspend fun setPlaylist(tracks: List<String>) {
-        val newTracks = preparePlaylistTracks(tracks)
+    suspend fun setPlaylist(tracks: List<Track>) {
+        _playlist.value.clear()
+        _playlist.value.addAll(tracks)
+
+        _currentCommand.emit(PlayerCommand.SetTracks(tracks))
+    }
+
+    suspend fun setPlaylistById(ids: List<String>) {
+        val newTracks = preparePlaylistTracks(ids)
 
         _playlist.value.clear()
         _playlist.value.addAll(newTracks)
 
         _currentCommand.value = PlayerCommand.SetTracks(newTracks)
-        Log.d("PlayerStateSource", tracks.toString())
+        Log.d("PlayerStateSource", ids.toString())
     }
 
     private suspend fun preparePlaylistTracks(tracks: List<String>): List<Track> {

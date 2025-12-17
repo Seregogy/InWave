@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,8 +40,8 @@ import com.inwave.control.TrackMiniWithImage
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
 import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
+import com.inwave.viewmodel.TracksPlaylistPageState
 import com.inwave.viewmodel.TracksPlaylistViewModel
-import com.inwave.viewmodel.UiState
 
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
@@ -48,7 +49,7 @@ fun TracksPlaylist(
     innerPadding: PaddingValues,
     viewModel: TracksPlaylistViewModel = hiltViewModel()
 ) {
-    val tracksState by viewModel.tracksState
+    val playlistState by remember { viewModel.tracksState }
 
     val permissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         rememberPermissionState(Manifest.permission.READ_MEDIA_AUDIO)
@@ -118,30 +119,31 @@ fun TracksPlaylist(
     ) {
         when {
             permissionState.status == PermissionStatus.Granted -> {
-                when(tracksState.state) {
-                    UiState.State.Loading -> {
+                when(val currentState = playlistState) {
+                    is TracksPlaylistPageState.Idle -> { }
+                    is TracksPlaylistPageState.Loading -> {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             CircularProgressIndicator()
                         }
                     }
-                    UiState.State.Error -> {
+                    is TracksPlaylistPageState.Error -> {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Ой! Что-то пошло не так =(\n${tracksState.error}", color = Color.White.copy(.7f))
+                            Text("Ой! Что-то пошло не так =(\n${currentState.message}", color = Color.White.copy(.7f))
                         }
                     }
-                    UiState.State.Success -> {
+                    is TracksPlaylistPageState.Success -> {
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 10.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            tracksState.data!!.forEach { it ->
+                            currentState.tracks.forEachIndexed { index, it ->
                                 TrackMiniWithImage(
                                     modifier = Modifier
                                         .padding(vertical = 5.dp),
                                     track = it,
                                     onClick = {
-                                        viewModel.launchTrack(it.audioUrl)
+                                        viewModel.launchPlaylist(currentState.tracks, index)
                                     }
                                 )
                             }
