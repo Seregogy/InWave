@@ -23,12 +23,28 @@ Android-приложение стримингового сервиса для н
 - Упрощённые рекомендации (по жанрам и лайкам)
 
 ## 📸 Скриншоты
-<p align="center">
-  <img src="screenshots/Screenshot_20251212_221319_InWave.jpg" width="250"
-  <img src="screenshots/Screenshot_20251212_221311_InWave.jpg" width="250"/>
-  <img src="screenshots/Screenshot_20251218_150807_One UI Home.jpg" width="250"/>
-  <img src="screenshots/Screenshot_20251218_150903_One UI Home.jpg" width="250"/>
-</p>
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251212_221319_InWave.jpg" width="250"/><br/>
+      InWave — экран 1
+    </td>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251212_221311_InWave.jpg" width="250"/><br/>
+      InWave — экран 2
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251218_150807_One UI Home.jpg" width="250"/><br/>
+      Экран 3
+    </td>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251218_150903_One UI Home.jpg" width="250"/><br/>
+      Экран 4
+    </td>
+  </tr>
+</table>
 
 ## Статус проекта
 
