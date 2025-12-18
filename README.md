@@ -25,12 +25,11 @@ Android-приложение стримингового сервиса для н
 ---
 
 ## 📸 Скриншоты
-## 📸 Скриншоты
 
 ![Плеер](screenshots/Screenshot_20251212_221319_InWave.jpg)
 ![Треки на устройстве](screenshots/Screenshot_20251212_221311_InWave.jpg)
-![Системный плеер](screenshots/Screenshot_20251218_150807_One UI Home.jpg)
-![Медиа сессия](screenshots/Screenshot_20251218_150903_One UI Home.jpg)
+![Системный плеер]("screenshots/Screenshot_20251218_150807_One UI Home.jpg")
+![Медиа сессия]("screenshots/Screenshot_20251218_150903_One UI Home.jpg")
 ---
 
 ## Статус проекта
