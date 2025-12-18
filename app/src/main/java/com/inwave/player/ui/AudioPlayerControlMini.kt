@@ -1,8 +1,6 @@
 package com.inwave.player.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,7 +12,6 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -22,15 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
-import coil3.compose.rememberAsyncImagePainter
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import com.inwave.R
 import com.inwave.control.TrackControl
 import com.inwave.player.state.PlayerCommand
 import com.inwave.viewmodel.AudioPlayerViewModel
@@ -41,9 +31,8 @@ fun MiniAudioPlayer(
     modifier: Modifier = Modifier,
     onExpandRequest: () -> Unit
 ) {
-    val context = LocalContext.current
-    val track by viewModel.playerStateSource.currentTrack.collectAsStateWithLifecycle()
-    val currentState by viewModel.playerStateSource.currentCommand.collectAsStateWithLifecycle()
+    val track by viewModel.track.collectAsStateWithLifecycle()
+    val currentState by viewModel.playerState.collectAsStateWithLifecycle()
 
     val isPlay by remember {
         derivedStateOf {
@@ -81,7 +70,9 @@ fun MiniAudioPlayer(
                 }
 
                 IconButton(
-                    onClick = { }
+                    onClick = {
+                        viewModel.playPause()
+                    }
                 ) {
                     Icon(
                         imageVector = if (isPlay)

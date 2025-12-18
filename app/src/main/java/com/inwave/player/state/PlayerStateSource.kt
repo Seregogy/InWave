@@ -6,6 +6,7 @@ import com.inwave.domain.entity.Track
 import com.inwave.domain.usecase.track.GetTrackUseCase
 import com.inwave.domain.usecase.track.GetTrackWithLyricsUseCase
 import com.inwave.domain.usecase.track.GetTracksUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -51,8 +52,7 @@ class PlayerStateSource(
     private val _playlist = MutableStateFlow<MutableList<Track>>(mutableListOf())
     val playlist: StateFlow<List<Track>> = _playlist
 
-    private val _currentCommand: MutableStateFlow<PlayerCommand> = MutableStateFlow(PlayerCommand.Stop())
-    val currentCommand: StateFlow<PlayerCommand> = _currentCommand
+    val currentCommand: MutableSharedFlow<PlayerCommand> = MutableSharedFlow(100)
 
     val currentState: MutableStateFlow<PlayerState> = MutableStateFlow(PlayerState.Idle())
     val currentTrack: MutableStateFlow<Track?> = MutableStateFlow(null)
@@ -62,50 +62,50 @@ class PlayerStateSource(
     val currentPosition: MutableStateFlow<Long> = MutableStateFlow(1L)
     val isPlaying: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    fun playPause() {
+    suspend fun playPause() {
         if (isPlaying.value) {
-            _currentCommand.value = PlayerCommand.Pause()
+            currentCommand.emit(PlayerCommand.Pause())
         } else {
-            _currentCommand.value = PlayerCommand.Play()
+            currentCommand.emit(PlayerCommand.Play())
         }
     }
 
-    fun seek(positionMs: Long) {
-        _currentCommand.value = PlayerCommand.Seek(positionMs)
+    suspend fun seek(positionMs: Long) {
+        currentCommand.emit(PlayerCommand.Seek(positionMs))
     }
 
-    fun seekToNext() {
-        _currentCommand.value = PlayerCommand.Next()
+    suspend fun seekToNext() {
+        currentCommand.emit(PlayerCommand.Next())
     }
 
-    fun seekToPrev() {
-        _currentCommand.value = PlayerCommand.Prev()
+    suspend fun seekToPrev() {
+        currentCommand.emit(PlayerCommand.Prev())
     }
 
-    fun seekToIndex(index: Int) {
-        _currentCommand.value = PlayerCommand.SeekToIndex(index)
+    suspend fun seekToIndex(index: Int) {
+        currentCommand.emit(PlayerCommand.SeekToIndex(index))
     }
 
-    fun play() {
-        _currentCommand.value = PlayerCommand.Play()
+    suspend fun play() {
+        currentCommand.emit(PlayerCommand.Play())
     }
 
-    fun pause() {
-        _currentCommand.value = PlayerCommand.Pause()
+    suspend fun pause() {
+        currentCommand.emit(PlayerCommand.Pause())
     }
 
-    fun release() {
-        _currentCommand.value = PlayerCommand.Release()
+    suspend fun release() {
+        currentCommand.emit(PlayerCommand.Release())
     }
 
-    fun nextRepeatMode() {
+    suspend fun nextRepeatMode() {
         val repeatMode = when (currentRepeatModeState.value) {
             PlayerState.RepeatMode.Single -> PlayerState.RepeatMode.Playlist
             PlayerState.RepeatMode.Playlist -> PlayerState.RepeatMode.Forward
             PlayerState.RepeatMode.Forward -> PlayerState.RepeatMode.Single
         }
 
-        _currentCommand.value = PlayerCommand.SetRepeatMode(repeatMode)
+        currentCommand.emit(PlayerCommand.SetRepeatMode(repeatMode))
     }
 
     suspend fun addToPlaylist(tracks: List<String>) {
@@ -114,17 +114,24 @@ class PlayerStateSource(
         _playlist.value.addAll(newTracks)
         _playlist.value = _playlist.value.plus(newTracks).toMutableList()
 
-        _currentCommand.emit(PlayerCommand.AddTracks(newTracks))
+        currentCommand.emit(PlayerCommand.AddTracks(newTracks))
     }
 
-    suspend fun setPlaylist(tracks: List<String>) {
-        val newTracks = preparePlaylistTracks(tracks)
+    suspend fun setPlaylist(tracks: List<Track>) {
+        _playlist.value.clear()
+        _playlist.value.addAll(tracks)
+
+        currentCommand.emit(PlayerCommand.SetTracks(tracks))
+    }
+
+    suspend fun setPlaylistById(ids: List<String>) {
+        val newTracks = preparePlaylistTracks(ids)
 
         _playlist.value.clear()
         _playlist.value.addAll(newTracks)
 
-        _currentCommand.value = PlayerCommand.SetTracks(newTracks)
-        Log.d("PlayerStateSource", tracks.toString())
+        currentCommand.emit(PlayerCommand.SetTracks(newTracks))
+        Log.d("PlayerStateSource", ids.toString())
     }
 
     private suspend fun preparePlaylistTracks(tracks: List<String>): List<Track> {
@@ -143,7 +150,7 @@ class PlayerStateSource(
     }
 
     suspend fun lazyClearPlaylist() {
-        _currentCommand.first { it != PlayerCommand.Play() }
+        currentCommand.first { it != PlayerCommand.Play() }
         _playlist.value.clear()
     }
 }

@@ -11,7 +11,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PlayerStateHandler(
@@ -24,6 +27,7 @@ class PlayerStateHandler(
     init {
         mediaController.addListener(this)
         observeCommands()
+
         observeRepeatMode()
         handlePosition()
 
@@ -48,6 +52,8 @@ class PlayerStateHandler(
         handlerScope.launch {
             playerStateSource.currentCommand.collect { command ->
                 if (isProcessingExternalUpdate) return@collect
+
+                Log.d("PlayerStateHandler", "Processing: ${command.javaClass.simpleName}")
                 executeCommand(command)
             }
         }
@@ -105,6 +111,7 @@ class PlayerStateHandler(
 
         mediaItem?.let { item ->
             updateCurrentTrack(item)
+            Log.d("Player", item.mediaMetadata.title.toString())
             checkIfLastTrack()
         }
     }
@@ -170,12 +177,6 @@ class PlayerStateHandler(
         }
     }
 
-    override fun onPositionDiscontinuity(reason: Int) {
-        if (isProcessingExternalUpdate) return
-        Log.d("PlayerStateHandler", mediaController.currentPosition.coerceIn(0..Long.MAX_VALUE).toString())
-        //playerStateSource.currentPosition.value = mediaController.currentPosition.coerceIn(0..Long.MAX_VALUE)
-    }
-
     private fun observeRepeatMode() {
         handlerScope.launch {
             playerStateSource.currentRepeatModeState.collect { repeatMode ->
@@ -223,15 +224,20 @@ class PlayerStateHandler(
             }
 
             if (playerStateSource.isPlaying.value) {
-                playerStateSource.play()
+                handlerScope.launch {
+                    playerStateSource.play()
+                }
             }
         }
     }
 
     fun release() {
         handlerScope.cancel()
-        mediaController.removeListener(this)
+
+        this.release()
+        mediaController.stop()
         mediaController.release()
+        mediaController.removeListener(this)
         playerStateSource.currentState.value = PlayerState.Released()
     }
 }

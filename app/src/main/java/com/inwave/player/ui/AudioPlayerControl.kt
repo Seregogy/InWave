@@ -39,18 +39,18 @@ fun FullAudioPlayer(
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
-    val track by viewModel.playerStateSource.currentTrack.collectAsStateWithLifecycle()
+    val track by viewModel.track.collectAsStateWithLifecycle()
     val lyrics by remember {
         derivedStateOf {
             track?.lyrics
         }
     }
 
-    val trackDuration by viewModel.playerStateSource.currentTrackDuration.collectAsStateWithLifecycle()
-    val state by viewModel.playerStateSource.currentState.collectAsStateWithLifecycle()
-    val currentPosition = viewModel.playerStateSource.currentPosition.collectAsStateWithLifecycle()
-    val isLastTrack = viewModel.playerStateSource.isLastTrack.collectAsStateWithLifecycle()
-    val isPlay = viewModel.playerStateSource.isPlaying.collectAsStateWithLifecycle()
+    val trackDuration by viewModel.trackDuration.collectAsStateWithLifecycle()
+    val state by viewModel.playerState.collectAsStateWithLifecycle()
+    val currentPosition = viewModel.currentPosition.collectAsStateWithLifecycle()
+    val isLastTrack = viewModel.isLastTrack.collectAsStateWithLifecycle()
+    val isPlay = viewModel.isPlaying.collectAsStateWithLifecycle()
 
     val isLoading = remember {
         derivedStateOf {
@@ -131,9 +131,9 @@ fun FullAudioPlayer(
                     secondaryColorWithLoadingState = secondaryColorWithLoadingState,
                     isPlay = isPlay,
                     isLastTrack = isLastTrack,
-                    onNext = { viewModel.playerStateSource.seekToNext() },
-                    onPrev = { viewModel.playerStateSource.seekToPrev() },
-                    onPlayPause = { viewModel.playerStateSource.playPause() }
+                    onNext = { viewModel.seekToNext() },
+                    onPrev = { viewModel.seekToPrev() },
+                    onPlayPause = { viewModel.playPause() }
                 )
 
                 BottomControls(

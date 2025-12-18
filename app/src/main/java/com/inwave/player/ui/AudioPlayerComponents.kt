@@ -90,7 +90,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.Player
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -101,7 +100,6 @@ import com.inwave.control.CircleButton
 import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
 import com.inwave.layout.AvatarRow
-import com.inwave.player.state.PlayerCommand
 import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
@@ -270,7 +268,7 @@ fun ColoredScaffoldState.TrackInfo(
                 track?.album?.artists?.forEach { artist ->
                     Box {
                         AsyncImage(
-                            model = artist.imageUrl,
+                            model = artist.imagesUrl,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .height(with(density) { columnSize.height.toDp() })
@@ -359,7 +357,7 @@ fun ColoredScaffoldState.TrackInfo(
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         AsyncImage(
-                            model = it.imageUrl,
+                            model = it.imagesUrl,
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .size(60.dp),
@@ -415,12 +413,12 @@ fun ColoredScaffoldState.PlayerSlider(
             onValueChange = {
                 if (!isSliding.value) isSliding.value = true
                 localCurrentPos.value = it
-                viewModel.playerStateSource.seek((it * currentTrackDuration.toFloat()).toLong())
+                viewModel.seek((it * currentTrackDuration.toFloat()).toLong())
             },
             onValueChangeFinished = {
                 isSliding.value = false
 
-                viewModel.playerStateSource.seek((localCurrentPos.value * currentTrackDuration.toFloat()).toLong())
+                viewModel.seek((localCurrentPos.value * currentTrackDuration.toFloat()).toLong())
             },
             colors = SliderDefaults.colors(
                 activeTrackColor = semiTransparentForeground * 1.5f,
@@ -622,7 +620,7 @@ fun ColoredScaffoldState.BottomControls(
     isLyricsOpen: MutableState<Boolean>
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val repeatMode by viewModel.playerStateSource.currentRepeatModeState.collectAsStateWithLifecycle()
+    val repeatMode by viewModel.repeatMode.collectAsStateWithLifecycle()
 
     Row(
         modifier = modifier,
@@ -657,7 +655,7 @@ fun ColoredScaffoldState.BottomControls(
 
         IconButton(
             onClick = {
-                viewModel.playerStateSource.nextRepeatMode()
+                viewModel.nextRepeatMode()
             }
         ) {
             Icon(
@@ -680,10 +678,10 @@ fun ColoredScaffoldState.LyricsDrawer(
     val density = LocalDensity.current
     val trackName by remember {
         derivedStateOf {
-            viewModel.playerStateSource.currentTrack.value?.name ?: "unknown"
+            viewModel.track.value?.name ?: "unknown"
         }
     }
-    val track by viewModel.playerStateSource.currentTrack.collectAsStateWithLifecycle()
+    val track by viewModel.track.collectAsStateWithLifecycle()
     val lyrics by remember {
         derivedStateOf {
             track?.lyrics
@@ -699,7 +697,7 @@ fun ColoredScaffoldState.LyricsDrawer(
             }
         }
         lyrics?.syncedText?.isNotEmpty() ?: false -> {
-            val currentPosition by viewModel.playerStateSource.currentPosition.collectAsStateWithLifecycle()
+            val currentPosition by viewModel.currentPosition.collectAsStateWithLifecycle()
             val lazyListState = rememberLazyListState()
             val syncedTextPairs = remember {
                 return@remember lyrics!!.syncedText!!.map { it.key to it.value.trim() }.toMutableList().apply {
@@ -752,7 +750,7 @@ fun ColoredScaffoldState.LyricsDrawer(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
                             .clickable {
-                                viewModel.playerStateSource.seek(item.first)
+                                viewModel.seek(item.first)
                             },
                         onTextLayout = {
                             syncedTextSizes.put(item.first, it.size)
