@@ -21,6 +21,7 @@ hilt-version = "2.57.2"
 paletteVerison = "1.0.0"
 bottomSheetVersion = "1.5.1"
 haze = "1.6.9"
+particlesConfettiVersion = "0.7.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -33,6 +34,7 @@ androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "medi
 androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3Exoplayer" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 appyx-core = { module = "com.bumble.appyx:core", version.ref = "appyx-version" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -53,6 +55,8 @@ material3 = { module = "androidx.compose.material3:material3", version.ref = "ma
 
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "paletteVerison" }
+
+particles-confetti = { module = "io.github.vinceglb:confettikit", version.ref = "particlesConfettiVersion" }
 
 bottomsheet = { module = "com.holix.android:bottomsheetdialog-compose", version.ref = "bottomSheetVersion" }
 

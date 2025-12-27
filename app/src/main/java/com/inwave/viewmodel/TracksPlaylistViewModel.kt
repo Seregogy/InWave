@@ -1,5 +1,6 @@
 package com.inwave.viewmodel
 
+import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -33,6 +34,10 @@ class TracksPlaylistViewModel @Inject constructor(
             withTimeout(10000) {
                 _tracksState.value = getAllTracksUseCase().fold(
                     onSuccess = {
+                        it.forEach { track ->
+                            println(track.id)
+                        }
+
                         TracksPlaylistPageState.Success(it)
                     },
                     onFailure = {
@@ -45,10 +50,16 @@ class TracksPlaylistViewModel @Inject constructor(
         }
     }
 
-    fun launchPlaylist(tracks: List<Track>, startTrackIndex: Int = 0) {
+    fun launchPlaylist(startTrackIndex: Int = 0) {
         viewModelScope.launch {
-            playerStateSource.setPlaylist(tracks)
-            playerStateSource.seekToIndex(startTrackIndex)
+            when (val state = tracksState.value) {
+                is TracksPlaylistPageState.Success -> {
+                    playerStateSource.setPlaylist(state.tracks)
+                    playerStateSource.seekToIndex(startTrackIndex)
+                    playerStateSource.play()
+                }
+                else -> { }
+            }
         }
     }
 }

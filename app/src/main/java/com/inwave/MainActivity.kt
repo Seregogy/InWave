@@ -1,25 +1,25 @@
 package com.inwave
 
 import android.app.Application
-import android.content.ComponentName
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.common.util.concurrent.MoreExecutors
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
+import com.inwave.domain.usecase.track.GetTracksUseCase
 import com.inwave.page.TracksPlaylist
-import com.inwave.player.InWaveMediaSessionService
 import com.inwave.player.MediaControllerInitializer
-import com.inwave.player.state.PlayerStateHandler
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.player.ui.AudioPlayerScaffold
 import com.inwave.ui.theme.InWaveTheme
@@ -40,6 +40,9 @@ class MainApplication : Application() {
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var playerStateSource: PlayerStateSource
+    @Inject lateinit var getTrackUseCase: GetTracksUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -52,10 +55,53 @@ class MainActivity : ComponentActivity() {
                         hazeState = rememberHazeState(),
                         navController = rememberNavController()
                     ) { sheetPeekHeight, innerPadding ->
-                        TracksPlaylist(innerPadding)
+                        NavRoutes(innerPadding, playerStateSource, getTrackUseCase)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun NavRoutes(
+    innerPadding: PaddingValues,
+    playerStateSource: PlayerStateSource,
+    getTracksUseCase: GetTracksUseCase
+) {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "LocalTrackList"
+    ) {
+        composable(
+            route = "LocalTrackList"
+        ) {
+            println(playerStateSource)
+            TracksPlaylist(innerPadding)
+        }
+
+        composable(
+            route = "TrackPage?id={trackId}",
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "inwave://app/albums/{trackId}"
+                }
+            ),
+            arguments = listOf(navArgument("trackId") { type = NavType.StringType })
+        ) {
+            val trackId = it.arguments?.getString("trackId") ?: ""
+            LaunchedEffect(Unit) {
+                getTracksUseCase(listOf(trackId)).onSuccess {
+                    playerStateSource.setPlaylist(it)
+                    playerStateSource.play()
+
+                    navController.popBackStack()
+                }
+            }
+
+            //TracksPlaylist(innerPadding)
         }
     }
 }

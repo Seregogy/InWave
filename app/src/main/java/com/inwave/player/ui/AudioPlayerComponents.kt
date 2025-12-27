@@ -1,5 +1,6 @@
 package com.inwave.player.ui
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -59,6 +60,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,9 +77,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -91,19 +95,25 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-import com.inwave.control.scaffold.color.ColoredScaffoldState
-import com.inwave.domain.entity.Track
 import com.inwave.R
 import com.inwave.control.CircleButton
 import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
+import com.inwave.control.scaffold.color.ColoredScaffoldState
+import com.inwave.domain.entity.Track
 import com.inwave.layout.AvatarRow
 import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
+import io.github.vinceglb.confettikit.compose.ConfettiKit
+import io.github.vinceglb.confettikit.core.Party
+import io.github.vinceglb.confettikit.core.emitter.Emitter
+import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun ColoredScaffoldState.TopBar(
@@ -379,12 +389,27 @@ fun ColoredScaffoldState.TrackInfo(
 @Composable
 fun ColoredScaffoldState.PlayerSlider(
     modifier: Modifier = Modifier,
-    currentPosition: State<Long>,
     currentTrackDuration: Long,
     viewModel: AudioPlayerViewModel,
     isSliding: MutableState<Boolean>,
 ) {
-    val localCurrentPos = remember { mutableStateOf(0f) }
+    val coroutine = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+
+    var localCurrentPos by remember { mutableFloatStateOf(0f) }
+
+    val tickCount = 50
+    val sliderGap = 1f / tickCount
+    var currentGap by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(Unit) {
+        viewModel.currentPosition.collect {
+            if (isSliding.value.not()) {
+                localCurrentPos = it / viewModel.trackDuration.value.toFloat()
+            }
+        }
+    }
+
     val semiTransparentForeground by remember {
         derivedStateOf {
             onBackgroundColorAnimated.value.copy(.65f)
@@ -398,27 +423,31 @@ fun ColoredScaffoldState.PlayerSlider(
     }
 
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
-        animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
+        targetValue = localCurrentPos,
+        animationSpec = if (isSliding.value) tween(0) else tween(500, easing = LinearEasing),
         label = "slider animation"
     )
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Slider(
             modifier = modifier
                 .weight(1f),
             value = currentPositionAnimated.value,
             onValueChange = {
+                if ((localCurrentPos - currentGap).absoluteValue > sliderGap) {
+                    haptic.performHapticFeedback(
+                        HapticFeedbackType.SegmentFrequentTick
+                    )
+                    currentGap = localCurrentPos
+                }
+
                 if (!isSliding.value) isSliding.value = true
-                localCurrentPos.value = it
-                viewModel.seek((it * currentTrackDuration.toFloat()).toLong())
+                localCurrentPos = it
             },
             onValueChangeFinished = {
                 isSliding.value = false
 
-                viewModel.seek((localCurrentPos.value * currentTrackDuration.toFloat()).toLong())
+                viewModel.seek((localCurrentPos * currentTrackDuration.toFloat()).toLong())
             },
             colors = SliderDefaults.colors(
                 activeTrackColor = semiTransparentForeground * 1.5f,
@@ -444,11 +473,21 @@ fun ColoredScaffoldState.PlayerSlider(
 
         IconButton(
             onClick = {
+                haptic.performHapticFeedback(
+                    HapticFeedbackType.Confirm
+                )
 
+                coroutine.launch {
+                    viewModel.toggleLike()
+                }
             }
         ) {
+            if (viewModel.isCurrentTrackLiked.value) {
+                Log.d("PlayerComponent", "Play particles")
+            }
+
             Icon(
-                imageVector = if (false)
+                imageVector = if (viewModel.isCurrentTrackLiked.value)
                     Icons.Rounded.Favorite
                 else
                     Icons.Rounded.FavoriteBorder,
@@ -473,6 +512,8 @@ fun ColoredScaffoldState.TimingText(
     currentTrackDuration: Long,
     isSliding: MutableState<Boolean>
 ) {
+    val haptic = LocalHapticFeedback.current
+
     val currentPositionAnimated = animateFloatAsState(
         targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
@@ -493,8 +534,16 @@ fun ColoredScaffoldState.TimingText(
             .background(fullyTransparentForeground)
             .clickable {
                 currentTextState = if (currentTextState == TimingTextState.CurrentTime) {
+                    haptic.performHapticFeedback(
+                        HapticFeedbackType.ContextClick
+                    )
+
                     TimingTextState.RemainingTime
                 } else {
+                    haptic.performHapticFeedback(
+                        HapticFeedbackType.ContextClick
+                    )
+
                     TimingTextState.CurrentTime
                 }
             }
@@ -545,6 +594,8 @@ fun ColoredScaffoldState.PlayerNavigationButtons(
     onPrev: () -> Unit,
     onPlayPause: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
+
     val nextTrackLoadedColorState by remember {
         derivedStateOf {
             if (isLastTrack.value) {
@@ -567,7 +618,12 @@ fun ColoredScaffoldState.PlayerNavigationButtons(
         modifier = modifier
     ) {
         IconButton(
-            onClick = { onPrev() }
+            onClick = {
+                haptic.performHapticFeedback(
+                    HapticFeedbackType.ContextClick
+                )
+                onPrev()
+            }
         ) {
             Icon(
                 imageVector = Icons.Rounded.SkipPrevious,
@@ -582,6 +638,9 @@ fun ColoredScaffoldState.PlayerNavigationButtons(
             containerColor = fullyTransparentForeground,
             size = 70.dp,
             onClick = {
+                haptic.performHapticFeedback(
+                    HapticFeedbackType.Confirm
+                )
                 onPlayPause()
             },
             content = {
@@ -599,7 +658,12 @@ fun ColoredScaffoldState.PlayerNavigationButtons(
         )
 
         IconButton(
-            onClick = { onNext() },
+            onClick = {
+                haptic.performHapticFeedback(
+                    HapticFeedbackType.ContextClick
+                )
+                onNext()
+            },
             enabled = isLastTrack.value.not()
         ) {
             Icon(

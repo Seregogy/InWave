@@ -1,5 +1,6 @@
 package com.inwave.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inwave.domain.entity.Track
@@ -7,8 +8,11 @@ import com.inwave.player.state.PlayerState
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.tool.ImagePaletteExtractor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +40,9 @@ class AudioPlayerViewModel @Inject constructor(
 
     val playerState: StateFlow<PlayerState> = playerStateSource.currentState
     val repeatMode: StateFlow<PlayerState.RepeatMode> = playerStateSource.currentRepeatModeState
+
+    private val _isCurrentTrackLiked = MutableStateFlow(false)
+    val isCurrentTrackLiked: StateFlow<Boolean> = _isCurrentTrackLiked
 
     fun playPause() {
         viewModelScope.launch {
@@ -75,5 +82,18 @@ class AudioPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             playerStateSource.release()
         }
+    }
+
+    suspend fun toggleLike(): Result<Boolean> {
+        if (_isCurrentTrackLiked.value)
+            return Result.failure(NotImplementedError())
+
+        _isCurrentTrackLiked.value = !_isCurrentTrackLiked.value
+
+        delay(5000)
+
+        _isCurrentTrackLiked.value = false
+
+        return Result.failure(NotImplementedError())
     }
 }

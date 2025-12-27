@@ -1,8 +1,11 @@
 package com.inwave.player
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
@@ -16,16 +19,18 @@ import androidx.media3.session.SessionResult
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.inwave.tool.mediaItems
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import com.inwave.MainActivity
 import com.inwave.R
 import com.inwave.player.state.PlayerState
 import com.inwave.player.state.PlayerStateSource
+import com.inwave.tool.mediaItems
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 
 @UnstableApi
 @AndroidEntryPoint
@@ -63,11 +68,33 @@ class InWaveMediaSessionService: MediaSessionService() {
                 .setSessionCommand(repeatModeCommand)
                 .build()
 
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+
+        val sessionActivityPending = createSessionActivityPendingIntent()
+
         player = ExoPlayer.Builder(this)
+            .setAudioAttributes(audioAttributes, true)
             .setLoadControl(playerLoadControl)
             .build()
 
+//        val mediaSession = MediaSessionCompat(this, "PlayerService")
+//
+//// Create a MediaStyle object and supply your media session token to it.
+//        val mediaStyle = Notification.MediaStyle().setMediaSession(mediaSession.sessionToken)
+//
+//// Create a Notification which is styled by your MediaStyle object.
+//// This connects your media session to the media controls.
+//// Don't forget to include a small icon.
+//        val notification = Notification.Builder(this@PlayerService, CHANNEL_ID)
+//            .setStyle(mediaStyle)
+//            .setSmallIcon(R.drawable.ic_app_logo)
+//            .build()
+
         mediaSession = MediaSession.Builder(this, player)
+            .setSessionActivity(sessionActivityPending)
             .setCallback(object : MediaSession.Callback {
                 @OptIn(UnstableApi::class)
                 override fun onPlaybackResumption(
@@ -176,6 +203,21 @@ class InWaveMediaSessionService: MediaSessionService() {
         PlayerState.RepeatMode.Playlist -> R.drawable.repeat_icon
         PlayerState.RepeatMode.Forward -> R.drawable.repeat_off
         PlayerState.RepeatMode.Single -> R.drawable.repeat_icon_1
+    }
+
+    private fun createSessionActivityPendingIntent(): PendingIntent {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            action = Intent.ACTION_MAIN
+            putExtra("from_notification", true)
+        }
+
+        return PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     override fun onDestroy() {

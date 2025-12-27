@@ -3,10 +3,13 @@ package com.inwave.tool
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.ui.res.painterResource
 import androidx.palette.graphics.Palette
 import coil3.ImageLoader
+import coil3.request.ErrorResult
 import coil3.request.ImageRequest
+import coil3.request.error
 import coil3.toBitmap
 import com.inwave.R
 import com.inwave.domain.cache.CacheRepository
@@ -26,32 +29,24 @@ class ImagePaletteExtractor @Inject constructor(
     val palette: StateFlow<Palette?> = _palette.asStateFlow()
 
     suspend fun fetchImageByUrl(imageUrl: String) {
-        if (cache.contains(imageUrl)) {
-            cache.get(imageUrl)?.let {
-                _bitmap.value = it.first
-                _palette.value = it.second
-            }
-        } else {
-            val image = ImageLoader(context).execute(
-                ImageRequest.Builder(context)
-                    .data(imageUrl)
-                    .build()
-            ).image
+        ImageLoader(context).execute(
+            ImageRequest.Builder(context)
+                .data(imageUrl)
+                .error(R.drawable.image_item_placeholder)
+                .listener(
+                    onSuccess = { _, result ->
+                        Log.d("ImagePaletteExtractor", "AFTER LOAD")
+                        _bitmap.value = result.image.toBitmap()
+                    },
+                    onError = { _, result ->
+                        Log.e("ImagePaletteExtractor", result.throwable.message.toString())
+                        _bitmap.value = BitmapFactory.decodeResource(context.resources, R.drawable.image_item_placeholder)
+                    }
+                )
+                .build()
+        )
 
-            if (image == null) {
-                _bitmap.value = BitmapFactory.decodeResource(context.resources, R.drawable.image_item_placeholder)
-            } else {
-                _bitmap.value = image.toBitmap()
-            }
-
-            tryExtractPaletteFromCurrentBitmap()
-
-            _bitmap.value?.let { bitmap ->
-                _palette.value?.let { palette ->
-                    cache.put(imageUrl to (bitmap to palette))
-                }
-            }
-        }
+        tryExtractPaletteFromCurrentBitmap()
     }
 
     private fun tryExtractPaletteFromCurrentBitmap() {
