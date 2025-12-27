@@ -63,7 +63,7 @@ fun Cursor.toDomainTrack(): Track {
     return Track(
         "$audioId",
         trackName,
-        urls.random(),
+        "",
         0,
         duration,
         null,

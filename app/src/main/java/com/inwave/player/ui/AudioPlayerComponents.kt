@@ -95,21 +95,25 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-import com.inwave.control.scaffold.color.ColoredScaffoldState
-import com.inwave.domain.entity.Track
 import com.inwave.R
 import com.inwave.control.CircleButton
 import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
+import com.inwave.control.scaffold.color.ColoredScaffoldState
+import com.inwave.domain.entity.Track
 import com.inwave.layout.AvatarRow
 import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
+import io.github.vinceglb.confettikit.compose.ConfettiKit
+import io.github.vinceglb.confettikit.core.Party
+import io.github.vinceglb.confettikit.core.emitter.Emitter
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
-import kotlin.math.roundToLong
+import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun ColoredScaffoldState.TopBar(
@@ -389,6 +393,7 @@ fun ColoredScaffoldState.PlayerSlider(
     viewModel: AudioPlayerViewModel,
     isSliding: MutableState<Boolean>,
 ) {
+    val coroutine = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
 
     var localCurrentPos by remember { mutableFloatStateOf(0f) }
@@ -471,10 +476,18 @@ fun ColoredScaffoldState.PlayerSlider(
                 haptic.performHapticFeedback(
                     HapticFeedbackType.Confirm
                 )
+
+                coroutine.launch {
+                    viewModel.toggleLike()
+                }
             }
         ) {
+            if (viewModel.isCurrentTrackLiked.value) {
+                Log.d("PlayerComponent", "Play particles")
+            }
+
             Icon(
-                imageVector = if (false)
+                imageVector = if (viewModel.isCurrentTrackLiked.value)
                     Icons.Rounded.Favorite
                 else
                     Icons.Rounded.FavoriteBorder,
