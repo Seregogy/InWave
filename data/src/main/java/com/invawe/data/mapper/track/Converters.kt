@@ -54,11 +54,16 @@ fun Cursor.toDomainTrack(): Track {
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
         audioId
     )
-
+    val urls = listOf(
+        "https://images.genius.com/aa7b86debf8b362bad3018cb881cfdc1.1000x1000x1.png",
+        "https://images.genius.com/9abf18ca07ce3513522ea5b1ec286d79.1000x1000x1.png",
+        "https://images.genius.com/6715e9ef15be0bb90f8371b5e68ada39.1000x1000x1.png",
+        "https://images.genius.com/acc7c50e803663c05226570b1d73f338.1000x1000x1.png",
+    )
     return Track(
         "$audioId",
         trackName,
-        "",
+        urls.random(),
         0,
         duration,
         null,

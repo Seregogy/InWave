@@ -88,6 +88,7 @@ class PlayerStateSource(
 
     suspend fun play() {
         currentCommand.emit(PlayerCommand.Play())
+        Log.d("PlayerStateSource", "play command sent")
     }
 
     suspend fun pause() {
@@ -120,6 +121,8 @@ class PlayerStateSource(
     suspend fun setPlaylist(tracks: List<Track>) {
         _playlist.value.clear()
         _playlist.value.addAll(tracks)
+
+        Log.d("PlayerStateSource", tracks.toString())
 
         currentCommand.emit(PlayerCommand.SetTracks(tracks))
     }

@@ -234,7 +234,8 @@ class PlayerStateHandler(
     fun release() {
         handlerScope.cancel()
 
-        this.release()
+        Log.d("PlayerStateHandler", "release player")
+
         mediaController.stop()
         mediaController.release()
         mediaController.removeListener(this)

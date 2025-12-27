@@ -92,5 +92,7 @@ dependencies {
     implementation(libs.haze.materials)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.network)
+
     implementation(libs.accompanist.permissions)
 }

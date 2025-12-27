@@ -3,8 +3,10 @@ package com.invawe.data.repository.track
 import android.content.ContentUris
 import android.content.Context
 import android.content.res.Resources
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import com.invawe.data.mapper.track.toDomainTrack
 import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
@@ -20,8 +22,10 @@ class TrackRepositoryFileStorageImpl(
     override suspend fun getTracks(ids: List<String>): Result<List<Track>> {
         return getAllTracks(0, Int.MAX_VALUE).onSuccess {
             it.forEach { track ->
-                if (track.audioUrl == ids.first())
+                if (track.id == ids.first()) {
+                    Log.d("LocalDataReposImpl", "Found track ${track.id}")
                     return@getTracks Result.success(listOf(track))
+                }
             }
 
             return Result.failure(Resources.NotFoundException())
@@ -40,7 +44,6 @@ class TrackRepositoryFileStorageImpl(
             }
 
             val audioFiles = mutableListOf<Track>()
-
             context.applicationContext.contentResolver.query(
                 collection,
                 null, null, null

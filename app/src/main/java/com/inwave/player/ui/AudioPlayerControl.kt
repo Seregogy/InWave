@@ -111,7 +111,6 @@ fun FullAudioPlayer(
                     Spacer(Modifier.height(10.dp))
 
                     PlayerSlider(
-                        currentPosition = currentPosition,
                         currentTrackDuration = trackDuration,
                         viewModel = viewModel,
                         isSliding = isSliding

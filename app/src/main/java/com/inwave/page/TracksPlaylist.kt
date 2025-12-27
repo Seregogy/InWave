@@ -2,6 +2,7 @@ package com.inwave.page
 
 import android.Manifest
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -143,7 +145,7 @@ fun TracksPlaylist(
                                         .padding(vertical = 5.dp),
                                     track = it,
                                     onClick = {
-                                        viewModel.launchPlaylist(currentState.tracks, index)
+                                        viewModel.launchPlaylist(index)
                                     }
                                 )
                             }
