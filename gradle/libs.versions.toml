@@ -1,4 +1,5 @@
 [versions]
+#Android versions
 accompanistPermissions = "0.37.3"
 agp = "8.13.1"
 coilCompose = "3.3.0"
@@ -23,7 +24,13 @@ bottomSheetVersion = "1.5.1"
 haze = "1.6.9"
 particlesConfettiVersion = "0.7.0"
 
+#Backend versions
+ktor = "3.4.0"
+logback = "1.5.27"
+
 [libraries]
+
+#Android libraries
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
@@ -67,7 +74,17 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "haze" }
 
+#Backend libraries
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback"}
+
+
 [plugins]
+
+#Android plugins
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
@@ -76,3 +93,5 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
 
+#Backend plugins
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
