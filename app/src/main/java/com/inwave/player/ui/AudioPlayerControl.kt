@@ -157,32 +157,5 @@ fun FullAudioPlayer(
                 )
             }
         }
-
-
-        ConfettiKit(
-            modifier = Modifier
-                .fillMaxSize(),
-            parties = listOf(
-                Party(
-                    speed = 0f,
-                    maxSpeed = 10f,
-                    damping = .15f,
-                    timeToLive = 30000,
-                    angle = Angle.BOTTOM,
-                    spread = Spread.ROUND,
-                    colors = listOf(Color.White.toArgb()),
-                    shapes = listOf(Shape.Circle),
-                    emitter = Emitter(Duration.INFINITE)
-                        .perSecond(7),
-                    position = Position.Relative(0.0, -0.1)
-                        .between(Position.Relative(1.0, -0.1)),
-                    rotation = Rotation.disabled(),
-                    size = listOf(
-                        Size(1),
-                        Size(2)
-                    )
-                )
-            )
-        )
     }
 }
