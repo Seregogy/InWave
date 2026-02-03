@@ -1,2 +1,84 @@
 # InWave
 Репозиторий команды "InWave" - проекта для дисциплины "Проектная деятельность" ЮФУ иММиКн им. И.И.Воровича 25' - 26'
+
+![Android](https://img.shields.io/badge/platform-Android-green)
+![Kotlin](https://img.shields.io/badge/language-Kotlin-blueviolet)
+![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-03DAC5)
+
+Android-приложение стримингового сервиса для независимых исполнителей и аудиоконтента, свободного от авторских прав.
+
+**InWave** делает акцент на социальное взаимодействие между слушателями и авторами через
+комментарии с таймкодами, общие плейлисты и пользовательский контент.
+
+
+
+## ✨ Возможности
+
+- Воспроизведение аудио (локальное и облачное)
+- Комментарии к трекам с таймкодами
+- Профили пользователей с историей активности
+- Общие плейлисты
+- Социальная лента (лайки, комментарии, плейлисты)
+- Загрузка пользовательских аудиофайлов в облако
+- Упрощённые рекомендации (по жанрам и лайкам)
+
+## 📸 Скриншоты
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251212_221319_InWave.jpg" width="250"/><br/>
+      InWave — экран 1
+    </td>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251212_221311_InWave.jpg" width="250"/><br/>
+      InWave — экран 2
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251218_150807_One UI Home.jpg" width="250"/><br/>
+      Экран 3
+    </td>
+    <td align="center">
+      <img src="screenshots/Screenshot_20251218_150903_One UI Home.jpg" width="250"/><br/>
+      Экран 4
+    </td>
+  </tr>
+</table>
+
+## Статус проекта
+
+**В разработке**
+
+**Текущий фокус (MVP / нулевая версия):**
+- Воспроизведение локальных аудиофайлов
+- Список треков из памяти устройства
+- Базовый интерфейс плеера
+
+## 🧱 Стек технологий
+### Android
+
+- Jetpack Compose
+- Appyx Navigation
+- Ktor Client
+- Media3 (ExoPlayer)
+- Dagger-Hilt
+- Coil
+
+### Backend
+
+- Ktor Server
+- Exposed ORM
+- MinIO (S3-совместимое хранилище)
+- Nginx
+- Docker
+
+
+
+## 🚀 Запуск проекта
+
+### Требования
+
+- Android Studio (последняя стабильная версия)
+- Android SDK 28+ (>= Android 9)
+- Gradle
