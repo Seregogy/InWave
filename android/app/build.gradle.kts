@@ -56,7 +56,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
-    implementation(project(":data"))
+    implementation(project(":android:data"))
 
     implementation(libs.material3)
     implementation(libs.androidx.material.icons.extended)
