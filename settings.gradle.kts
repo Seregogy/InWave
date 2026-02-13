@@ -21,6 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "InWave"
 include(":backend:main")
+include(":backend:data")
 include(":domain")
 include(":android:app")
 include(":android:data")

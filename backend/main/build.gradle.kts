@@ -21,6 +21,7 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":backend:data"))
 	testImplementation(kotlin("test"))
     testImplementation(libs.ktor.server.test.host)
 
