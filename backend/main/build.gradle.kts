@@ -2,6 +2,8 @@ plugins {
 	alias(libs.plugins.jetbrains.kotlin.jvm)
     alias(libs.plugins.ktor)
     application
+
+    kotlin("plugin.serialization") version "2.1.21"
 }
 
 group = "com.inwave"
@@ -27,6 +29,12 @@ dependencies {
 
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.di)
+    implementation(libs.ktor.server.content.negotation)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.config.yaml)
+
+    implementation(libs.koin.ktor)
+
     implementation(libs.logback.classic)
 }

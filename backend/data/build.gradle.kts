@@ -11,3 +11,12 @@ kotlin {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
+
+
+dependencies {
+    implementation(project(":domain"))
+
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.h2)
+}
