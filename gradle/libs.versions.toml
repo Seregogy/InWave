@@ -32,6 +32,9 @@ exposed = "1.0.0"
 h2 = "2.4.240"
 postgres-driver = "42.7.8"
 
+#Shared versions
+kotlinx-serialization = "1.10.0"
+
 [libraries]
 
 #Android libraries
@@ -93,9 +96,14 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed"}
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
 exposed-driver-postgres = { module = "org.postgresql:postgresql", version.ref = "postgres-driver" }
 
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
+
+#Shared libraries
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 
 [plugins]
@@ -111,3 +119,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
 
 #Backend plugins
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+
+#Shared plugins
