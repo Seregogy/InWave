@@ -12,12 +12,9 @@ kotlin {
     }
 }
 
-
 dependencies {
-    implementation(project(":domain"))
-    implementation(project(":backend:data"))
-
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.driver.postgres)
     implementation(libs.h2)
 }

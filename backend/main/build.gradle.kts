@@ -25,8 +25,8 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":backend:data"))
 	testImplementation(kotlin("test"))
-    testImplementation(libs.ktor.server.test.host)
 
+    testImplementation(libs.ktor.server.test.host)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.di)

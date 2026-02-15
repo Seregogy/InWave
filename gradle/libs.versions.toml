@@ -30,6 +30,7 @@ koin = "4.1.1"
 logback = "1.5.27"
 exposed = "1.0.0"
 h2 = "2.4.240"
+postgres-driver = "42.7.8"
 
 [libraries]
 
@@ -92,6 +93,8 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-driver-postgres = { module = "org.postgresql:postgresql", version.ref = "postgres-driver" }
+
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 
 
