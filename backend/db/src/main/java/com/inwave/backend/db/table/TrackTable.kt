@@ -10,7 +10,6 @@ import org.jetbrains.exposed.v1.json.jsonb
 object TrackTable : IntIdTable() {
     val name = text("name").index("idx_track_name")
     val durationMs = long("duration_ms").nullable()
-    val positionInAlbum = integer("position_in_album").nullable()
     val isExplicit = bool("is_explicit").default(false)
     val hasLyrics = bool("has_lyrics").default(false)
 
@@ -48,7 +47,7 @@ object TrackLyricsTable : IntIdTable() {
     val syncedText = text("synced_text").nullable()
 }
 
-object TrackAdditionalData : IntIdTable() {
+object TrackAdditionalDataTable : IntIdTable() {
     val trackId = reference("track_id", TrackTable)
 
     val fullTitle = text("full_title").nullable()
@@ -61,4 +60,15 @@ object TrackAdditionalData : IntIdTable() {
     val textLanguage = varchar("text_language", 32).nullable()
 
     val credits = jsonb<Map<String, List<String>>>("credits", Json { ignoreUnknownKeys = true })
+}
+
+object TrackReleasesTable : IntIdTable() {
+    val trackId = reference("track_id", TrackTable)
+    val releaseId = reference("release_id", ReleaseTable)
+    val positionInRelease = integer("position_in_release").nullable()
+    val discNumber = integer("disc_number").default(1)
+
+    init {
+        uniqueIndex("idx_track_release_unique", trackId, releaseId)  // чтобы не дублировать
+    }
 }
