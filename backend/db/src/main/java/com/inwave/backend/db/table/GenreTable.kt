@@ -4,4 +4,5 @@ import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 
 object GenreTable : IntIdTable() {
     val name = text("name")
+    val description = text("description").nullable()
 }
