@@ -1,6 +1,7 @@
 package com.inwave.backend.db.table
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.date
@@ -42,4 +43,11 @@ object ReleaseAdditionalDataTable : IntIdTable() {
 
     val tags = array<String>("tags").nullable()
     val credits = jsonb<Map<String, List<String>>>("credits", Json { ignoreUnknownKeys = true })
+}
+
+object ReleaseGenreTable : CompositeIdTable() {
+    val releaseId = reference("release_id", ReleaseTable)
+    val genreId = reference("genre_id", GenreTable)
+
+    override val primaryKey = PrimaryKey(releaseId, genreId)
 }

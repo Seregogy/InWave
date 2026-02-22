@@ -1,6 +1,7 @@
 package com.inwave.backend.db.table
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.date
@@ -37,7 +38,6 @@ object TrackStatisticsTable : IntIdTable() {
     val playCount = long("play_count").default(0)
     val likeCount = integer("like_count").default(0)
     val repostCount = integer("repost_count").default(0)
-    val skipCount = integer("skip_count").default(0)
 }
 
 object TrackLyricsTable : IntIdTable() {
@@ -53,6 +53,7 @@ object TrackAdditionalDataTable : IntIdTable() {
     val fullTitle = text("full_title").nullable()
     val descriptionMd = text("description_md").nullable()
     val descriptionPreviewPlain = varchar("description_preview_plain", 256).nullable()
+    val videoShotUrl = text("video_shot_url").nullable()
     val producers = array<String>("producers").nullable()
     val writers = array<String>("writers").nullable()
     val tags = array<String>("tags").nullable()
@@ -62,13 +63,19 @@ object TrackAdditionalDataTable : IntIdTable() {
     val credits = jsonb<Map<String, List<String>>>("credits", Json { ignoreUnknownKeys = true })
 }
 
-object TrackReleasesTable : IntIdTable() {
+object TrackReleasesTable : CompositeIdTable() {
     val trackId = reference("track_id", TrackTable)
     val releaseId = reference("release_id", ReleaseTable)
     val positionInRelease = integer("position_in_release").nullable()
     val discNumber = integer("disc_number").default(1)
 
-    init {
-        uniqueIndex("idx_track_release_unique", trackId, releaseId)  // чтобы не дублировать
-    }
+    override val primaryKey = PrimaryKey(trackId, releaseId)
+}
+
+object TrackGenresTable : CompositeIdTable() {
+    val trackId = reference("track_id", TrackTable)
+    val genreId = reference("genre_id", GenreTable)
+    val weight = float("weight").nullable()
+
+    override val primaryKey = PrimaryKey(trackId, genreId)
 }
