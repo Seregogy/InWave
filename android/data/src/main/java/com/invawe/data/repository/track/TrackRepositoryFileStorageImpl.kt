@@ -1,15 +1,13 @@
 package com.invawe.data.repository.track
 
-import android.content.ContentUris
 import android.content.Context
 import android.content.res.Resources
-import android.media.MediaScannerConnection
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import com.invawe.data.mapper.track.toDomainTrack
-import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
+import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.repository.TrackRepository
 
 class TrackRepositoryFileStorageImpl(

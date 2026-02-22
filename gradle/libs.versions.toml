@@ -26,7 +26,14 @@ particlesConfettiVersion = "0.7.0"
 
 #Backend versions
 ktor = "3.4.0"
+koin = "4.1.1"
 logback = "1.5.27"
+exposed = "1.0.0"
+h2 = "2.4.240"
+postgres-driver = "42.7.8"
+
+#Shared versions
+kotlinx-serialization = "1.10.0"
 
 [libraries]
 
@@ -79,7 +86,28 @@ ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "kto
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+ktor-server-di = { module = "io.ktor:ktor-server-di", version.ref = "ktor" }
+ktor-server-content-negotation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback"}
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed"}
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
+exposed-migration-core = { module = "org.jetbrains.exposed:exposed-migration-core", version.ref = "exposed" }
+exposed-migration-jdbc = { module = "org.jetbrains.exposed:exposed-migration-jdbc", version.ref = "exposed" }
+
+exposed-driver-postgres = { module = "org.postgresql:postgresql", version.ref = "postgres-driver" }
+
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+
+#Shared libraries
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 
 [plugins]
@@ -95,3 +123,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
 
 #Backend plugins
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+
+#Shared plugins

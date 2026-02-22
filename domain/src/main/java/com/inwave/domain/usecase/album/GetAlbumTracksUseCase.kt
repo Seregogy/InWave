@@ -8,7 +8,7 @@ class GetAlbumTracksUseCase(
 ) {
     suspend operator fun invoke(albumId: String): Result<List<Track>> {
         if (albumId.isNullOrBlank())
-            return Result.failure(IllegalArgumentException("Album ID cannot be empty"))
+            return Result.failure(IllegalArgumentException("Release ID cannot be empty"))
         return repository.getAlbumTracks(albumId)
     }
 }
