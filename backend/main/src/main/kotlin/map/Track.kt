@@ -7,7 +7,7 @@ fun Track.toGetRandomTrackResponse(): GetRandomTrackResponse {
     return GetRandomTrackResponse(
         this.id,
         this.name,
-        this.imageUrl,
+        this.coverArtUrl,
         this.audioUrl
     )
 }

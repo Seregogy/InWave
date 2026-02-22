@@ -1,6 +1,6 @@
 package com.inwave.domain.repository
 
-import com.inwave.domain.entity.Lyrics
+import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.entity.Track
 
 interface TrackRepository {

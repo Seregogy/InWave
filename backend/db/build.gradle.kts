@@ -20,6 +20,8 @@ dependencies {
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.exposed.json)
+    implementation(libs.exposed.migration.core)
+    implementation(libs.exposed.migration.jdbc)
     implementation(libs.exposed.driver.postgres)
 
     implementation(libs.kotlinx.serialization.json)

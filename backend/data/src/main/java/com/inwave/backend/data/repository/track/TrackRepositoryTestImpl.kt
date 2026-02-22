@@ -1,8 +1,9 @@
 package com.inwave.backend.data.repository.track
 
-import com.inwave.domain.entity.Lyrics
+import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.TrackRepository
+import kotlin.collections.listOf
 
 class TrackRepositoryTestImpl : TrackRepository {
     override suspend fun getTrack(id: String): Result<Track> {
@@ -23,16 +24,21 @@ class TrackRepositoryTestImpl : TrackRepository {
     override suspend fun getRandomTrack(): Result<Track> {
         return Result.success(
             Track(
-                id = "test",
-                name = "test",
-                imageUrl = "test",
-                indexInAlbum = -1,
-                duration = -1,
-                null,
-                -1,
-                "test",
-                null,
-                listOf()
+                id = "",
+                name = "",
+                coverArtUrl = "",
+                placeInRelease = null,
+                durationMs = null,
+                audioUrl = "",
+                isExplicit = false,
+                genres = listOf(),
+                metadata = null,
+                statistics = null,
+                hasLyrics = false,
+                lyrics = null,
+                additionalData = null,
+                release = null,
+                artists = listOf()
             )
         )
     }

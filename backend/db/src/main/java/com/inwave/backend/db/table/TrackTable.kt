@@ -20,7 +20,6 @@ object TrackTable : IntIdTable() {
 
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
-    val releaseDate = date("release_date").nullable()
 }
 
 object TrackMetadataTable : IntIdTable() {
@@ -44,7 +43,8 @@ object TrackLyricsTable : IntIdTable() {
     val trackId = reference("track_id", TrackTable)
 
     val plainText = text("plain_text").nullable()
-    val syncedText = text("synced_text").nullable()
+    val syncedText = jsonb<Map<Long, String>>("synced_text", Json).nullable()
+    val provider = text("provider").nullable()
 }
 
 object TrackAdditionalDataTable : IntIdTable() {
@@ -65,6 +65,7 @@ object TrackAdditionalDataTable : IntIdTable() {
 
 object TrackReleasesTable : CompositeIdTable() {
     val trackId = reference("track_id", TrackTable)
+
     val releaseId = reference("release_id", ReleaseTable)
     val positionInRelease = integer("position_in_release").nullable()
     val discNumber = integer("disc_number").default(1)
@@ -72,7 +73,7 @@ object TrackReleasesTable : CompositeIdTable() {
     override val primaryKey = PrimaryKey(trackId, releaseId)
 }
 
-object TrackGenresTable : CompositeIdTable() {
+object TrackGenreTable : CompositeIdTable() {
     val trackId = reference("track_id", TrackTable)
     val genreId = reference("genre_id", GenreTable)
     val weight = float("weight").nullable()

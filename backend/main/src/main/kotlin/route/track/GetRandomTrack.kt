@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class GetRandomTrackResponse(
     val id: String,
     val name: String,
-    val imageUrl: String,
+    val imageUrl: String?,
     val audioUrl: String
 )
 
