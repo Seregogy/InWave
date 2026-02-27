@@ -17,9 +17,9 @@ object ArtistTable : IntIdTable() {
 object ArtistStatisticsTable : IntIdTable() {
     val artistId = reference("artist_id", ArtistTable)
 
-    val playCount = integer("play_count").nullable()
-    val likeCount = integer("like_count").nullable()
-    val repostCount = integer("repost_count").nullable()
+    val playCount = long("play_count").default(0)
+    val likeCount = integer("like_count").default(0)
+    val repostCount = integer("repost_count").default(0)
 }
 
 object ArtistGenresTable : CompositeIdTable() {

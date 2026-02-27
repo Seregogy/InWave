@@ -24,16 +24,17 @@ kotlin {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":backend:data"))
-	testImplementation(kotlin("test"))
+    implementation(project(":backend:di"))
+    testImplementation(kotlin("test"))
 
     testImplementation(libs.ktor.server.test.host)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
-    implementation(libs.ktor.server.di)
     implementation(libs.ktor.server.content.negotation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.config.yaml)
 
+    implementation(libs.dotenv)
     implementation(libs.koin.ktor)
 
     implementation(libs.logback.classic)

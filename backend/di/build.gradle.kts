@@ -14,7 +14,15 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":backend:db"))
     implementation(project(":backend:data"))
+
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.migration.core)
+    implementation(libs.exposed.migration.jdbc)
+    implementation(libs.exposed.driver.postgres)
+    implementation(libs.dotenv)
 
     implementation(libs.koin.ktor)
 }
