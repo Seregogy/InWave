@@ -2,6 +2,7 @@ package com.inwave.domain.entity
 
 data class Track(
     val id: String,
+    val releaseId: String?,
     val name: String,
     val coverArtUrl: String?,
     val audioUrl: String,
@@ -16,7 +17,6 @@ data class Track(
     val lyrics: Lyrics?,
     val additionalData: AdditionalData?,
 
-    val release: Release?,
     val artists: List<ArtistOnTrack>
 ) {
     enum class ArtistType {

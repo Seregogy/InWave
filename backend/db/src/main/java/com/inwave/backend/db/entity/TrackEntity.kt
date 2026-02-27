@@ -5,7 +5,7 @@ import com.inwave.backend.db.table.TrackAdditionalDataTable
 import com.inwave.backend.db.table.TrackGenreTable
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
-import com.inwave.backend.db.table.TrackReleasesTable
+import com.inwave.backend.db.table.TrackReleaseTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.core.dao.id.CompositeID
@@ -62,6 +62,11 @@ class TrackEntity(id: EntityID<Int>) : IntEntity(id) {
     fun fetchAdditionalData(): TrackAdditionalDataEntity? =
         TrackAdditionalDataEntity.find { TrackAdditionalDataTable.trackId eq id }.firstOrNull()
 
+    fun fetchReleases(): List<TrackOnRelease> =
+        TrackReleaseEntity.find { TrackReleaseTable.trackId eq id }.map {
+            TrackOnRelease(it.track, it.release, it.positionInRelease, it.discNumber)
+        }
+
     fun fetchArtists(): List<ArtistOnTrack> =
         ArtistTracksEntity.find { ArtistTracksTable.trackId eq id }.map {
             ArtistOnTrack(it.artist, it.track, it.artistType)
@@ -117,13 +122,13 @@ class TrackAdditionalDataEntity(id: EntityID<Int>) : IntEntity(id) {
 }
 
 class TrackReleaseEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
-    companion object : CompositeEntityClass<TrackReleaseEntity>(TrackReleasesTable)
+    companion object : CompositeEntityClass<TrackReleaseEntity>(TrackReleaseTable)
 
-    val track by TrackEntity referencedOn TrackReleasesTable.trackId
-    val release by ReleaseEntity referencedOn TrackReleasesTable.releaseId
+    val track by TrackEntity referencedOn TrackReleaseTable.trackId
+    val release by ReleaseEntity referencedOn TrackReleaseTable.releaseId
 
-    var positionInRelease by TrackReleasesTable.positionInRelease
-    var discNumber by TrackReleasesTable.discNumber
+    var positionInRelease by TrackReleaseTable.positionInRelease
+    var discNumber by TrackReleaseTable.discNumber
 }
 
 class TrackGenreEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {

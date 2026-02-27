@@ -4,7 +4,6 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
-import org.jetbrains.exposed.v1.datetime.date
 import org.jetbrains.exposed.v1.datetime.datetime
 import org.jetbrains.exposed.v1.json.jsonb
 
@@ -63,7 +62,7 @@ object TrackAdditionalDataTable : IntIdTable() {
     val credits = jsonb<Map<String, List<String>>>("credits", Json { ignoreUnknownKeys = true })
 }
 
-object TrackReleasesTable : CompositeIdTable() {
+object TrackReleaseTable : CompositeIdTable() {
     val trackId = reference("track_id", TrackTable)
 
     val releaseId = reference("release_id", ReleaseTable)

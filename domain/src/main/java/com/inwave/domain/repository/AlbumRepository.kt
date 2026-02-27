@@ -1,4 +1,4 @@
-package domain.repository
+package com.inwave.domain.repository
 
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
