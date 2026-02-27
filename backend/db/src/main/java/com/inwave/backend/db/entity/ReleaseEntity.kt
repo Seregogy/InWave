@@ -5,7 +5,7 @@ import com.inwave.backend.db.table.ReleaseAdditionalDataTable
 import com.inwave.backend.db.table.ReleaseGenreTable
 import com.inwave.backend.db.table.ReleaseStatisticsTable
 import com.inwave.backend.db.table.ReleaseTable
-import com.inwave.backend.db.table.TrackReleasesTable
+import com.inwave.backend.db.table.TrackReleaseTable
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.dao.IntEntity
@@ -35,7 +35,7 @@ class ReleaseEntity(id: EntityID<Int>) : IntEntity(id) {
         ReleaseAdditionalDataEntity.find { ReleaseAdditionalDataTable.releaseId eq id }.firstOrNull()
 
     fun fetchTracks(): List<TrackOnRelease> =
-        TrackReleaseEntity.find { TrackReleasesTable.releaseId eq id }.map {
+        TrackReleaseEntity.find { TrackReleaseTable.releaseId eq id }.map {
             TrackOnRelease(it.track, it.release, it.positionInRelease, it.discNumber)
         }
 }

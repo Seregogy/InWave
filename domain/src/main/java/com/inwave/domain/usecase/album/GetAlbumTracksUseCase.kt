@@ -1,7 +1,7 @@
 package com.inwave.domain.usecase.album
 
 import com.inwave.domain.entity.Track
-import domain.repository.AlbumRepository
+import com.inwave.domain.repository.AlbumRepository
 
 class GetAlbumTracksUseCase(
     private val repository: AlbumRepository
