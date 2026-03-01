@@ -13,6 +13,7 @@ import org.jetbrains.exposed.v1.dao.CompositeEntity
 import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.jdbc.insert
 
 data class ArtistOnTrack(
     val artist: ArtistEntity,
@@ -21,7 +22,21 @@ data class ArtistOnTrack(
 )
 
 class ArtistEntity(id: EntityID<Int>): IntEntity(id) {
-    companion object : IntEntityClass<ArtistEntity>(ArtistTable)
+    companion object : IntEntityClass<ArtistEntity>(ArtistTable) {
+        override fun new(id: Int?, init: ArtistEntity.() -> Unit): ArtistEntity {
+            val artistEntity = super.new(id) {
+                name = ""
+            }
+
+            ArtistStatisticsEntity.new { artist = artistEntity }
+
+            with(artistEntity) {
+                init()
+            }
+
+            return artistEntity
+        }
+    }
 
     var name by ArtistTable.name
     var avatarUrls by ArtistTable.avatarUrls
@@ -37,23 +52,44 @@ class ArtistEntity(id: EntityID<Int>): IntEntity(id) {
         ArtistTracksEntity.find { ArtistTracksTable.artistId eq id }.map {
             ArtistOnTrack(it.artist, it.track, it.artistType)
         }
+
+    fun addGenre(genreEntity: GenreEntity): Result<Unit> = runCatching {
+        ArtistGenresTable.insert {
+            it[artistId] = this@ArtistEntity.id
+            it[genreId] = genreEntity.id
+        }
+    }
+
+    fun addRelease(releaseEntity: ReleaseEntity): Result<Unit> = runCatching {
+        ArtistReleasesTable.insert {
+            it[artistId] = this@ArtistEntity.id
+            it[releaseId] = releaseEntity.id
+        }
+    }
+
+    fun addTrack(track: TrackEntity) {
+        ArtistTracksTable.insert {
+            it[artistId] = this@ArtistEntity.id
+            it[trackId] = track.id
+        }
+    }
 }
 
 class ArtistStatisticsEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<ArtistStatisticsEntity>(ArtistStatisticsTable)
 
-    val artist by ArtistEntity referencedOn ArtistStatisticsTable.artistId
+    var artist by ArtistEntity referencedOn ArtistStatisticsTable.artistId
 
-    var playCount by ArtistStatisticsTable.playCount
-    var likeCount by ArtistStatisticsTable.likeCount
-    var repostCount by ArtistStatisticsTable.repostCount
+    val playCount by ArtistStatisticsTable.playCount
+    val likeCount by ArtistStatisticsTable.likeCount
+    val repostCount by ArtistStatisticsTable.repostCount
 }
 
 class ArtistTracksEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
     companion object : CompositeEntityClass<ArtistTracksEntity>(ArtistTracksTable)
 
-    val artist by ArtistEntity referencedOn ArtistTracksTable.artistId
-    val track by TrackEntity referencedOn ArtistTracksTable.trackId
+    var artist by ArtistEntity referencedOn ArtistTracksTable.artistId
+    var track by TrackEntity referencedOn ArtistTracksTable.trackId
 
     var artistType by ArtistTracksTable.artistType
 }

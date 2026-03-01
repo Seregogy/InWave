@@ -31,6 +31,7 @@ logback = "1.5.27"
 exposed = "1.0.0"
 h2 = "2.4.240"
 postgres-driver = "42.7.8"
+sqlite-driver = "3.50.2.0"
 dotenvVersion = "6.5.1"
 
 #Shared versions
@@ -103,6 +104,7 @@ exposed-migration-core = { module = "org.jetbrains.exposed:exposed-migration-cor
 exposed-migration-jdbc = { module = "org.jetbrains.exposed:exposed-migration-jdbc", version.ref = "exposed" }
 
 exposed-driver-postgres = { module = "org.postgresql:postgresql", version.ref = "postgres-driver" }
+exposed-driver-sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-driver" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 
 dotenv = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenvVersion" }

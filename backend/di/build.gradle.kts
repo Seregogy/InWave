@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.exposed.migration.core)
     implementation(libs.exposed.migration.jdbc)
     implementation(libs.exposed.driver.postgres)
+    implementation(libs.exposed.driver.sqlite)
     implementation(libs.dotenv)
 
     implementation(libs.koin.ktor)

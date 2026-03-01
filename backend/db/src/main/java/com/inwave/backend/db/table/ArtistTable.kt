@@ -43,3 +43,8 @@ object ArtistTracksTable : CompositeIdTable() {
 
     override val primaryKey = PrimaryKey(trackId, artistId)
 }
+
+object ArtistLegacyTableId : IntIdTable() {
+    val artistId = reference("artist_id", ArtistTable)
+    val legacyUuid = text("uuid_Legacy_artist_id")
+}

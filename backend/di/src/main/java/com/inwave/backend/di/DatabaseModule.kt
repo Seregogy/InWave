@@ -1,16 +1,21 @@
 package com.inwave.backend.di
 
+import com.inwave.backend.db.migration.migration1
+import com.inwave.backend.db.migration.migration2
 import com.inwave.backend.db.table.ArtistGenresTable
+import com.inwave.backend.db.table.ArtistLegacyTableId
 import com.inwave.backend.db.table.ArtistReleasesTable
 import com.inwave.backend.db.table.ArtistStatisticsTable
 import com.inwave.backend.db.table.ArtistTable
 import com.inwave.backend.db.table.ArtistTracksTable
 import com.inwave.backend.db.table.ReleaseAdditionalDataTable
 import com.inwave.backend.db.table.ReleaseGenreTable
+import com.inwave.backend.db.table.ReleaseLegacyTableId
 import com.inwave.backend.db.table.ReleaseStatisticsTable
 import com.inwave.backend.db.table.ReleaseTable
 import com.inwave.backend.db.table.TrackAdditionalDataTable
 import com.inwave.backend.db.table.TrackGenreTable
+import com.inwave.backend.db.table.TrackLegacyTableId
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
 import com.inwave.backend.db.table.TrackReleaseTable
@@ -42,10 +47,10 @@ val databaseModule = module {
     }
 }
 
-class DbInitializer(
-    private val db: Database
+open class DbInitializer(
+    protected val db: Database
 ) {
-    fun configureDb() {
+    open fun configureDb() {
         transaction(db) {
             SchemaUtils.create(
                 TrackTable, TrackMetadataTable, TrackStatisticsTable, TrackLyricsTable,
@@ -63,7 +68,7 @@ class DbInitializer(
         }
     }
 
-    fun showMigrations() {
+    open fun showMigrations() {
         transaction(db) {
             MigrationUtils.statementsRequiredForDatabaseMigration(
                 TrackTable, TrackMetadataTable, TrackStatisticsTable, TrackLyricsTable,
@@ -72,5 +77,43 @@ class DbInitializer(
                 ArtistStatisticsTable, ArtistGenresTable, ArtistReleasesTable, ArtistTracksTable
             ).forEach { println(it) }
         }
+    }
+}
+
+class DbInitializerMigration1(
+    db: Database
+): DbInitializer(db) {
+    override fun configureDb() {
+        super.configureDb()
+
+        transaction(db) {
+            SchemaUtils.create(
+                TrackLegacyTableId, ReleaseLegacyTableId, ArtistLegacyTableId
+            )
+        }
+    }
+
+    override fun showMigrations() {
+        val dbPath = "C:/Users/delhi/Desktop/KotlinLearn/ktor-test-backend/src/files/database.db"
+        val oldDb = Database.connect("jdbc:sqlite:$dbPath", "org.sqlite.JDBC")
+
+        migration1(oldDb, db)
+
+        super.showMigrations()
+
+        transaction(db) {
+            MigrationUtils.statementsRequiredForDatabaseMigration(
+                TrackLegacyTableId, ReleaseLegacyTableId, ArtistLegacyTableId
+            ).forEach { println(it) }
+        }
+    }
+}
+
+class DbInitializerMigration2(
+    db: Database
+): DbInitializer(db) {
+    override fun showMigrations() {
+        migration2(db)
+        super.showMigrations()
     }
 }

@@ -1,6 +1,7 @@
 package com.inwave.backend.db.table
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
@@ -9,7 +10,7 @@ import org.jetbrains.exposed.v1.json.jsonb
 
 object TrackTable : IntIdTable() {
     val name = text("name").index("idx_track_name")
-    val durationMs = long("duration_ms").nullable()
+    val durationMs = long("duration_ms").default(0)
     val isExplicit = bool("is_explicit").default(false)
     val hasLyrics = bool("has_lyrics").default(false)
 
@@ -78,4 +79,9 @@ object TrackGenreTable : CompositeIdTable() {
     val weight = float("weight").nullable()
 
     override val primaryKey = PrimaryKey(trackId, genreId)
+}
+
+object TrackLegacyTableId : IntIdTable() {
+    val trackId = reference("track_id", TrackTable)
+    val legacyUuid = text("uuid_Legacy_track_id")
 }
