@@ -1,25 +1,27 @@
 package com.inwave.backend.db.entity
 
-import com.inwave.backend.db.table.ArtistReleasesTable
+import com.inwave.backend.db.table.ArtistReleaseTable
 import com.inwave.backend.db.table.ReleaseAdditionalDataTable
 import com.inwave.backend.db.table.ReleaseGenreTable
 import com.inwave.backend.db.table.ReleaseStatisticsTable
 import com.inwave.backend.db.table.ReleaseTable
 import com.inwave.backend.db.table.ReleaseType
-import com.inwave.backend.db.table.TrackReleaseTable
-import com.inwave.backend.db.table.TrackStatisticsTable
-import com.inwave.backend.db.table.TrackStatisticsTable.likeCount
-import com.inwave.backend.db.table.TrackStatisticsTable.playCount
-import com.inwave.backend.db.table.TrackStatisticsTable.repostCount
+import com.inwave.backend.db.table.ReleaseTrackTable
+import com.inwave.backend.db.table.ReleaseTrackTable.discNumber
+import com.inwave.backend.db.table.ReleaseTrackTable.positionInRelease
+import com.inwave.backend.db.table.TrackTable
+import org.jetbrains.exposed.v1.core.dao.id.CompositeID
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.minus
 import org.jetbrains.exposed.v1.core.plus
+import org.jetbrains.exposed.v1.dao.CompositeEntity
+import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
-import org.jetbrains.exposed.v1.jdbc.SizedCollection
-import org.jetbrains.exposed.v1.jdbc.SizedIterable
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
 class ReleaseEntity(id: EntityID<Int>) : IntEntity(id) {
@@ -55,7 +57,7 @@ class ReleaseEntity(id: EntityID<Int>) : IntEntity(id) {
     var releaseDate by ReleaseTable.releaseDate
 
     val genres by GenreEntity via ReleaseGenreTable
-    val artists by ArtistEntity via ArtistReleasesTable
+    val artists by ArtistEntity via ArtistReleaseTable
 
     fun fetchStatistics(): ReleaseStatisticsEntity? =
         ReleaseStatisticsEntity.find { ReleaseStatisticsTable.releaseId eq id }.firstOrNull()
@@ -63,9 +65,17 @@ class ReleaseEntity(id: EntityID<Int>) : IntEntity(id) {
     fun fetchAdditionalData(): ReleaseAdditionalDataEntity? =
         ReleaseAdditionalDataEntity.find { ReleaseAdditionalDataTable.releaseId eq id }.firstOrNull()
 
-    fun fetchTracks(): List<TrackOnRelease> =
-        TrackReleaseEntity.find { TrackReleaseTable.releaseId eq id }.map {
-            TrackOnRelease(it.track, it.release, it.positionInRelease, it.discNumber)
+    fun fetchTracks(): List<TrackOnRelease> = (ReleaseTrackTable innerJoin TrackTable)
+        .select(
+            TrackTable.columns + positionInRelease + discNumber
+        )
+        .where { ReleaseTrackTable.releaseId eq id }.map {
+            TrackOnRelease(
+                track = TrackEntity.wrapRow(it),
+                release = this,
+                positionInRelease = it[positionInRelease],
+                discNumber = it[discNumber]
+            )
         }
 
     fun addGenre(genreEntity: GenreEntity): Result<Unit> = runCatching {
@@ -80,11 +90,11 @@ class ReleaseEntity(id: EntityID<Int>) : IntEntity(id) {
         positionInRelease: Int? = null,
         diskNumber: Int? = null
     ): Result<Unit> = runCatching {
-        TrackReleaseTable.insert {
+        ReleaseTrackTable.insert {
             it[releaseId] = this@ReleaseEntity.id
             it[trackId] = trackEntity.id
-            it[TrackReleaseTable.positionInRelease] = positionInRelease ?: (totalTracks - 1)
-            it[TrackReleaseTable.discNumber] = diskNumber ?: 0
+            it[ReleaseTrackTable.positionInRelease] = positionInRelease ?: (totalTracks - 1)
+            it[ReleaseTrackTable.discNumber] = diskNumber ?: 0
         }
 
         totalTracks++
@@ -94,7 +104,7 @@ class ReleaseEntity(id: EntityID<Int>) : IntEntity(id) {
     }
 
     fun addArtist(artistEntity: ArtistEntity): Result<Unit> = runCatching {
-        ArtistReleasesTable.insert {
+        ArtistReleaseTable.insert {
             it[artistId] = artistEntity.id
             it[releaseId] = this@ReleaseEntity.id
         }
@@ -163,4 +173,14 @@ class ReleaseAdditionalDataEntity(id: EntityID<Int>) : IntEntity(id) {
     var label by ReleaseAdditionalDataTable.label
     var tags by ReleaseAdditionalDataTable.tags
     var credits by ReleaseAdditionalDataTable.credits
+}
+
+class ReleaseTrackEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
+    companion object : CompositeEntityClass<ReleaseTrackEntity>(ReleaseTrackTable)
+
+    val track by TrackEntity referencedOn ReleaseTrackTable.trackId
+    val release by ReleaseEntity referencedOn ReleaseTrackTable.releaseId
+
+    var positionInRelease by ReleaseTrackTable.positionInRelease
+    var discNumber by ReleaseTrackTable.discNumber
 }

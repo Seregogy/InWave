@@ -77,10 +77,6 @@ class TrackQueryRepositoryFileStorageImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun toggleLike(id: String): Result<Boolean> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun searchTracks(
         query: String,
         limit: Int

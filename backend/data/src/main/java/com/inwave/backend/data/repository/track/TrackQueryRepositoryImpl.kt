@@ -68,10 +68,6 @@ class TrackQueryRepositoryImpl(
         TrackEntity.findById(id.toInt())!!.toDomain()
     }
 
-    override suspend fun toggleLike(id: String): Result<Boolean> {
-        TODO("User entity not implemented yet")
-    }
-
     override suspend fun searchTracks(
         query: String,
         limit: Int

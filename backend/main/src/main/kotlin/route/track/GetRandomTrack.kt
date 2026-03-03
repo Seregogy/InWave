@@ -1,9 +1,8 @@
 package com.inwave.backend.route.track
 
 import com.inwave.backend.map.toGetRandomTrackResponse
-import com.inwave.domain.usecase.track.GetRandomTrackUseCase
+import com.inwave.domain.usecase.track.query.GetRandomTrackUseCase
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import kotlinx.serialization.Serializable
@@ -12,8 +11,9 @@ import kotlinx.serialization.Serializable
 data class GetRandomTrackResponse(
     val id: String,
     val name: String,
-    val imageUrl: String?,
-    val audioUrl: String
+    val playCount: Long,
+    val hasLyrics: Boolean,
+    val syncedText: Map<Long, String>
 )
 
 fun Route.getRandomTrack(

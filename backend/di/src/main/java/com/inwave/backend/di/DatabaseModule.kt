@@ -2,12 +2,12 @@ package com.inwave.backend.di
 
 import com.inwave.backend.db.migration.migration1
 import com.inwave.backend.db.migration.migration2
-import com.inwave.backend.db.table.ArtistGenresTable
+import com.inwave.backend.db.table.ArtistGenreTable
 import com.inwave.backend.db.table.ArtistLegacyTableId
-import com.inwave.backend.db.table.ArtistReleasesTable
+import com.inwave.backend.db.table.ArtistReleaseTable
 import com.inwave.backend.db.table.ArtistStatisticsTable
 import com.inwave.backend.db.table.ArtistTable
-import com.inwave.backend.db.table.ArtistTracksTable
+import com.inwave.backend.db.table.ArtistTrackTable
 import com.inwave.backend.db.table.ReleaseAdditionalDataTable
 import com.inwave.backend.db.table.ReleaseGenreTable
 import com.inwave.backend.db.table.ReleaseLegacyTableId
@@ -18,7 +18,7 @@ import com.inwave.backend.db.table.TrackGenreTable
 import com.inwave.backend.db.table.TrackLegacyTableId
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
-import com.inwave.backend.db.table.TrackReleaseTable
+import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -54,7 +54,7 @@ open class DbInitializer(
         transaction(db) {
             SchemaUtils.create(
                 TrackTable, TrackMetadataTable, TrackStatisticsTable, TrackLyricsTable,
-                TrackAdditionalDataTable, TrackReleaseTable, TrackGenreTable
+                TrackAdditionalDataTable, ReleaseTrackTable, TrackGenreTable
             )
 
             SchemaUtils.create(
@@ -62,20 +62,22 @@ open class DbInitializer(
             )
 
             SchemaUtils.create(
-                ArtistTable, ArtistStatisticsTable, ArtistGenresTable, ArtistReleasesTable,
-                ArtistTracksTable
+                ArtistTable, ArtistStatisticsTable, ArtistGenreTable, ArtistReleaseTable,
+                ArtistTrackTable
             )
         }
     }
 
     open fun showMigrations() {
         transaction(db) {
-            MigrationUtils.statementsRequiredForDatabaseMigration(
+            val tables = arrayOf(
                 TrackTable, TrackMetadataTable, TrackStatisticsTable, TrackLyricsTable,
-                TrackAdditionalDataTable, TrackReleaseTable, TrackGenreTable, ReleaseTable,
+                TrackAdditionalDataTable, ReleaseTrackTable, TrackGenreTable, ReleaseTable,
                 ReleaseStatisticsTable, ReleaseAdditionalDataTable, ReleaseGenreTable, ArtistTable,
-                ArtistStatisticsTable, ArtistGenresTable, ArtistReleasesTable, ArtistTracksTable
-            ).forEach { println(it) }
+                ArtistStatisticsTable, ArtistGenreTable, ArtistReleaseTable, ArtistTrackTable
+            )
+
+            MigrationUtils.statementsRequiredForDatabaseMigration(*tables).forEach { println(it) }
         }
     }
 }

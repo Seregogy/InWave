@@ -56,3 +56,13 @@ object ReleaseLegacyTableId : IntIdTable() {
     val releaseId = reference("release_id", ReleaseTable)
     val legacyUuid = text("uuid_Legacy_release_id")
 }
+
+object ReleaseTrackTable : CompositeIdTable() {
+    val trackId = reference("track_id", TrackTable)
+    val releaseId = reference("release_id", ReleaseTable)
+
+    val positionInRelease = integer("position_in_release").nullable()
+    val discNumber = integer("disc_number").default(1)
+
+    override val primaryKey = PrimaryKey(trackId, releaseId)
+}

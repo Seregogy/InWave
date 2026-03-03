@@ -1,7 +1,6 @@
 package com.inwave.backend.db.table
 
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
@@ -61,16 +60,6 @@ object TrackAdditionalDataTable : IntIdTable() {
     val textLanguage = varchar("text_language", 32).nullable()
 
     val credits = jsonb<Map<String, List<String>>>("credits", Json { ignoreUnknownKeys = true })
-}
-
-object TrackReleaseTable : CompositeIdTable() {
-    val trackId = reference("track_id", TrackTable)
-
-    val releaseId = reference("release_id", ReleaseTable)
-    val positionInRelease = integer("position_in_release").nullable()
-    val discNumber = integer("disc_number").default(1)
-
-    override val primaryKey = PrimaryKey(trackId, releaseId)
 }
 
 object TrackGenreTable : CompositeIdTable() {

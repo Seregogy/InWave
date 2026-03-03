@@ -1,12 +1,12 @@
 package com.inwave.backend.db.entity
 
 import com.inwave.backend.db.table.ArtistOnTrackType
-import com.inwave.backend.db.table.ArtistTracksTable
+import com.inwave.backend.db.table.ArtistTrackTable
 import com.inwave.backend.db.table.TrackAdditionalDataTable
 import com.inwave.backend.db.table.TrackGenreTable
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
-import com.inwave.backend.db.table.TrackReleaseTable
+import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.core.dao.id.CompositeID
@@ -18,7 +18,6 @@ import org.jetbrains.exposed.v1.dao.CompositeEntity
 import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.collections.List
 
@@ -88,12 +87,12 @@ class TrackEntity(id: EntityID<Int>) : IntEntity(id) {
         TrackAdditionalDataEntity.find { TrackAdditionalDataTable.trackId eq id }.firstOrNull()
 
     fun fetchReleases(): List<TrackOnRelease> =
-        TrackReleaseEntity.find { TrackReleaseTable.trackId eq id }.map {
+        ReleaseTrackEntity.find { ReleaseTrackTable.trackId eq id }.map {
             TrackOnRelease(it.track, it.release, it.positionInRelease, it.discNumber)
         }
 
     fun fetchArtists(): List<ArtistOnTrack> =
-        ArtistTracksEntity.find { ArtistTracksTable.trackId eq id }.map {
+        ArtistTracksEntity.find { ArtistTrackTable.trackId eq id }.map {
             ArtistOnTrack(it.artist, it.track, it.artistType)
         }
 
@@ -231,16 +230,6 @@ class TrackAdditionalDataEntity(id: EntityID<Int>) : IntEntity(id) {
     var textLanguage by TrackAdditionalDataTable.textLanguage
 
     var credits by TrackAdditionalDataTable.credits
-}
-
-class TrackReleaseEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
-    companion object : CompositeEntityClass<TrackReleaseEntity>(TrackReleaseTable)
-
-    val track by TrackEntity referencedOn TrackReleaseTable.trackId
-    val release by ReleaseEntity referencedOn TrackReleaseTable.releaseId
-
-    var positionInRelease by TrackReleaseTable.positionInRelease
-    var discNumber by TrackReleaseTable.discNumber
 }
 
 class TrackGenreEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {

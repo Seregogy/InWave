@@ -3,12 +3,12 @@ package com.inwave.backend.db.migration
 import com.inwave.backend.db.entity.ReleaseEntity
 import com.inwave.backend.db.entity.TrackLyricsEntity
 import com.inwave.backend.db.table.ArtistLegacyTableId
-import com.inwave.backend.db.table.ArtistReleasesTable
+import com.inwave.backend.db.table.ArtistReleaseTable
 import com.inwave.backend.db.table.ArtistStatisticsTable
 import com.inwave.backend.db.table.ReleaseLegacyTableId
 import com.inwave.backend.db.table.ReleaseStatisticsTable
 import com.inwave.backend.db.table.TrackLegacyTableId
-import com.inwave.backend.db.table.TrackReleaseTable
+import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -250,7 +250,7 @@ fun migration1(
                             TrackLegacyTableId.legacyUuid eq oldTrack.id.toString()
                         }.first()[TrackLegacyTableId.trackId]
                     }.forEach { (oldTrack, newId) ->
-                        TrackReleaseTable.insert {
+                        ReleaseTrackTable.insert {
                             it[trackId] = newId
                             it[releaseId] = this@new.id
                             it[positionInRelease] = oldTrack.indexInAlbum
@@ -281,7 +281,7 @@ fun migration1(
                             ReleaseLegacyTableId.legacyUuid eq oldAlbum.id.toString()
                         }.first()[ReleaseLegacyTableId.releaseId]
                     }.forEach { newId ->
-                        ArtistReleasesTable.insert {
+                        ArtistReleaseTable.insert {
                             it[artistId] = this@new.id
                             it[releaseId] = newId
                         }

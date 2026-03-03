@@ -22,21 +22,21 @@ object ArtistStatisticsTable : IntIdTable() {
     val repostCount = integer("repost_count").default(0)
 }
 
-object ArtistGenresTable : CompositeIdTable() {
+object ArtistGenreTable : CompositeIdTable() {
     val artistId = reference("artist_id", ArtistTable)
     val genreId = reference("genre_id", GenreTable)
 
     override val primaryKey = PrimaryKey(artistId, genreId)
 }
 
-object ArtistReleasesTable : CompositeIdTable() {
+object ArtistReleaseTable : CompositeIdTable() {
     val artistId = reference("artist_id", ArtistTable)
     val releaseId = reference("release_id", ReleaseTable)
 
     override val primaryKey = PrimaryKey(artistId, releaseId)
 }
 
-object ArtistTracksTable : CompositeIdTable() {
+object ArtistTrackTable : CompositeIdTable() {
     val artistId = reference("artist_id", ArtistTable)
     val trackId = reference("track_id", TrackTable)
     val artistType = enumeration("artist_type", ArtistOnTrackType::class)

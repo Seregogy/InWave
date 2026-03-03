@@ -1,11 +1,13 @@
 package com.inwave.backend.db.entity
 
-import com.inwave.backend.db.table.ArtistGenresTable
+import com.inwave.backend.db.table.ArtistGenreTable
 import com.inwave.backend.db.table.ArtistOnTrackType
-import com.inwave.backend.db.table.ArtistReleasesTable
+import com.inwave.backend.db.table.ArtistReleaseTable
 import com.inwave.backend.db.table.ArtistStatisticsTable
 import com.inwave.backend.db.table.ArtistTable
-import com.inwave.backend.db.table.ArtistTracksTable
+import com.inwave.backend.db.table.ArtistTrackTable
+import com.inwave.backend.db.table.ArtistTrackTable.artistType
+import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.core.dao.id.CompositeID
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
@@ -14,6 +16,7 @@ import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 
 data class ArtistOnTrack(
     val artist: ArtistEntity,
@@ -42,35 +45,45 @@ class ArtistEntity(id: EntityID<Int>): IntEntity(id) {
     var avatarUrls by ArtistTable.avatarUrls
     var about by ArtistTable.about
 
-    val genres by GenreEntity via ArtistGenresTable
-    val releases by ReleaseEntity via ArtistReleasesTable
+    val genres by GenreEntity via ArtistGenreTable
+    val releases by ReleaseEntity via ArtistReleaseTable
 
     fun fetchStatistics(): ArtistStatisticsEntity? =
         ArtistStatisticsEntity.find { ArtistStatisticsTable.artistId eq id }.firstOrNull()
 
     fun fetchTracks(): List<ArtistOnTrack> =
-        ArtistTracksEntity.find { ArtistTracksTable.artistId eq id }.map {
-            ArtistOnTrack(it.artist, it.track, it.artistType)
+        (TrackTable innerJoin ArtistTrackTable).select(
+            TrackTable.columns + artistType
+        ).where { ArtistTrackTable.artistId eq id }.map {
+            ArtistOnTrack(
+                artist = this,
+                track = TrackEntity.wrapRow(it),
+                artistOnTrackType = it[artistType]
+            )
         }
 
     fun addGenre(genreEntity: GenreEntity): Result<Unit> = runCatching {
-        ArtistGenresTable.insert {
+        ArtistGenreTable.insert {
             it[artistId] = this@ArtistEntity.id
             it[genreId] = genreEntity.id
         }
     }
 
     fun addRelease(releaseEntity: ReleaseEntity): Result<Unit> = runCatching {
-        ArtistReleasesTable.insert {
+        ArtistReleaseTable.insert {
             it[artistId] = this@ArtistEntity.id
             it[releaseId] = releaseEntity.id
         }
     }
 
-    fun addTrack(track: TrackEntity) {
-        ArtistTracksTable.insert {
+    fun addTrack(
+        track: TrackEntity,
+        artistOnTrackType: ArtistOnTrackType = ArtistOnTrackType.Primary
+    ) {
+        ArtistTrackTable.insert {
             it[artistId] = this@ArtistEntity.id
             it[trackId] = track.id
+            it[artistType] = artistOnTrackType
         }
     }
 }
@@ -86,10 +99,10 @@ class ArtistStatisticsEntity(id: EntityID<Int>) : IntEntity(id) {
 }
 
 class ArtistTracksEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
-    companion object : CompositeEntityClass<ArtistTracksEntity>(ArtistTracksTable)
+    companion object : CompositeEntityClass<ArtistTracksEntity>(ArtistTrackTable)
 
-    var artist by ArtistEntity referencedOn ArtistTracksTable.artistId
-    var track by TrackEntity referencedOn ArtistTracksTable.trackId
+    var artist by ArtistEntity referencedOn ArtistTrackTable.artistId
+    var track by TrackEntity referencedOn ArtistTrackTable.trackId
 
-    var artistType by ArtistTracksTable.artistType
+    var artistType by ArtistTrackTable.artistType
 }
