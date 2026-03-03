@@ -7,7 +7,8 @@ fun Track.toGetRandomTrackResponse(): GetRandomTrackResponse {
     return GetRandomTrackResponse(
         this.id,
         this.name,
-        this.coverArtUrl,
-        this.audioUrl
+        this.statistics?.playCount?.toLong() ?: 0L,
+        this.hasLyrics,
+        this.lyrics?.syncedText ?: mapOf()
     )
 }

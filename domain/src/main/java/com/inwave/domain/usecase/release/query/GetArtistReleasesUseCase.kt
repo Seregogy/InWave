@@ -1,15 +1,14 @@
-package com.inwave.domain.usecase.artist
+package com.inwave.domain.usecase.release.query
 
-import com.inwave.domain.repository.query.ArtistQueryRepository
 import com.inwave.domain.entity.Release
+import com.inwave.domain.repository.query.ReleaseQueryRepository
 
 class GetArtistReleasesUseCase(
-    private val repository: ArtistQueryRepository
+    private val repository: ReleaseQueryRepository
 ) {
     suspend operator fun invoke(artistId: String): Result<List<Release>> {
-        if (artistId.isBlank()) {
+        if (artistId.isBlank())
             return Result.failure(IllegalArgumentException("Artist ID cannot be empty"))
-        }
         return repository.getArtistReleases(artistId)
     }
 }

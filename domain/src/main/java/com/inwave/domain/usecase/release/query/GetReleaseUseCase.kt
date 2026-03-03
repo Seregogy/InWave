@@ -1,14 +1,15 @@
-package com.inwave.domain.usecase.release
+package com.inwave.domain.usecase.release.query
 
-import com.inwave.domain.entity.Track
+import com.inwave.domain.entity.Release
 import com.inwave.domain.repository.query.ReleaseQueryRepository
 
-class GetReleaseTracksUseCase(
+class GetReleaseUseCase(
     private val repository: ReleaseQueryRepository
 ) {
-    suspend operator fun invoke(releaseId: String): Result<List<Track>> {
+    suspend operator fun invoke(releaseId: String): Result<Release> {
         if (releaseId.isBlank())
             return Result.failure(IllegalArgumentException("Release ID cannot be empty"))
-        return repository.getReleaseTracks(releaseId)
+
+        return repository.getRelease(releaseId)
     }
 }
