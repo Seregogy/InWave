@@ -8,14 +8,14 @@ import com.inwave.backend.db.table.ReleaseTable
 import com.inwave.backend.db.table.ReleaseType
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
-import com.inwave.domain.repository.ReleaseRepository
+import com.inwave.domain.repository.query.ReleaseQueryRepository
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.collections.map
 
-class ReleaseRepositoryImpl(
+class ReleaseQueryRepositoryImpl(
     private val db: Database
-) : ReleaseRepository {
+) : ReleaseQueryRepository {
     override suspend fun getRelease(releaseId: String): Result<Release> = catchingTransaction(db) {
         ReleaseEntity.findById(releaseId.toInt())!!.toDomain()
     }

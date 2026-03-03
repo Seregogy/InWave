@@ -1,10 +1,10 @@
-package com.inwave.domain.repository
+package com.inwave.domain.repository.query
 
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track
 
-interface ArtistRepository {
+interface ArtistQueryRepository {
     suspend fun getArtist(artistId: String): Result<Artist>
     suspend fun getTopArtists(limit: Int = 10): Result<List<Artist>>
     suspend fun getArtistReleases(artistId: String): Result<List<Release>>

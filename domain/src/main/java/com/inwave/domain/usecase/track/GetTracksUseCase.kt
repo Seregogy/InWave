@@ -2,10 +2,10 @@ package com.inwave.domain.usecase.track
 
 import com.inwave.domain.cache.CacheRepository
 import com.inwave.domain.entity.Track
-import com.inwave.domain.repository.TrackRepository
+import com.inwave.domain.repository.query.TrackQueryRepository
 
 class GetTracksUseCase(
-    private val repository: TrackRepository,
+    private val repository: TrackQueryRepository,
     private val cache: CacheRepository<String, Track>,
 ) {
     suspend operator fun invoke(ids: List<String>): Result<List<Track>> {

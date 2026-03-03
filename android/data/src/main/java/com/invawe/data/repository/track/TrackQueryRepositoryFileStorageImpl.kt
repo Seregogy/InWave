@@ -8,11 +8,11 @@ import android.util.Log
 import com.invawe.data.mapper.track.toDomainTrack
 import com.inwave.domain.entity.Track
 import com.inwave.domain.entity.Track.Lyrics
-import com.inwave.domain.repository.TrackRepository
+import com.inwave.domain.repository.query.TrackQueryRepository
 
-class TrackRepositoryFileStorageImpl(
+class TrackQueryRepositoryFileStorageImpl(
     private val context: Context
-) : TrackRepository {
+) : TrackQueryRepository {
     override suspend fun getTrack(id: String): Result<Track> {
         TODO("Not yet implemented")
     }

@@ -6,18 +6,17 @@ import com.inwave.backend.db.entity.TrackEntity
 import com.inwave.backend.db.table.TrackTable
 import com.inwave.domain.entity.Track
 import com.inwave.domain.entity.Track.Lyrics
-import com.inwave.domain.repository.TrackRepository
+import com.inwave.domain.repository.query.TrackQueryRepository
 import org.jetbrains.exposed.v1.core.Random
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-class TrackRepositoryImpl(
+class TrackQueryRepositoryImpl(
     private val db: Database
-) : TrackRepository {
+) : TrackQueryRepository {
     override suspend fun getTrack(id: String): Result<Track> = catchingTransaction(db) {
         TrackEntity.findById(id.toInt())!!.toDomain()
     }

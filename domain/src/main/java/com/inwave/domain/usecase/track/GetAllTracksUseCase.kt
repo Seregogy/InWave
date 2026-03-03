@@ -1,10 +1,10 @@
 package com.inwave.domain.usecase.track
 
 import com.inwave.domain.entity.Track
-import com.inwave.domain.repository.TrackRepository
+import com.inwave.domain.repository.query.TrackQueryRepository
 
 class GetAllTracksUseCase(
-    private val repository: TrackRepository
+    private val repository: TrackQueryRepository
 ) {
     suspend operator fun invoke(page: Int = 0, limit: Int = 20): Result<List<Track>> {
         if (limit > 200)

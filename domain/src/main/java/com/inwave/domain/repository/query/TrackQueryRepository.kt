@@ -1,9 +1,9 @@
-package com.inwave.domain.repository
+package com.inwave.domain.repository.query
 
 import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.entity.Track
 
-interface TrackRepository {
+interface TrackQueryRepository {
     suspend fun getTrack(id: String): Result<Track>
     suspend fun getTracks(ids: List<String>): Result<List<Track>>
     suspend fun getAllTracks(page: Int = 0, size: Int = 20): Result<List<Track>>

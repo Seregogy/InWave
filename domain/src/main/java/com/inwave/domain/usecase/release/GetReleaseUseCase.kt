@@ -1,10 +1,10 @@
 package com.inwave.domain.usecase.release
 
 import com.inwave.domain.entity.Release
-import com.inwave.domain.repository.ReleaseRepository
+import com.inwave.domain.repository.query.ReleaseQueryRepository
 
 class GetReleaseUseCase(
-    private val repository: ReleaseRepository
+    private val repository: ReleaseQueryRepository
 ) {
     suspend operator fun invoke(releaseId: String): Result<Release> {
         if (releaseId.isBlank())
