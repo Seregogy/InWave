@@ -4,13 +4,12 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
-import org.jetbrains.exposed.v1.datetime.date
 import org.jetbrains.exposed.v1.datetime.datetime
 import org.jetbrains.exposed.v1.json.jsonb
 
 object TrackTable : IntIdTable() {
     val name = text("name").index("idx_track_name")
-    val durationMs = long("duration_ms").nullable()
+    val durationMs = long("duration_ms").default(0)
     val isExplicit = bool("is_explicit").default(false)
     val hasLyrics = bool("has_lyrics").default(false)
 
@@ -63,20 +62,15 @@ object TrackAdditionalDataTable : IntIdTable() {
     val credits = jsonb<Map<String, List<String>>>("credits", Json { ignoreUnknownKeys = true })
 }
 
-object TrackReleasesTable : CompositeIdTable() {
-    val trackId = reference("track_id", TrackTable)
-
-    val releaseId = reference("release_id", ReleaseTable)
-    val positionInRelease = integer("position_in_release").nullable()
-    val discNumber = integer("disc_number").default(1)
-
-    override val primaryKey = PrimaryKey(trackId, releaseId)
-}
-
 object TrackGenreTable : CompositeIdTable() {
     val trackId = reference("track_id", TrackTable)
     val genreId = reference("genre_id", GenreTable)
     val weight = float("weight").nullable()
 
     override val primaryKey = PrimaryKey(trackId, genreId)
+}
+
+object TrackLegacyTableId : IntIdTable() {
+    val trackId = reference("track_id", TrackTable)
+    val legacyUuid = text("uuid_Legacy_track_id")
 }

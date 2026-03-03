@@ -1,10 +1,13 @@
 package com.inwave.domain.entity
 
+import java.time.LocalDate
+
 data class Release(
     val id: String,
     val name: String,
     val coverArtUrl: String?,
-    val releaseDate: Long,
+    val releaseDate: LocalDate?,
+    val tracks: List<Track>,
     val artists: List<Artist>,
     val genres: List<String>,
     val statistics: Statistics?,

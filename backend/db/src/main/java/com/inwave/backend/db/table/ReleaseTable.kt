@@ -14,11 +14,11 @@ enum class ReleaseType {
 
 object ReleaseTable : IntIdTable() {
     val name = text("name").index("idx_release_name")
-    val releaseType = enumeration("release_type", ReleaseType::class)
+    val releaseType = enumeration("release_type", ReleaseType::class).default(ReleaseType.Single)
     val coverArtUrl = text("cover_art_url").nullable()
 
-    val totalTracks = integer("total_tracks").nullable()
-    val totalDurationMs = long("total_duration_ms").nullable()
+    val totalTracks = integer("total_tracks").default(0)
+    val totalDurationMs = long("total_duration_ms").default(0)
 
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
@@ -50,4 +50,19 @@ object ReleaseGenreTable : CompositeIdTable() {
     val genreId = reference("genre_id", GenreTable)
 
     override val primaryKey = PrimaryKey(releaseId, genreId)
+}
+
+object ReleaseLegacyTableId : IntIdTable() {
+    val releaseId = reference("release_id", ReleaseTable)
+    val legacyUuid = text("uuid_Legacy_release_id")
+}
+
+object ReleaseTrackTable : CompositeIdTable() {
+    val trackId = reference("track_id", TrackTable)
+    val releaseId = reference("release_id", ReleaseTable)
+
+    val positionInRelease = integer("position_in_release").nullable()
+    val discNumber = integer("disc_number").default(1)
+
+    override val primaryKey = PrimaryKey(trackId, releaseId)
 }

@@ -17,7 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.inwave.domain.usecase.track.GetTracksUseCase
+import com.inwave.domain.usecase.track.query.GetTracksUseCase
 import com.inwave.page.TracksPlaylist
 import com.inwave.player.MediaControllerInitializer
 import com.inwave.player.state.PlayerStateSource

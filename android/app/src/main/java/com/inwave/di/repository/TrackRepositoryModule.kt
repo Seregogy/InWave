@@ -1,8 +1,8 @@
 package com.inwave.di.repository
 
 import android.content.Context
-import com.invawe.data.repository.track.TrackRepositoryFileStorageImpl
-import com.inwave.domain.repository.TrackRepository
+import com.invawe.data.repository.track.TrackQueryRepositoryFileStorageImpl
+import com.inwave.domain.repository.query.TrackQueryRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,5 +17,5 @@ object TrackRepositoryModule {
     @Singleton
     fun provideTrackRepository(
         @ApplicationContext context: Context
-    ): TrackRepository = TrackRepositoryFileStorageImpl(context)
+    ): TrackQueryRepository = TrackQueryRepositoryFileStorageImpl(context)
 }

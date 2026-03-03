@@ -1,20 +1,24 @@
 package com.inwave.backend.db.entity
 
-import com.inwave.backend.db.table.ArtistTracksTable
+import com.inwave.backend.db.table.ArtistOnTrackType
+import com.inwave.backend.db.table.ArtistTrackTable
 import com.inwave.backend.db.table.TrackAdditionalDataTable
 import com.inwave.backend.db.table.TrackGenreTable
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
-import com.inwave.backend.db.table.TrackReleasesTable
+import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.core.dao.id.CompositeID
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.minus
+import org.jetbrains.exposed.v1.core.plus
 import org.jetbrains.exposed.v1.dao.CompositeEntity
 import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.collections.List
 
 data class TrackOnRelease(
@@ -31,7 +35,27 @@ data class GenreOnTrack(
 )
 
 class TrackEntity(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<TrackEntity>(TrackTable)
+    companion object : IntEntityClass<TrackEntity>(TrackTable) {
+        override fun new(id: Int?, init: TrackEntity.() -> Unit): TrackEntity {
+            val track = super.new(id) {
+                name = ""
+            }
+
+            TrackMetadataEntity.new { this.track = track }
+            TrackStatisticsEntity.new { this.track = track }
+            TrackLyricsEntity.new { this.track = track }
+            TrackAdditionalDataEntity.new {
+                this.track = track
+                credits = mapOf()
+            }
+
+            with(track) {
+                init()
+            }
+
+            return track
+        }
+    }
 
     var name by TrackTable.name
     var durationMs by TrackTable.durationMs
@@ -62,10 +86,102 @@ class TrackEntity(id: EntityID<Int>) : IntEntity(id) {
     fun fetchAdditionalData(): TrackAdditionalDataEntity? =
         TrackAdditionalDataEntity.find { TrackAdditionalDataTable.trackId eq id }.firstOrNull()
 
+    fun fetchReleases(): List<TrackOnRelease> =
+        ReleaseTrackEntity.find { ReleaseTrackTable.trackId eq id }.map {
+            TrackOnRelease(it.track, it.release, it.positionInRelease, it.discNumber)
+        }
+
     fun fetchArtists(): List<ArtistOnTrack> =
-        ArtistTracksEntity.find { ArtistTracksTable.trackId eq id }.map {
+        ArtistTracksEntity.find { ArtistTrackTable.trackId eq id }.map {
             ArtistOnTrack(it.artist, it.track, it.artistType)
         }
+
+    fun addGenre(genre: GenreEntity, weight: Float? = null): Result<Unit> = runCatching {
+        TrackGenreEntity.new {
+            track = this@TrackEntity
+            this.genre = genre
+            this.weight = weight
+        }
+    }
+
+    fun addArtist(artistEntity: ArtistEntity, artistType: ArtistOnTrackType): Result<Unit> = runCatching {
+        ArtistTracksEntity.new {
+            this.artist = artistEntity
+            this.artistType = artistType
+            track = this@TrackEntity
+        }
+    }
+
+    fun updateMetadata(metadataEntity: TrackMetadataEntity): Result<Unit> = runCatching {
+        fetchMetadata()?.apply {
+            metadataEntity.bpm?.let { bpm = it }
+            metadataEntity.fileFormat?.let { fileFormat = it }
+            metadataEntity.bitrate?.let { bitrate = it }
+            metadataEntity.sampleRate?.let { sampleRate = it }
+        } ?: metadataEntity.apply {
+            track = this@TrackEntity
+        }
+    }
+
+    fun updateLyrics(lyricsEntity: TrackLyricsEntity): Result<Unit> = runCatching {
+        fetchLyrics()?.apply {
+            lyricsEntity.syncedText?.let {
+                syncedText = it
+            }
+            lyricsEntity.plainText?.let {
+                plainText = it
+            }
+            lyricsEntity.provider?.let { provider = it }
+
+            hasLyrics = (syncedText != null || plainText != null)
+        } ?: lyricsEntity.apply {
+            track = this@TrackEntity
+        }
+    }
+
+    fun updateAdditionalData(additionalDataEntity: TrackAdditionalDataEntity): Result<Unit> = runCatching {
+        fetchAdditionalData()?.apply {
+            additionalDataEntity.fullTitle?.let { fullTitle = it }
+            additionalDataEntity.descriptionMd?.let { descriptionMd = it }
+            additionalDataEntity.descriptionPreviewPlain?.let { descriptionPreviewPlain = it }
+            additionalDataEntity.videoShotUrl?.let { videoShotUrl = it }
+            additionalDataEntity.producers?.let { producers = it }
+            additionalDataEntity.writers?.let { writers = it }
+            additionalDataEntity.tags?.let { tags = it }
+            additionalDataEntity.recordingLocation?.let { recordingLocation = it }
+            additionalDataEntity.textLanguage?.let { textLanguage = it }
+
+            if (additionalDataEntity.credits.isNotEmpty()) {
+                credits = additionalDataEntity.credits
+            }
+        } ?: additionalDataEntity.apply {
+            track = this@TrackEntity
+        }
+    }
+
+    fun increasePlayCount(): Result<Unit> = runCatching {
+        TrackStatisticsTable.update({ TrackStatisticsTable.trackId eq this.id }) {
+            it.update(playCount, playCount + 1)
+        }
+    }
+
+    fun increaseRepostCount(): Result<Unit> = runCatching {
+        TrackStatisticsTable.update({ TrackStatisticsTable.trackId eq this.id }) {
+            it.update(repostCount, repostCount + 1)
+        }
+    }
+
+    fun increaseLikeCount(): Result<Unit> = runCatching {
+        TrackStatisticsTable.update({ TrackStatisticsTable.trackId eq this.id }) {
+            it.update(likeCount, likeCount + 1)
+        }
+    }
+
+    fun decreaseLikeCount(): Result<Unit> = runCatching {
+        TrackStatisticsTable.update({ TrackStatisticsTable.trackId eq this.id }) {
+            it.update(likeCount, likeCount - 1)
+        }
+    }
 }
 
 class TrackMetadataEntity(id: EntityID<Int>) : IntEntity(id) {
@@ -81,17 +197,17 @@ class TrackMetadataEntity(id: EntityID<Int>) : IntEntity(id) {
 class TrackStatisticsEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<TrackStatisticsEntity>(TrackStatisticsTable)
 
-    var trackId by TrackStatisticsTable.trackId
+    var track by TrackEntity referencedOn TrackStatisticsTable.trackId
 
-    var playCount by TrackStatisticsTable.playCount
-    var likeCount by TrackStatisticsTable.likeCount
-    var repostCount by TrackStatisticsTable.repostCount
+    val playCount by TrackStatisticsTable.playCount
+    val likeCount by TrackStatisticsTable.likeCount
+    val repostCount by TrackStatisticsTable.repostCount
 }
 
 class TrackLyricsEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<TrackLyricsEntity>(TrackLyricsTable)
 
-    var trackId by TrackLyricsTable.trackId
+    var track by TrackEntity referencedOn TrackLyricsTable.trackId
 
     var plainText by TrackLyricsTable.plainText
     var syncedText by TrackLyricsTable.syncedText
@@ -101,7 +217,7 @@ class TrackLyricsEntity(id: EntityID<Int>) : IntEntity(id) {
 class TrackAdditionalDataEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<TrackAdditionalDataEntity>(TrackAdditionalDataTable)
 
-    var trackId by TrackAdditionalDataTable.trackId
+    var track by TrackEntity referencedOn TrackAdditionalDataTable.trackId
 
     var fullTitle by TrackAdditionalDataTable.fullTitle
     var descriptionMd by TrackAdditionalDataTable.descriptionMd
@@ -116,20 +232,10 @@ class TrackAdditionalDataEntity(id: EntityID<Int>) : IntEntity(id) {
     var credits by TrackAdditionalDataTable.credits
 }
 
-class TrackReleaseEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
-    companion object : CompositeEntityClass<TrackReleaseEntity>(TrackReleasesTable)
-
-    val track by TrackEntity referencedOn TrackReleasesTable.trackId
-    val release by ReleaseEntity referencedOn TrackReleasesTable.releaseId
-
-    var positionInRelease by TrackReleasesTable.positionInRelease
-    var discNumber by TrackReleasesTable.discNumber
-}
-
 class TrackGenreEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
     companion object : CompositeEntityClass<TrackGenreEntity>(TrackGenreTable)
 
-    val track by TrackEntity referencedOn TrackGenreTable.trackId
-    val genre by GenreEntity referencedOn TrackGenreTable.genreId
+    var track by TrackEntity referencedOn TrackGenreTable.trackId
+    var genre by GenreEntity referencedOn TrackGenreTable.genreId
     var weight by TrackGenreTable.weight
 }
