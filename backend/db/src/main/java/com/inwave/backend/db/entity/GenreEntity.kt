@@ -11,8 +11,8 @@ import org.jetbrains.exposed.v1.dao.IntEntityClass
 class GenreEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<GenreEntity>(GenreTable)
 
-    val name by GenreTable.name
-    val description by GenreTable.description
+    var name by GenreTable.name
+    var description by GenreTable.description
 
     val releases by ReleaseEntity via ReleaseGenreTable
     val tracks by TrackEntity via TrackGenreTable

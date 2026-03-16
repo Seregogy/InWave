@@ -8,14 +8,9 @@ import com.inwave.backend.db.entity.TrackLyricsEntity
 import com.inwave.backend.db.entity.TrackMetadataEntity
 import com.inwave.backend.db.entity.TrackStatisticsEntity
 import com.inwave.backend.db.table.ArtistOnTrackType
-import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.domain.entity.Statistics
 import com.inwave.domain.entity.Track
 import org.jetbrains.exposed.v1.core.Transaction
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.select
 
 context(_: Transaction)
 fun TrackEntity.toDomain(
