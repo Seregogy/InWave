@@ -96,6 +96,8 @@ dependencies {
     implementation(libs.haze)
     implementation(libs.haze.materials)
 
+    implementation(libs.compose.shimmer)
+
     implementation(libs.particles.confetti)
 
     implementation(libs.coil.compose)
