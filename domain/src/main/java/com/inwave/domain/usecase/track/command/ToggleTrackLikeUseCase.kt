@@ -1,12 +1,11 @@
 package com.inwave.domain.usecase.track.command
 
-import com.inwave.domain.entity.Track
-import com.inwave.domain.repository.command.TrackCommandRepository
+import com.inwave.domain.repository.command.client.TrackCommandClientRepository
 
 class ToggleTrackLikeUseCase(
-    private val repository: TrackCommandRepository
+    private val trackCommandClientRepository: TrackCommandClientRepository
 ) {
-    suspend operator fun invoke(track: Track): Result<Boolean> {
-        return repository.liked(track.id)
+    suspend operator fun invoke(userId: String, trackId: String): Result<Boolean> {
+        return trackCommandClientRepository.toggleLike(userId, trackId)
     }
 }
