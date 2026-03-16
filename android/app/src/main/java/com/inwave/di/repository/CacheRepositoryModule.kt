@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import androidx.palette.graphics.Palette
 import com.invawe.data.repository.cache.GenericMemoryCacheRepository
 import com.inwave.domain.cache.CacheRepository
-import com.inwave.domain.entity.Track.Lyrics
+import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
 import dagger.Module
 import dagger.Provides

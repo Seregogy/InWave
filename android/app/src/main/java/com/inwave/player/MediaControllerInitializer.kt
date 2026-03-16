@@ -2,8 +2,6 @@ package com.inwave.player
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.annotation.OptIn
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.MoreExecutors
@@ -15,10 +13,9 @@ import javax.inject.Singleton
 
 @Singleton
 class MediaControllerInitializer @Inject constructor(
-    @param:ApplicationContext val context: Context,
+    @ApplicationContext val context: Context,
     val playerStateSource: PlayerStateSource
 ) {
-    @OptIn(UnstableApi::class)
     fun initialize() {
         val sessionToken =
             SessionToken(context, ComponentName(context, InWaveMediaSessionService::class.java))
