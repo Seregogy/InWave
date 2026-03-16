@@ -68,7 +68,7 @@ fun TrackMiniWithImage(
             Image(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
-                        .data(track.imageUrl)
+                        .data(track.coverArtUrl)
                         .build(),
                     error = painterResource(R.drawable.image_item_placeholder)
                 ),
@@ -92,7 +92,7 @@ fun TrackMiniWithImage(
                 )
 
                 Text(
-                    text = track.artists.joinToString(",") { it.name },
+                    text = track.artists.map { it.artist }.joinToString(",") { it.name },
                     maxLines = 1,
                     color = onPrimaryColor,
                     modifier = Modifier
