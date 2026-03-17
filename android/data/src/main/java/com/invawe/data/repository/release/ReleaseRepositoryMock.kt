@@ -1,0 +1,1049 @@
+package com.invawe.data.repository.release
+
+import com.inwave.domain.entity.Artist
+import com.inwave.domain.entity.Release
+import com.inwave.domain.entity.Track
+import com.inwave.domain.repository.query.ReleaseQueryRepository
+import kotlinx.coroutines.delay
+import java.time.LocalDate
+import kotlin.random.Random
+
+class ReleaseQueryRepositoryMock : ReleaseQueryRepository {
+
+    private val mockReleases = listOf(
+        createTwelveCaratToothache(),
+        createHotelDiablo(),
+        createStoney()
+    )
+
+    private val random = Random(System.currentTimeMillis())
+
+    override suspend fun getRelease(releaseId: String): Result<Release> {
+        delay(500)
+        return Result.success(mockReleases.first { it.id == releaseId })
+    }
+
+    override suspend fun getReleaseTracks(releaseId: String): Result<List<Track>> {
+        return Result.success(mockReleases.first { it.id == releaseId }.tracks)
+    }
+
+    override suspend fun getArtistAlbums(artistId: String): Result<List<Release>> {
+        return Result.success(mockReleases.filter { release ->
+            release.artists.any { it.id == artistId }
+        }.ifEmpty { mockReleases })
+    }
+
+    override suspend fun getArtistSingles(artistId: String): Result<List<Release>> {
+        return Result.success(mockReleases.filter { release ->
+            release.additionalData?.tags?.contains("single") == true
+        }.ifEmpty { mockReleases.take(1) })
+    }
+
+    override suspend fun getArtistReleases(artistId: String): Result<List<Release>> {
+        return Result.success(mockReleases)
+    }
+
+    override suspend fun getArtistLastRelease(artistId: String): Result<Pair<Release, Long>> {
+        val randomRelease = mockReleases[random.nextInt(mockReleases.size)]
+        val daysAgo = random.nextLong(7, 365)
+        return Result.success(randomRelease to daysAgo)
+    }
+
+    private fun createTwelveCaratToothache(): Release {
+        val postMalone = Artist(
+            id = "artist_post_malone",
+            name = "Post Malone",
+            about = "Austin Richard Post, known professionally as Post Malone, is an American rapper, singer, songwriter, and record producer.",
+            genres = listOf("Hip hop", "Pop", "Rap rock", "Trap"),
+            imagesUrl = listOf("https://example.com/post_malone_1.jpg", "https://example.com/post_malone_2.jpg"),
+            statistics = null,
+            releases = emptyList()
+        )
+
+        val tracks = listOf(
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_reputation",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Reputation",
+                coverArtUrl = "https://example.com/cover_reputation.jpg",
+                audioUrl = "https://example.com/audio/reputation.mp3",
+                durationMs = 246000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(150, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Reputation (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell", "Frank Dukes"),
+                    writers = listOf("Austin Post", "Louis Bell", "Adam Feeney"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_cooped_up",
+                releaseId = "release_twelve_carat_toothache",
+                name = "Cooped Up",
+                coverArtUrl = "https://example.com/cover_cooped_up.jpg",
+                audioUrl = "https://example.com/audio/cooped_up.mp3",
+                durationMs = 185000,
+                isExplicit = true,
+                placeInRelease = 2,
+                genres = listOf("Hip hop", "Pop"),
+                metadata = Track.Metadata(142, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Cooped Up (feat. Roddy Ricch) (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Louis Bell"),
+                    writers = listOf("Austin Post", "Louis Bell", "Rodrick Moore"),
+                    tags = listOf("hip hop", "feat"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            )
+        )
+
+        return Release(
+            id = "release_twelve_carat_toothache",
+            name = "Twelve Carat Toothache",
+            coverArtUrl = "https://images.genius.com/11934fa629be4cbe4bfc5772d1757bfc.1000x1000x1.png",
+            releaseDate = LocalDate.of(2022, 6, 3),
+            tracks = tracks,
+            artists = listOf(postMalone),
+            genres = listOf("Hip hop", "Pop", "Rap rock"),
+            statistics = null,
+            additionalData = Release.AdditionalData(
+                fullTitle = "Twelve Carat Toothache (by Post Malone)",
+                descriptionMarkdown = null,
+                descriptionPreviewPlainText = "The fourth studio album by Post Malone...",
+                label = "Republic Records",
+                tags = listOf("album", "2022"),
+                credits = mapOf()
+            )
+        )
+    }
+
+    private fun createHotelDiablo(): Release {
+        val machineGunKelly = Artist(
+            id = "artist_mgk",
+            name = "Machine Gun Kelly",
+            about = "Colson Baker, known professionally as Machine Gun Kelly, is an American musician, rapper, and actor.",
+            genres = listOf("Hip hop", "Pop punk", "Rap rock"),
+            imagesUrl = listOf("https://example.com/mgk_1.jpg", "https://example.com/mgk_2.jpg"),
+            statistics = null,
+            releases = emptyList()
+        )
+
+        val tracks = listOf(
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_floor_13",
+                releaseId = "release_hotel_diablo",
+                name = "Floor 13",
+                coverArtUrl = "https://example.com/cover_floor_13.jpg",
+                audioUrl = "https://example.com/audio/floor_13.mp3",
+                durationMs = 194000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Rap rock"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Floor 13 (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Rami", "SlimXX"),
+                    writers = listOf("Colson Baker", "Rami Eadeh"),
+                    tags = listOf("hip hop", "rap rock"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_hollywood_whore",
+                releaseId = "release_hotel_diablo",
+                name = "Hollywood Whore",
+                coverArtUrl = "https://example.com/cover_hollywood_whore.jpg",
+                audioUrl = "https://example.com/audio/hollywood_whore.mp3",
+                durationMs = 243000,
+                isExplicit = true,
+                placeInRelease = 2,
+                genres = listOf("Hip hop", "Alternative rock"),
+                metadata = Track.Metadata(75, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Hollywood Whore (by Machine Gun Kelly)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Baze", "SlimXX"),
+                    writers = listOf("Colson Baker"),
+                    tags = listOf("alternative", "emotional"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(machineGunKelly, Track.ArtistType.Primary))
+            )
+        )
+
+        return Release(
+            id = "release_hotel_diablo",
+            name = "Hotel Diablo",
+            coverArtUrl = "https://images.genius.com/ed781e8cae245fce215d4cc9d926b332.1000x1000x1.png",
+            releaseDate = LocalDate.of(2019, 7, 5),
+            tracks = tracks,
+            artists = listOf(machineGunKelly),
+            genres = listOf("Hip hop", "Alternative rock", "Pop punk"),
+            statistics = null,
+            additionalData = Release.AdditionalData(
+                fullTitle = "Hotel Diablo (by Machine Gun Kelly)",
+                descriptionMarkdown = null,
+                descriptionPreviewPlainText = "The fourth studio album by Machine Gun Kelly...",
+                label = "Bad Boy, Interscope Records",
+                tags = listOf("album", "2019"),
+                credits = mapOf()
+            )
+        )
+    }
+
+    private fun createStoney(): Release {
+        val postMalone = Artist(
+            id = "artist_post_malone",
+            name = "Post Malone",
+            about = "Austin Richard Post, known professionally as Post Malone, is an American rapper, singer, songwriter, and record producer.",
+            genres = listOf("Hip hop", "Pop", "Rap rock", "Trap"),
+            imagesUrl = listOf("https://example.com/post_malone_1.jpg", "https://example.com/post_malone_2.jpg"),
+            statistics = null,
+            releases = emptyList()
+        )
+
+        val tracks = listOf(
+            Track(
+                id = "track_congratulations",
+                releaseId = "release_stoney",
+                name = "Congratulations",
+                coverArtUrl = "https://example.com/cover_congratulations.jpg",
+                audioUrl = "https://example.com/audio/congratulations.mp3",
+                durationMs = 220000,
+                isExplicit = true,
+                placeInRelease = 1,
+                genres = listOf("Hip hop", "Trap"),
+                metadata = Track.Metadata(125, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "Congratulations (feat. Quavo) (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Metro Boomin", "Louis Bell"),
+                    writers = listOf("Austin Post", "Quavious Marshall", "Leland Wayne", "Carlton Mays"),
+                    tags = listOf("hip hop", "trap"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            ),
+            Track(
+                id = "track_white_iverson",
+                releaseId = "release_stoney",
+                name = "White Iverson",
+                coverArtUrl = "https://example.com/cover_white_iverson.jpg",
+                audioUrl = "https://example.com/audio/white_iverson.mp3",
+                durationMs = 257000,
+                isExplicit = true,
+                placeInRelease = 2,
+                genres = listOf("Hip hop", "Trap"),
+                metadata = Track.Metadata(140, "MP3", 320, 44100),
+                statistics = null,
+                hasLyrics = true,
+                lyrics = Track.Lyrics("Plain text lyrics...", null, "Genius"),
+                additionalData = Track.AdditionalData(
+                    fullTitle = "White Iverson (by Post Malone)",
+                    descriptionMarkdown = null,
+                    descriptionPreviewPlainText = null,
+                    videoShotUrl = null,
+                    producers = listOf("Post Malone", "Rex Kudo"),
+                    writers = listOf("Austin Post"),
+                    tags = listOf("hip hop", "debut"),
+                    credits = mapOf(),
+                    recordingLocation = null,
+                    textLanguage = "en"
+                ),
+                artists = listOf(Track.ArtistOnTrack(postMalone, Track.ArtistType.Primary))
+            )
+        )
+
+        return Release(
+            id = "release_stoney",
+            name = "Stoney",
+            coverArtUrl = "https://images.genius.com/dcf3b834de38c6f2c28f0fe961f8dc80.1000x1000x1.png",
+            releaseDate = LocalDate.of(2016, 12, 9),
+            tracks = tracks,
+            artists = listOf(postMalone),
+            genres = listOf("Hip hop", "Pop", "Trap"),
+            statistics = null,
+            additionalData = Release.AdditionalData(
+                fullTitle = "Stoney (by Post Malone)",
+                descriptionMarkdown = null,
+                descriptionPreviewPlainText = "The debut studio album by Post Malone...",
+                label = "Republic Records",
+                tags = listOf("album", "2016"),
+                credits = mapOf()
+            )
+        )
+    }
+}

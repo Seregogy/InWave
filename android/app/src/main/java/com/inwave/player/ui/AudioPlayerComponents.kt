@@ -139,7 +139,7 @@ fun ColoredScaffoldState.TopBar(
         }
 
         MarqueeText(
-            text = "Плейлист \"${track?.release?.name ?: "unknown"}\"",
+            text = "Плейлист \"${track?.name ?: "unknown"}\"",
             fontWeight = FontWeight.W700,
             color = onBackgroundColorAnimated.value,
             maxLines = 1,
@@ -271,10 +271,10 @@ fun ColoredScaffoldState.TrackInfo(
             AvatarRow(
                 spaceBetween = 5.dp
             ) {
-                track?.release?.artists?.forEach { artist ->
+                track?.artists?.forEach { artistOnTrack ->
                     Box {
                         AsyncImage(
-                            model = artist.imagesUrl,
+                            model = artistOnTrack.artist.imagesUrl,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .height(with(density) { columnSize.height.toDp() })
@@ -317,7 +317,7 @@ fun ColoredScaffoldState.TrackInfo(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
-                        if ((track?.release?.artists?.size ?: 0) == 1) {
+                        if ((track?.artists?.size ?: 0) == 1) {
                             //TODO onArtistClicked
                         } else {
                             artistsSheet.value = true
@@ -330,7 +330,7 @@ fun ColoredScaffoldState.TrackInfo(
     }
 
     ContextMenu(artistsSheet) { padding ->
-        track?.release?.artists?.let { artists ->
+        track?.artists?.let { artistsOnTrack ->
             LazyColumn(
                 modifier = Modifier
                     .padding(padding)
@@ -349,13 +349,13 @@ fun ColoredScaffoldState.TrackInfo(
                     )
                 }
 
-                items(artists) {
+                items(artistsOnTrack) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.small)
                             .clickable {
-                                onArtistClicked(it.id)
+                                onArtistClicked(it.artist.id)
                                 artistsSheet.value = false
                             }
                             .padding(5.dp),
@@ -363,7 +363,7 @@ fun ColoredScaffoldState.TrackInfo(
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         AsyncImage(
-                            model = it.imagesUrl,
+                            model = it.artist.imagesUrl,
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .size(60.dp),
@@ -371,7 +371,7 @@ fun ColoredScaffoldState.TrackInfo(
                         )
 
                         Text(
-                            text = it.name,
+                            text = it.artist.name,
                             fontWeight = FontWeight.W600
                         )
                     }
