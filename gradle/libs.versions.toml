@@ -23,6 +23,7 @@ paletteVerison = "1.0.0"
 bottomSheetVersion = "1.5.1"
 haze = "1.6.9"
 particlesConfettiVersion = "0.7.0"
+composeShimmer = "1.3.2"
 
 #Backend versions
 ktor = "3.4.0"
@@ -74,6 +75,7 @@ androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = 
 
 particles-confetti = { module = "io.github.vinceglb:confettikit", version.ref = "particlesConfettiVersion" }
 
+compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 bottomsheet = { module = "com.holix.android:bottomsheetdialog-compose", version.ref = "bottomSheetVersion" }
 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-version" }

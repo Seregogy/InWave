@@ -17,8 +17,7 @@ fun Track.toMediaItem(): MediaItem = MediaItem.Builder()
             MediaMetadata.Builder()
                 .setTitle(name)
                 .setDisplayTitle(name)
-                .setAlbumTitle(release?.name ?: "unknown")
-                .setArtist(release?.artists?.joinToString(", ") { it.name } ?: "unknown")
+                .setArtist(artists.joinToString(", ") { it.artist.name })
                 .setArtworkUri(coverArtUrl?.toUri())
                 .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
                 .build()
@@ -53,6 +52,7 @@ fun Cursor.toDomainTrack(): Track {
 
     return Track(
         id = "$audioId",
+        releaseId = "",
         name = trackName,
         coverArtUrl = "",
         audioUrl = audioUri.toString(),
@@ -65,7 +65,6 @@ fun Cursor.toDomainTrack(): Track {
         hasLyrics = false,
         lyrics = null,
         additionalData = null,
-        release = null,
         artists = listOf(
             Track.ArtistOnTrack(
                 artist = Artist(
