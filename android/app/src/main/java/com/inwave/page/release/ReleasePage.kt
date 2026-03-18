@@ -1,10 +1,8 @@
 package com.inwave.page.release
 
 import android.graphics.Bitmap
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,11 +55,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.control.CircleButton
 import com.inwave.control.ErrorDrawer
+import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMini
 import com.inwave.control.scaffold.color.ColoredScaffold
@@ -192,7 +190,7 @@ private fun DrawReleasePage(
                     infiniteTransition = infiniteTransition,
                     otherReleases = state.otherReleases,
                     onTrackClick = { onArtistClick(it.id) },
-                    onAlbumClicked = onReleaseClick,
+                    onReleaseClick = onReleaseClick,
                     onTrackHold = {
                         /*toolBarScaffoldState.launchContextAction { padding ->
                             MockAdditionalTrackData(padding, primaryOrBackgroundColor.value)
@@ -345,7 +343,7 @@ private fun ColoredScaffoldState.AlbumContent(
     otherReleases: List<Release>,
     onTrackClick: (trackId: Track) -> Unit,
     onTrackHold: (track: Track) -> Unit,
-    onAlbumClicked: (artistId: String) -> Unit
+    onReleaseClick: (artistId: String) -> Unit
 ) {
     Column {
         Spacer(Modifier.height(20.dp))
@@ -363,48 +361,14 @@ private fun ColoredScaffoldState.AlbumContent(
 
         Spacer(Modifier.height(20.dp))
 
-        OtherReleases(
-            "Ещё от ${release.artists.first().name}",
-            otherReleases,
-            onAlbumClicked
-        )
-
-        Spacer(Modifier.height(bottomPadding))
-    }
-}
-
-@Composable
-fun OtherReleases(
-    message: String?,
-    otherReleases: List<Release>,
-    onReleaseClick: (artistId: String) -> Unit
-) {
-    message?.let {
-        Text(
-            text = message,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.W700,
-            modifier = Modifier
-                .padding(start = 25.dp)
-        )
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .padding(bottom = 25.dp)
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        Spacer(Modifier.width(20.dp))
-
-        for (otherReleases in otherReleases) {
-            ReleaseMini(onReleaseClick, otherReleases)
+        Section(
+            label = "Ещё от ${release.artists.first().name}",
+            items = otherReleases,
+        ) {
+            ReleaseMini(onReleaseClick, it)
         }
 
-        Spacer(Modifier.width(25.dp))
+        Spacer(Modifier.height(bottomPadding))
     }
 }
 

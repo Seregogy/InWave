@@ -23,7 +23,7 @@ import com.inwave.domain.entity.Release
 
 @Composable
 fun ReleaseMini(
-    onAlbumClicked: (artistId: String) -> Unit,
+    onReleaseClicked: (artistId: String) -> Unit,
     release: Release
 ) {
     Column(
@@ -38,7 +38,7 @@ fun ReleaseMini(
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clickable {
-                    onAlbumClicked(release.id)
+                    onReleaseClicked(release.id)
                 },
             contentDescription = "${release.name} image",
             contentScale = ContentScale.Crop

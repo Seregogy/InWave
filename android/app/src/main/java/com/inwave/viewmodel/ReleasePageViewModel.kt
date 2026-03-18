@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.palette.graphics.Palette
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
-import com.inwave.domain.usecase.release.query.GetArtistReleasesUseCase
+import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.release.query.GetReleaseUseCase
 import com.inwave.tool.ImagePaletteExtractor
@@ -34,7 +34,7 @@ class ReleasePageViewModel @Inject constructor(
     private val getArtistReleasesUseCase: GetArtistReleasesUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    var releaseId: String? = savedStateHandle["releaseId"]
+    private val releaseId: String? = savedStateHandle["releaseId"]
 
     val palette: StateFlow<Palette?> = colorExtractor.palette
     val bitmap: StateFlow<Bitmap?> = colorExtractor.bitmap

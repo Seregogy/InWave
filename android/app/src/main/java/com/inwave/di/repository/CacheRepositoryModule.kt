@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.palette.graphics.Palette
 import com.invawe.data.repository.cache.GenericMemoryCacheRepository
 import com.inwave.domain.cache.CacheRepository
+import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.entity.Track
 import dagger.Module
@@ -18,6 +19,12 @@ object CacheRepositoryModule {
     @Provides
     @Singleton
     fun provideTrackCacheRepository(): CacheRepository<String, Track> {
+        return GenericMemoryCacheRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideArtistCacheRepository(): CacheRepository<String, Artist> {
         return GenericMemoryCacheRepository()
     }
 
