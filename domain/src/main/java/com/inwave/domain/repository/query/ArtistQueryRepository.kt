@@ -9,4 +9,6 @@ interface ArtistQueryRepository {
     suspend fun getTopArtists(limit: Int = 10): Result<List<Artist>>
     suspend fun getArtistReleases(artistId: String): Result<List<Release>>
     suspend fun getArtistTopTracks(artistId: String, limit: Int = 9): Result<List<Track>>
+    suspend fun getArtistSingles(artistId: String): Result<List<Release>>
+    suspend fun getArtistLastRelease(artistId: String): Result<Pair<Release, Long>>
 }

@@ -27,28 +27,6 @@ class ReleaseQueryRepositoryMock : ReleaseQueryRepository {
         return Result.success(mockReleases.first { it.id == releaseId }.tracks)
     }
 
-    override suspend fun getArtistAlbums(artistId: String): Result<List<Release>> {
-        return Result.success(mockReleases.filter { release ->
-            release.artists.any { it.id == artistId }
-        }.ifEmpty { mockReleases })
-    }
-
-    override suspend fun getArtistSingles(artistId: String): Result<List<Release>> {
-        return Result.success(mockReleases.filter { release ->
-            release.additionalData?.tags?.contains("single") == true
-        }.ifEmpty { mockReleases.take(1) })
-    }
-
-    override suspend fun getArtistReleases(artistId: String): Result<List<Release>> {
-        return Result.success(mockReleases)
-    }
-
-    override suspend fun getArtistLastRelease(artistId: String): Result<Pair<Release, Long>> {
-        val randomRelease = mockReleases[random.nextInt(mockReleases.size)]
-        val daysAgo = random.nextLong(7, 365)
-        return Result.success(randomRelease to daysAgo)
-    }
-
     private fun createTwelveCaratToothache(): Release {
         val postMalone = Artist(
             id = "artist_post_malone",
