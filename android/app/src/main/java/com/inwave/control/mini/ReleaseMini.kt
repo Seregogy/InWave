@@ -23,7 +23,7 @@ import com.inwave.domain.entity.Release
 
 @Composable
 fun ReleaseMini(
-    onReleaseClicked: (artistId: String) -> Unit,
+    onReleaseClicked: (releaseId: String) -> Unit,
     release: Release
 ) {
     Column(
