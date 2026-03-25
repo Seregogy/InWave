@@ -10,6 +10,18 @@ class GetArtistAlbumsUseCase(
     suspend operator fun invoke(artistId: String): Result<List<Release>> {
         if (artistId.isBlank())
             return Result.failure(IllegalArgumentException("Artist ID cannot be empty"))
-        return repository.getArtistReleases(artistId)
+
+        return repository.getArtistReleases(artistId).fold(
+            onSuccess = { releases ->
+                Result.success(
+                    releases.filter {
+                        it.tracks.size > 4
+                    }
+                )
+            },
+            onFailure = {
+                Result.failure(it)
+            }
+        )
     }
 }

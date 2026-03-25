@@ -10,6 +10,7 @@ class GetArtistReleasesUseCase(
         if (artistId.isBlank()) {
             return Result.failure(IllegalArgumentException("Artist ID cannot be empty"))
         }
+
         return repository.getArtistReleases(artistId)
     }
 }
