@@ -1,5 +1,6 @@
 package com.inwave.backend.api.v1.artists
 
+import com.inwave.api.dto.map.toArtistSummaryDto
 import com.inwave.backend.map.toGetTopArtistsResponse
 import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase
 import io.ktor.server.response.respond
@@ -17,12 +18,12 @@ data class GetTopArtistsResponse(
 fun Route.getTopArtists(
     getTopArtists: GetTopArtistsUseCase
 ) {
-    get("api/v2/artists/top") {
+    get("/top") {
         getTopArtists(
             call.queryParameters["limit"]?.toIntOrNull() ?: 10
         ).onSuccess { domainArtists ->
             call.respond(domainArtists.map {
-                it.toGetTopArtistsResponse()
+                it.toArtistSummaryDto()
             })
         }.onFailure {
             call.respond(mapOf("error" to it.message))
