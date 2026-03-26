@@ -1,4 +1,4 @@
-package com.inwave.backend.route.track
+package com.inwave.backend.api.v1.tracks
 
 import com.inwave.backend.map.toGetRandomTrackResponse
 import com.inwave.domain.usecase.track.query.GetRandomTrackUseCase

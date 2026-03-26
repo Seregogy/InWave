@@ -1,4 +1,4 @@
-package com.inwave.backend.route.artist
+package com.inwave.backend.api.v1.artists
 
 import com.inwave.backend.map.toGetTopArtistsResponse
 import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase

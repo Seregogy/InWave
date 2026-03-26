@@ -4,8 +4,8 @@ import com.inwave.backend.di.databaseModule
 import com.inwave.backend.di.envModule
 import com.inwave.backend.di.repositoryModule
 import com.inwave.backend.di.useCaseModule
-import com.inwave.backend.route.artist.getTopArtists
-import com.inwave.backend.route.track.getRandomTrack
+import com.inwave.backend.api.v1.artists.getTopArtists
+import com.inwave.backend.api.v1.tracks.getRandomTrack
 import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase
 import com.inwave.domain.usecase.track.query.GetRandomTrackUseCase
 import io.ktor.serialization.kotlinx.json.json
