@@ -2,16 +2,11 @@ package com.inwave.backend.data.repository.release
 
 import com.inwave.backend.data.map.toDomain
 import com.inwave.backend.data.repository.catchingTransaction
-import com.inwave.backend.db.entity.ArtistEntity
 import com.inwave.backend.db.entity.ReleaseEntity
-import com.inwave.backend.db.table.ReleaseTable
-import com.inwave.backend.db.table.ReleaseType
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.query.ReleaseQueryRepository
-import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.jdbc.Database
-import kotlin.collections.map
 
 class ReleaseQueryRepositoryImpl(
     private val db: Database

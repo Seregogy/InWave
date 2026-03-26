@@ -15,5 +15,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":domain"))
+
     implementation(libs.kotlinx.serialization.json)
 }
