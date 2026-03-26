@@ -1,8 +1,8 @@
 package com.inwave.backend.api.v1.artists.releases
 
 import com.inwave.api.dto.ErrorResponse
-import com.inwave.api.dto.map.toFullReleaseDto
-import com.inwave.domain.usecase.artist.query.GetArtistLastReleaseUseCase
+import com.inwave.api.dto.map.toReleaseSummaryDto
+import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
@@ -12,10 +12,10 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-fun Route.getArtistLatestRelease(
-    getArtistLastReleaseUseCase: GetArtistLastReleaseUseCase
+fun Route.getArtistReleases(
+    getArtistReleasesUseCase: GetArtistReleasesUseCase
 ) {
-    get("/{id}/releases/last") {
+    get("/{id}/releases") {
         val id = call.parameters["id"] ?: run {
             call.respond(
                 HttpStatusCode.BadRequest,
@@ -29,9 +29,11 @@ fun Route.getArtistLatestRelease(
             return@get
         }
 
-        getArtistLastReleaseUseCase(id).onSuccess { (release, _) ->
+        getArtistReleasesUseCase(id).onSuccess { releases ->
             call.respond(
-                release.toFullReleaseDto()
+                releases.map {
+                    it.toReleaseSummaryDto()
+                }
             )
         }.onFailure {
             call.respond(

@@ -1,0 +1,34 @@
+package com.inwave.backend.api.v1.artists.releases
+
+import com.inwave.api.dto.ErrorResponse
+import com.inwave.api.dto.map.toReleaseSummaryDto
+import com.inwave.domain.usecase.artist.query.GetArtistSinglesUseCase
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.path
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+
+@OptIn(ExperimentalTime::class)
+fun Route.getArtistSingles(
+    getArtistSinglesUseCase: GetArtistSinglesUseCase
+) {
+    get("/{id}/releases/singles") {
+        val id = call.parameters["id"] ?: run {
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    status = HttpStatusCode.BadRequest.value,
+                    message = "Artist ID is required",
+                    path = call.request.path(),
+                    timestamp = Clock.System.now().toString()
+                )
+            )
+            return@get
+        }
+
+        
+    }
+}
