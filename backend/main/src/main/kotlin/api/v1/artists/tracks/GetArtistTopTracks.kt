@@ -1,8 +1,8 @@
-package com.inwave.backend.api.v1.artists.releases
+package com.inwave.backend.api.v1.artists.tracks
 
 import com.inwave.api.dto.ErrorResponse
-import com.inwave.api.dto.map.toReleaseSummaryDto
-import com.inwave.domain.usecase.artist.query.GetArtistSinglesUseCase
+import com.inwave.api.dto.map.toTrackSummaryDto
+import com.inwave.domain.usecase.artist.query.GetArtistTopTracksUseCase
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
@@ -12,10 +12,10 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-fun Route.getArtistSingles(
-    getArtistSinglesUseCase: GetArtistSinglesUseCase
+fun Route.getArtistTopTracks(
+    getArtistTopTracksUseCase: GetArtistTopTracksUseCase
 ) {
-    get("/{id}/releases/singles") {
+    get("/{id}/tracks/top") {
         val id = call.parameters["id"] ?: run {
             call.respond(
                 HttpStatusCode.BadRequest,
@@ -29,10 +29,10 @@ fun Route.getArtistSingles(
             return@get
         }
 
-        getArtistSinglesUseCase(id).onSuccess { releases ->
+        getArtistTopTracksUseCase(id).onSuccess { tracks ->
             call.respond(
-                releases.map {
-                    it.toReleaseSummaryDto()
+                tracks.map {
+                    it.toTrackSummaryDto()
                 }
             )
         }.onFailure {
