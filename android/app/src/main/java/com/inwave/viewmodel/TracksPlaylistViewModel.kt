@@ -23,7 +23,7 @@ sealed class TracksPlaylistPageState() {
 
 @HiltViewModel
 class TracksPlaylistViewModel @Inject constructor(
-    val getAllTracksUseCase: GetAllTracksUseCase,
+    private val getAllTracksUseCase: GetAllTracksUseCase,
     private val playerStateSource: PlayerStateSource
 ) : ViewModel() {
     private val _tracksState = mutableStateOf<TracksPlaylistPageState>(TracksPlaylistPageState.Idle())

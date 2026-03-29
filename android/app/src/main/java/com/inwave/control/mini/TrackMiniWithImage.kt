@@ -1,6 +1,7 @@
-package com.inwave.control
+package com.inwave.control.mini
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import com.inwave.R
@@ -115,5 +117,94 @@ fun TrackMiniWithImage(
             )
         }
     }
-
 }
+
+/*
+@Composable
+fun TrackMiniWithImage(
+    modifier: Modifier = Modifier,
+    track: BaseTrackWithArtists = BaseTrackWithArtists(),
+    primaryColor: Color,
+    onPrimaryColor: Color = Color.White,
+    onClick: (it: BaseTrack) -> Unit = { }
+) {
+    val isCurrentlyPlay by remember {
+        derivedStateOf {
+            AudioPlayer.currentlyPlayTrackId.value == track.id
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick(track.run {
+                    BaseTrack(
+                        id = id,
+                        name = name,
+                        imageUrl = imageUrl,
+                        indexInAlbum = indexInAlbum
+                    )
+                })
+            }
+            .then(
+                if (isCurrentlyPlay)
+                    Modifier.background(primaryColor.copy(.1f))
+                else
+                    Modifier
+            )
+            .padding(start = 20.dp, end = 10.dp)
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = track.imageUrl,
+                contentDescription = "mini track image",
+                modifier = Modifier
+                    .height(50.dp)
+                    .aspectRatio(1f)
+                    .clip(MaterialTheme.shapes.small),
+                contentScale = ContentScale.Crop
+            )
+
+            Column {
+                Text(
+                    text = track.name,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.W700,
+                    maxLines = 1,
+                    color = onPrimaryColor,
+                    modifier = Modifier
+                        .basicMarquee()
+                )
+
+                Text(
+                    text = track.artists.joinToString(",") { it.name },
+                    maxLines = 1,
+                    color = onPrimaryColor,
+                    modifier = Modifier
+                        .basicMarquee(),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        IconButton(
+            modifier = Modifier
+                .align(Alignment.CenterEnd),
+            onClick = {
+                //TODO: контекстный bottom sheet
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.MoreVert,
+                contentDescription = "dots"
+            )
+        }
+    }
+
+}*/

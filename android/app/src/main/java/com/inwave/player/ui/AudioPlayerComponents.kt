@@ -106,14 +106,10 @@ import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
-import io.github.vinceglb.confettikit.compose.ConfettiKit
-import io.github.vinceglb.confettikit.core.Party
-import io.github.vinceglb.confettikit.core.emitter.Emitter
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun ColoredScaffoldState.TopBar(
@@ -143,7 +139,7 @@ fun ColoredScaffoldState.TopBar(
         }
 
         MarqueeText(
-            text = "Плейлист \"${track?.album?.name ?: "unknown"}\"",
+            text = "Плейлист \"${track?.name ?: "unknown"}\"",
             fontWeight = FontWeight.W700,
             color = onBackgroundColorAnimated.value,
             maxLines = 1,
@@ -225,7 +221,7 @@ fun ColoredScaffoldState.MainContent(
                     ) {
                         Image(
                             bitmap = animatedBitmap.asImageBitmap(),
-                            contentDescription = "album image",
+                            contentDescription = "release image",
                             modifier = Modifier
                                 .fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -275,10 +271,10 @@ fun ColoredScaffoldState.TrackInfo(
             AvatarRow(
                 spaceBetween = 5.dp
             ) {
-                track?.album?.artists?.forEach { artist ->
+                track?.artists?.forEach { artistOnTrack ->
                     Box {
                         AsyncImage(
-                            model = artist.imagesUrl,
+                            model = artistOnTrack.artist.imagesUrl,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .height(with(density) { columnSize.height.toDp() })
@@ -316,12 +312,12 @@ fun ColoredScaffoldState.TrackInfo(
             )
 
             MarqueeText(
-                text = track?.artists?.joinToString(",") { it.name } ?: "unknown",
+                text = track?.artists?.map { it.artist }?.joinToString(",") { it.name } ?: "unknown",
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
-                        if ((track?.album?.artists?.size ?: 0) == 1) {
+                        if ((track?.artists?.size ?: 0) == 1) {
                             //TODO onArtistClicked
                         } else {
                             artistsSheet.value = true
@@ -334,7 +330,7 @@ fun ColoredScaffoldState.TrackInfo(
     }
 
     ContextMenu(artistsSheet) { padding ->
-        track?.album?.artists?.let { artists ->
+        track?.artists?.let { artistsOnTrack ->
             LazyColumn(
                 modifier = Modifier
                     .padding(padding)
@@ -353,13 +349,13 @@ fun ColoredScaffoldState.TrackInfo(
                     )
                 }
 
-                items(artists) {
+                items(artistsOnTrack) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.small)
                             .clickable {
-                                onArtistClicked(it.id)
+                                onArtistClicked(it.artist.id)
                                 artistsSheet.value = false
                             }
                             .padding(5.dp),
@@ -367,7 +363,7 @@ fun ColoredScaffoldState.TrackInfo(
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         AsyncImage(
-                            model = it.imagesUrl,
+                            model = it.artist.imagesUrl,
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .size(60.dp),
@@ -375,7 +371,7 @@ fun ColoredScaffoldState.TrackInfo(
                         )
 
                         Text(
-                            text = it.name,
+                            text = it.artist.name,
                             fontWeight = FontWeight.W600
                         )
                     }
@@ -482,12 +478,12 @@ fun ColoredScaffoldState.PlayerSlider(
                 }
             }
         ) {
-            if (viewModel.isCurrentTrackLiked.value) {
+            if (viewModel.isCurrentTrackLiked.collectAsState().value) {
                 Log.d("PlayerComponent", "Play particles")
             }
 
             Icon(
-                imageVector = if (viewModel.isCurrentTrackLiked.value)
+                imageVector = if (viewModel.isCurrentTrackLiked.collectAsState().value)
                     Icons.Rounded.Favorite
                 else
                     Icons.Rounded.FavoriteBorder,

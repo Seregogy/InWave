@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +20,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.inwave.domain.usecase.track.GetTracksUseCase
 import com.inwave.page.TracksPlaylist
+import com.inwave.page.artist.ArtistPage
+import com.inwave.page.release.ReleasePage
 import com.inwave.player.MediaControllerInitializer
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.player.ui.AudioPlayerScaffold
@@ -54,7 +57,7 @@ class MainActivity : ComponentActivity() {
                         innerPadding = innerPadding,
                         hazeState = rememberHazeState(),
                         navController = rememberNavController()
-                    ) { sheetPeekHeight, innerPadding ->
+                    ) { sheetPeekHeight, padding ->
                         NavRoutes(innerPadding, playerStateSource, getTrackUseCase)
                     }
                 }
@@ -74,12 +77,42 @@ fun NavRoutes(
     NavHost(
         navController = navController,
         startDestination = "LocalTrackList"
+        //startDestination = "/releases/release_twelve_carat_toothache"
     ) {
         composable(
             route = "LocalTrackList"
         ) {
             println(playerStateSource)
             TracksPlaylist(innerPadding)
+        }
+
+        composable(
+            route = "/releases/{releaseId}",
+            arguments = listOf(navArgument("releaseId") { type = NavType.StringType })
+        ) {
+            ReleasePage(
+                viewModel = hiltViewModel(),
+                innerPadding = innerPadding,
+                bottomPadding = innerPadding.calculateBottomPadding(),
+                onBackRequest = { },
+                onReleaseClick = { navController.navigate("/releases/${it}") },
+                onArtistClick = { navController.navigate("/artists/${it}") },
+                onTrackClick = { }
+            )
+        }
+
+        composable(
+            route = "/artists/{artistId}",
+            arguments = listOf(navArgument("artistId") { type = NavType.StringType })
+        ) {
+            ArtistPage(
+                viewModel = hiltViewModel(),
+                innerPadding = innerPadding,
+                bottomPadding = innerPadding.calculateBottomPadding(),
+                onBackRequest = { },
+                onTrackClick = { navController.navigate("/tracks/${it}") },
+                onReleaseClick = { navController.navigate("/releases/${it}") }
+            )
         }
 
         composable(
@@ -92,6 +125,7 @@ fun NavRoutes(
             arguments = listOf(navArgument("trackId") { type = NavType.StringType })
         ) {
             val trackId = it.arguments?.getString("trackId") ?: ""
+
             LaunchedEffect(Unit) {
                 getTracksUseCase(listOf(trackId)).onSuccess {
                     playerStateSource.setPlaylist(it)
