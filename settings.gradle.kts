@@ -20,11 +20,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "InWave"
-include(":backend:main")
-include(":backend:data")
 include(":domain")
-//include(":android:app")
-//include(":android:data")
-include(":backend:db")
-include(":backend:di")
-include(":api")
+include(":android:app")
+include(":android:data")

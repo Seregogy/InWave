@@ -3,9 +3,9 @@ package com.inwave.player.state
 import android.util.Log
 import androidx.media3.common.MediaItem
 import com.inwave.domain.entity.Track
-import com.inwave.domain.usecase.track.query.GetTrackUseCase
-import com.inwave.domain.usecase.track.query.GetTrackWithLyricsUseCase
-import com.inwave.domain.usecase.track.query.GetTracksUseCase
+import com.inwave.domain.usecase.track.GetTrackUseCase
+import com.inwave.domain.usecase.track.GetTrackWithLyricsUseCase
+import com.inwave.domain.usecase.track.GetTracksUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

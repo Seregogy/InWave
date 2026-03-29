@@ -1,5 +1,6 @@
 package com.inwave.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inwave.domain.entity.Track
@@ -11,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +23,7 @@ class AudioPlayerViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             playerStateSource.currentTrack.collect { track ->
-                track?.coverArtUrl?.let {
+                track?.imageUrl?.let {
                     imagePaletteExtractor.fetchImageByUrl(it)
                 }
             }
