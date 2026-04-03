@@ -52,7 +52,7 @@ Android-приложение стримингового сервиса для н
     </td>
     <td align="center">
       <img src="screenshots/Screenshot_20251218_150903_One UI Home.jpg" width="250"/><br/>
-      Экран 4
+      Системный плеер
     </td>
   </tr>
 </table>
