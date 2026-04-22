@@ -139,7 +139,7 @@ fun ColoredScaffoldState.TopBar(
         }
 
         MarqueeText(
-            text = "Плейлист \"${track?.name ?: "unknown"}\"",
+            text = "Плейлист \"${track?.release?.name ?: "unknown"}\"",
             fontWeight = FontWeight.W700,
             color = onBackgroundColorAnimated.value,
             maxLines = 1,
@@ -237,8 +237,8 @@ fun ColoredScaffoldState.MainContent(
 fun ColoredScaffoldState.TrackInfo(
     track: Track?,
     isTrackLoading: State<Boolean>,
-    onAlbumClicked: (albumId: String) -> Unit,
-    onArtistClicked: (artistId: String) -> Unit
+    onReleaseClick: (releaseId: String) -> Unit,
+    onArtistClick: (artistId: String) -> Unit
 ) {
     val artistsSheet = remember { mutableStateOf(false) }
     val density = LocalDensity.current
@@ -281,7 +281,8 @@ fun ColoredScaffoldState.TrackInfo(
                                 .aspectRatio(1f)
                                 .clip(CircleShape)
                                 .clickable {
-                                    //TODO onArtistClicked
+                                    if (artistOnTrack.artist.id.isNotBlank())
+                                        onArtistClick(artistOnTrack.artist.id)
                                 },
                             contentDescription = "mini avatar"
                         )
@@ -305,20 +306,24 @@ fun ColoredScaffoldState.TrackInfo(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
-                        //TODO onAlbumClicked
+                        track?.release?.id?.let {
+                            onReleaseClick(it)
+                        }
                     }
                     .alpha(textAlpha),
                 color = textOnPrimaryOrBackgroundColorAnimated.value
             )
 
             MarqueeText(
-                text = track?.artists?.map { it.artist }?.joinToString(",") { it.name } ?: "unknown",
+                text = track?.artists?.map { it.artist }?.joinToString(", ") { it.name } ?: "unknown",
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
                         if ((track?.artists?.size ?: 0) == 1) {
-                            //TODO onArtistClicked
+                            track?.artists?.first()?.artist?.id?.let {
+                                onArtistClick(it)
+                            }
                         } else {
                             artistsSheet.value = true
                         }
@@ -355,7 +360,7 @@ fun ColoredScaffoldState.TrackInfo(
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.small)
                             .clickable {
-                                onArtistClicked(it.artist.id)
+                                onArtistClick(it.artist.id)
                                 artistsSheet.value = false
                             }
                             .padding(5.dp),
@@ -702,7 +707,7 @@ fun ColoredScaffoldState.BottomControls(
                 isLyricsOpen.value = !isLyricsOpen.value
 
                 coroutineScope.launch {
-                    //TODO viewModel.playerStateSource.fetchCurrentTrackWithLyrics()
+                    viewModel.fetchCurrentTrackWithLyrics()
                 }
             },
         ) {

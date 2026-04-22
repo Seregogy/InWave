@@ -36,6 +36,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import com.inwave.R
+import com.inwave.control.MarqueeText
 import com.inwave.domain.entity.Track
 
 @Composable
@@ -54,36 +55,36 @@ fun TrackMiniWithImage(
     }
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .clickable {
                 onClick(track)
-            }
-            .padding(start = 20.dp, end = 10.dp)
-            .padding(vertical = 5.dp),
+            },
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
+            modifier = modifier
+                .padding(end = 30.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
-                        .data(track.imageUrl)
+                        .data(track.coverArtUrl)
                         .build(),
                     error = painterResource(R.drawable.image_item_placeholder)
                 ),
                 contentDescription = "",
                 modifier = Modifier
-                    .height(55.dp)
+                    .height(45.dp)
                     .aspectRatio(1f)
                     .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Crop
             )
 
             Column {
-                Text(
+                MarqueeText(
                     text = track.name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.W700,
@@ -93,8 +94,8 @@ fun TrackMiniWithImage(
                         .basicMarquee()
                 )
 
-                Text(
-                    text = track.artists.joinToString(",") { it.name },
+                MarqueeText(
+                    text = track.artists.map { it.artist }.joinToString(",") { it.name },
                     maxLines = 1,
                     color = onPrimaryColor,
                     modifier = Modifier

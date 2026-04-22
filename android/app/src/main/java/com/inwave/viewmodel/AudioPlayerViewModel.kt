@@ -74,6 +74,12 @@ class AudioPlayerViewModel @Inject constructor(
         }
     }
 
+    suspend fun fetchCurrentTrackWithLyrics() {
+        Log.d("PlayerStateSource", "start lrc fetch")
+
+        playerStateSource.fetchCurrentTrackWithLyrics()
+    }
+
     override fun onCleared() {
         releasePlayer()
     }

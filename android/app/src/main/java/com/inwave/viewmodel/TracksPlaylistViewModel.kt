@@ -1,15 +1,14 @@
 package com.inwave.viewmodel
 
-import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.inwave.di.LocalRepo
 import com.inwave.domain.entity.Track
-import com.inwave.domain.usecase.track.GetAllTracksUseCase
+import com.inwave.domain.usecase.track.query.GetAllTracksUseCase
 import com.inwave.player.state.PlayerStateSource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
@@ -23,7 +22,7 @@ sealed class TracksPlaylistPageState() {
 
 @HiltViewModel
 class TracksPlaylistViewModel @Inject constructor(
-    private val getAllTracksUseCase: GetAllTracksUseCase,
+    @LocalRepo private val getAllTracksUseCase: GetAllTracksUseCase,
     private val playerStateSource: PlayerStateSource
 ) : ViewModel() {
     private val _tracksState = mutableStateOf<TracksPlaylistPageState>(TracksPlaylistPageState.Idle())

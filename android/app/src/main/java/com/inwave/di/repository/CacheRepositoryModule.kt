@@ -3,6 +3,10 @@ package com.inwave.di.repository
 import android.graphics.Bitmap
 import androidx.palette.graphics.Palette
 import com.invawe.data.repository.cache.GenericMemoryCacheRepository
+import com.inwave.di.ArtistCache
+import com.inwave.di.LyricsCache
+import com.inwave.di.PaletteCache
+import com.inwave.di.TrackCache
 import com.inwave.domain.cache.CacheRepository
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track.Lyrics
@@ -18,25 +22,29 @@ import javax.inject.Singleton
 object CacheRepositoryModule {
     @Provides
     @Singleton
-    fun provideTrackCacheRepository(): CacheRepository<String, Track> {
+    @TrackCache
+    fun provideTrackCacheRepository(): CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Track> {
         return GenericMemoryCacheRepository()
     }
 
     @Provides
     @Singleton
-    fun provideArtistCacheRepository(): CacheRepository<String, Artist> {
+    @ArtistCache
+    fun provideArtistCacheRepository(): CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Artist> {
         return GenericMemoryCacheRepository()
     }
 
     @Provides
     @Singleton
-    fun provideLyricsCacheRepository(): CacheRepository<String, Lyrics> {
+    @LyricsCache
+    fun provideLyricsCacheRepository(): CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Lyrics> {
         return GenericMemoryCacheRepository()
     }
 
     @Provides
     @Singleton
-    fun provideImagePaletteCacheRepository(): CacheRepository<String, Pair<Bitmap, Palette>> {
+    @PaletteCache
+    fun provideImagePaletteCacheRepository(): CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Pair<Bitmap, Palette>> {
         return GenericMemoryCacheRepository()
     }
 }

@@ -12,15 +12,17 @@ import coil3.request.ImageRequest
 import coil3.request.error
 import coil3.toBitmap
 import com.inwave.R
+import com.inwave.di.PaletteCache
 import com.inwave.domain.cache.CacheRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 class ImagePaletteExtractor @Inject constructor(
-    val context: Context,
-    val cache: CacheRepository<String, Pair<Bitmap, Palette>>
+    @ApplicationContext val context: Context,
+    @PaletteCache val cache: CacheRepository<String, Pair<Bitmap, Palette>>
 ) {
     private val _bitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
     val bitmap: StateFlow<Bitmap?> = _bitmap.asStateFlow()
@@ -29,6 +31,7 @@ class ImagePaletteExtractor @Inject constructor(
     val palette: StateFlow<Palette?> = _palette.asStateFlow()
 
     suspend fun fetchImageByUrl(imageUrl: String) {
+        Log.d("ImagePaletteExtractor", this.toString())
         ImageLoader(context).execute(
             ImageRequest.Builder(context)
                 .data(imageUrl)

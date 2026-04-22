@@ -140,6 +140,8 @@ fun TracksPlaylist(
                             currentState.tracks.forEachIndexed { index, it ->
                                 TrackMiniWithImage(
                                     modifier = Modifier
+                                        .padding(vertical = 5.dp)
+                                        .padding(start = 20.dp, end = 10.dp)
                                         .padding(vertical = 5.dp),
                                     track = it,
                                     onClick = {
