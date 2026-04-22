@@ -28,6 +28,7 @@ import androidx.navigation.navArgument
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
 import com.inwave.di.RemoteLegacyRepo
+import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.track.query.GetTracksUseCase
 import com.inwave.page.TracksPlaylist
 import com.inwave.page.artist.ArtistPage
@@ -58,7 +59,7 @@ class MainApplication : Application() {
 class MainActivity : ComponentActivity() {
     @Inject lateinit var playerStateSource: PlayerStateSource
     @RemoteLegacyRepo @Inject lateinit var getTrackUseCase: GetTracksUseCase
-    //@RemoteLegacyRepo @Inject lateinit var getReleaseTracksUseCase: GetReleaseTracksUseCase
+    @RemoteLegacyRepo @Inject lateinit var getReleaseTracksUseCase: GetReleaseTracksUseCase
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +82,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             playerStateSource = playerStateSource,
                             getTracksUseCase = getTrackUseCase,
-                            //getReleaseTracksUseCase = getReleaseTracksUseCase,
+                            getReleaseTracksUseCase = getReleaseTracksUseCase,
                             audioPlayerViewModel = audioPlayerViewModel
                         )
                     }
@@ -98,7 +99,7 @@ fun NavRoutes(
     navController: NavHostController,
     playerStateSource: PlayerStateSource,
     getTracksUseCase: GetTracksUseCase,
-    //getReleaseTracksUseCase: GetReleaseTracksUseCase,
+    getReleaseTracksUseCase: GetReleaseTracksUseCase,
     audioPlayerViewModel: AudioPlayerViewModel
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -179,10 +180,10 @@ fun NavRoutes(
                 },
                 onReleasePlayClick = {
                     coroutineScope.launch {
-                        /*getReleaseTracksUseCase(it).onSuccess {
+                        getReleaseTracksUseCase(it).onSuccess {
                             playerStateSource.setPlaylist(it)
                             playerStateSource.play()
-                        }*/
+                        }
                     }
                 }
             )

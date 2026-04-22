@@ -1,20 +1,17 @@
 package com.invawe.data.repository.track
 
-import android.content.ContentUris
 import android.content.Context
 import android.content.res.Resources
-import android.media.MediaScannerConnection
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import com.invawe.data.mapper.track.toDomainTrack
-import com.inwave.domain.entity.Lyrics
 import com.inwave.domain.entity.Track
-import com.inwave.domain.repository.TrackRepository
+import com.inwave.domain.repository.query.TrackQueryRepository
 
-class TrackRepositoryFileStorageImpl(
+class TrackQueryRepositoryFileStorageImpl(
     private val context: Context
-) : TrackRepository {
+) : TrackQueryRepository {
     override suspend fun getTrack(id: String): Result<Track> {
         TODO("Not yet implemented")
     }
@@ -71,15 +68,11 @@ class TrackRepositoryFileStorageImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getTrackLyrics(id: String): Result<Lyrics> {
+    override suspend fun getTrackLyrics(id: String): Result<Track.Lyrics> {
         TODO("Not yet implemented")
     }
 
     override suspend fun getTrackWithLyrics(id: String): Result<Track> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun toggleLike(id: String): Result<Boolean> {
         TODO("Not yet implemented")
     }
 

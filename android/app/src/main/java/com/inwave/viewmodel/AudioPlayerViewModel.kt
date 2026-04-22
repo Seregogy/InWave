@@ -23,7 +23,7 @@ class AudioPlayerViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             playerStateSource.currentTrack.collect { track ->
-                track?.imageUrl?.let {
+                track?.coverArtUrl?.let {
                     imagePaletteExtractor.fetchImageByUrl(it)
                 }
             }

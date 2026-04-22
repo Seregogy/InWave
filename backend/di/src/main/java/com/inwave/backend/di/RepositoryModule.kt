@@ -13,19 +13,6 @@ import com.inwave.domain.repository.query.TrackQueryRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    /*single<TrackQueryRepository> {
-        TrackQueryRepositoryImpl(get())
-    }
-
-    single<ReleaseQueryRepository> {
-        ReleaseQueryRepositoryImpl(get())
-    }
-
-    single<ArtistQueryRepository> {
-        ArtistQueryRepositoryImpl(get())
-    }*/
-
-
     single<TrackQueryRepository> {
         MockTrackQueryRepository()
     }

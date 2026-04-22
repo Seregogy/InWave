@@ -139,7 +139,7 @@ fun ColoredScaffoldState.TopBar(
         }
 
         MarqueeText(
-            text = "Плейлист \"${track?.release?.name ?: "unknown"}\"",
+            text = "Плейлист \"${track?.name ?: "unknown"}\"",
             fontWeight = FontWeight.W700,
             color = onBackgroundColorAnimated.value,
             maxLines = 1,
@@ -306,7 +306,7 @@ fun ColoredScaffoldState.TrackInfo(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
                     .clickable {
-                        track?.release?.id?.let {
+                        track?.releaseId?.let {
                             onReleaseClick(it)
                         }
                     }

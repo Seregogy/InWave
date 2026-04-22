@@ -2,6 +2,7 @@ package com.inwave.domain.usecase.artist.query
 
 import com.inwave.domain.entity.Release
 import com.inwave.domain.repository.query.ArtistQueryRepository
+import com.inwave.domain.repository.query.ReleaseQueryRepository
 
 class GetArtistLastReleaseUseCase(
     private val repository: ArtistQueryRepository

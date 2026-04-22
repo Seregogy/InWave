@@ -1,8 +1,8 @@
 package com.inwave.di.repository
 
 import android.content.Context
-import com.invawe.data.repository.track.TrackQueryRepositoryFileStorageImpl
 import com.invawe.data.repository.track.TrackQueryRepositoryLegacyImpl
+import com.invawe.data.repository.track.TrackQueryRepositoryFileStorageImpl
 import com.inwave.di.LocalRepo
 import com.inwave.di.RemoteLegacyRepo
 import com.inwave.domain.repository.query.TrackQueryRepository

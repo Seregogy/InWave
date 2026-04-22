@@ -205,6 +205,10 @@ class MockReleaseQueryRepository : ReleaseQueryRepository {
         }
     }
 
+    override suspend fun getTopReleases(limit: Int): Result<List<Release>> {
+        TODO("Not yet implemented")
+    }
+
     private fun generateMockReleases(): List<Release> {
         return listOf(
             createMockRelease(
