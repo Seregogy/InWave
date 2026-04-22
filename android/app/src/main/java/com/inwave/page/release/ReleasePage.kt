@@ -6,7 +6,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.Downloading
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -58,7 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.control.CircleButton
-import com.inwave.control.ErrorDrawer
+import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMini
@@ -85,7 +81,8 @@ fun ReleasePage(
     onBackRequest: () -> Unit = { },
     onReleaseClick: (releaseId: String) -> Unit = { },
     onArtistClick: (artistId: String) -> Unit = { },
-    onTrackClick: (trackId: String) -> Unit = { }
+    onTrackClick: (trackId: String) -> Unit = { },
+    onReleasePlayClick: (releaseId: String) -> Unit = { }
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -115,7 +112,8 @@ fun ReleasePage(
                 onBackRequest,
                 onArtistClick,
                 onTrackClick,
-                onReleaseClick
+                onReleaseClick,
+                onReleasePlayClick
             )
         }
         is ReleasePageViewModelState.Error -> {
@@ -135,7 +133,8 @@ private fun DrawReleasePage(
     onBackRequest: () -> Unit,
     onArtistClick: (String) -> Unit,
     onTrackClick: (String) -> Unit,
-    onReleaseClick: (String) -> Unit
+    onReleaseClick: (String) -> Unit,
+    onReleasePlayClick: (releaseId: String) -> Unit
 ) {
     val toolBarScaffoldState = rememberToolScaffoldState(onBackRequest = onBackRequest)
     val topBarHazeState = rememberHazeState()
@@ -179,17 +178,18 @@ private fun DrawReleasePage(
                         screenHeight = screenHeight,
                         alpha = alpha,
                         release = state.release,
-                        onArtistClicked = onArtistClick
+                        onArtistClick = onArtistClick,
+                        onReleasePlayClick = onReleasePlayClick
                     )
                 }
             ) {
-                AlbumContent(
+                ReleaseContent(
                     bottomPadding = bottomPadding,
                     release = state.release,
                     tracks = state.tracks,
                     infiniteTransition = infiniteTransition,
                     otherReleases = state.otherReleases,
-                    onTrackClick = { onArtistClick(it.id) },
+                    onTrackClick = { onTrackClick(it.id) },
                     onReleaseClick = onReleaseClick,
                     onTrackHold = {
                         /*toolBarScaffoldState.launchContextAction { padding ->
@@ -207,7 +207,8 @@ private fun ColoredScaffoldState.AlbumHeader(
     screenHeight: Dp,
     alpha: FloatState,
     release: Release,
-    onArtistClicked: (albumId: String) -> Unit
+    onArtistClick: (albumId: String) -> Unit,
+    onReleasePlayClick: (releaseId: String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -240,7 +241,7 @@ private fun ColoredScaffoldState.AlbumHeader(
                 Row(
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.small)
-                        .clickable { onArtistClicked(release.artists.first().id) }
+                        .clickable { onArtistClick(release.artists.first().id) }
                         .padding(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -299,7 +300,7 @@ private fun ColoredScaffoldState.AlbumHeader(
                         )
                     }
 
-                    CircleButton(
+                    /*CircleButton(
                         containerColor = onPrimaryOrBackgroundColor.value,
                         onClick = { },
                         underscoreText = "Трейлер",
@@ -312,11 +313,13 @@ private fun ColoredScaffoldState.AlbumHeader(
                             contentDescription = "",
                             tint = primaryOrBackgroundColorAnimated.value
                         )
-                    }
+                    }*/
 
                     CircleButton(
                         containerColor = onPrimaryOrBackgroundColor.value,
-                        onClick = { },
+                        onClick = {
+                            onReleasePlayClick(release.id)
+                        },
                         underscoreText = "Слушать",
                         underscoreTextColor = Color.White
                     ) {
@@ -335,7 +338,7 @@ private fun ColoredScaffoldState.AlbumHeader(
 }
 
 @Composable
-private fun ColoredScaffoldState.AlbumContent(
+fun ColoredScaffoldState.ReleaseContent(
     bottomPadding: Dp,
     release: Release,
     tracks: List<Track>,
@@ -369,6 +372,8 @@ private fun ColoredScaffoldState.AlbumContent(
         }
 
         Spacer(Modifier.height(bottomPadding))
+        Spacer(Modifier.height(120.dp))
+
     }
 }
 

@@ -1,13 +1,17 @@
 package com.inwave.di.repository
 
 import android.content.Context
-import com.invawe.data.repository.track.TrackRepositoryFileStorageImpl
-import com.inwave.domain.repository.TrackRepository
+import com.invawe.data.repository.track.TrackQueryRepositoryFileStorageImpl
+import com.invawe.data.repository.track.TrackQueryRepositoryLegacyImpl
+import com.inwave.di.LocalRepo
+import com.inwave.di.RemoteLegacyRepo
+import com.inwave.domain.repository.query.TrackQueryRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
 import javax.inject.Singleton
 
 @Module
@@ -15,7 +19,15 @@ import javax.inject.Singleton
 object TrackRepositoryModule {
     @Provides
     @Singleton
-    fun provideTrackRepository(
+    @LocalRepo
+    fun provideTrackRepositoryLocal(
         @ApplicationContext context: Context
-    ): TrackRepository = TrackRepositoryFileStorageImpl(context)
+    ): TrackQueryRepository = TrackQueryRepositoryFileStorageImpl(context)
+
+    @Provides
+    @Singleton
+    @RemoteLegacyRepo
+    fun provideTrackRepositoryRemoteLegacy(
+        httpClient: HttpClient
+    ): TrackQueryRepository = TrackQueryRepositoryLegacyImpl(httpClient)
 }

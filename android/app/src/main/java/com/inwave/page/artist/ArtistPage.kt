@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -47,7 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.control.CirclePagerIndicator
-import com.inwave.control.ErrorDrawer
+import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMiniWithImage
@@ -66,8 +67,6 @@ import com.inwave.viewmodel.ArtistPageViewModel
 import com.inwave.viewmodel.ArtistPageViewModelState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 const val TOP_PART_WEIGHT = .55f
 
@@ -83,6 +82,10 @@ fun ArtistPage(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val coloredScaffoldState = rememberColoredScaffoldState {
         viewModel.palette.collectAsStateWithLifecycle()
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadArtist()
     }
 
     when(val currentState = state) {
@@ -293,7 +296,7 @@ private fun Header(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                artist.genres.forEach {
+                artist.genres.take(3).forEach {
                     Box(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.small)
@@ -366,6 +369,8 @@ private fun Content(
             }
 
             Spacer(Modifier.height(bottomPadding))
+            Spacer(Modifier.height(120.dp))
+
         }
     }
 }
@@ -414,10 +419,10 @@ fun LatestRelease(
                     fontWeight = FontWeight.W700
                 )
 
-                Text(
+                /*Text(
                     text = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(release.releaseDate),
                     fontSize = 14.sp
-                )
+                )*/
             }
         }
     }
@@ -441,6 +446,9 @@ private fun TopTracks(
 
         for (track in tracks) {
             TrackMiniWithImage(
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 10.dp)
+                    .padding(vertical = 5.dp),
                 track = track,
                 onPrimaryColor = Color.White,
                 onClick = { onTrackClick(it.id) }

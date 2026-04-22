@@ -27,6 +27,10 @@ class ReleaseQueryRepositoryMock : ReleaseQueryRepository {
         return Result.success(mockReleases.first { it.id == releaseId }.tracks)
     }
 
+    override suspend fun getTopReleases(limit: Int): Result<List<Release>> {
+        return Result.success(mockReleases.sortedBy { it.statistics?.playCount }.take(limit))
+    }
+
     private fun createTwelveCaratToothache(): Release {
         val postMalone = Artist(
             id = "artist_post_malone",

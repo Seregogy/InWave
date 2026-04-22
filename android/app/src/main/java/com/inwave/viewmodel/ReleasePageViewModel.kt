@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.palette.graphics.Palette
+import com.inwave.di.RemoteLegacyRepo
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
@@ -29,9 +30,9 @@ sealed class ReleasePageViewModelState() {
 @HiltViewModel
 class ReleasePageViewModel @Inject constructor(
     private val colorExtractor: ImagePaletteExtractor,
-    private val getRelease: GetReleaseUseCase,
-    private val getReleaseTracks: GetReleaseTracksUseCase,
-    private val getArtistReleasesUseCase: GetArtistReleasesUseCase,
+    @RemoteLegacyRepo private val getRelease: GetReleaseUseCase,
+    @RemoteLegacyRepo private val getReleaseTracks: GetReleaseTracksUseCase,
+    @RemoteLegacyRepo private val getArtistReleasesUseCase: GetArtistReleasesUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val releaseId: String? = savedStateHandle["releaseId"]

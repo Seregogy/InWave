@@ -1,4 +1,4 @@
-package com.inwave.domain.usecase.artist
+package com.inwave.domain.usecase.artist.query
 
 import com.inwave.domain.repository.ArtistRepository
 import com.inwave.domain.entity.Track

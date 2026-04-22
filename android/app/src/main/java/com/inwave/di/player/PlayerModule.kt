@@ -3,9 +3,10 @@ package com.inwave.di.player
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
-import com.inwave.domain.usecase.track.GetTrackUseCase
-import com.inwave.domain.usecase.track.GetTrackWithLyricsUseCase
-import com.inwave.domain.usecase.track.GetTracksUseCase
+import com.inwave.di.RemoteLegacyRepo
+import com.inwave.domain.usecase.track.query.GetTrackUseCase
+import com.inwave.domain.usecase.track.query.GetTrackWithLyricsUseCase
+import com.inwave.domain.usecase.track.query.GetTracksUseCase
 import com.inwave.player.state.PlayerStateSource
 import dagger.Module
 import dagger.Provides
@@ -48,9 +49,9 @@ class PlayerModule {
     @Provides
     @Singleton
     fun provideAudioPlayer(
-        getTrack: GetTrackUseCase,
-        getTracks: GetTracksUseCase,
-        getTrackWithLyrics: GetTrackWithLyricsUseCase
+        @RemoteLegacyRepo getTrack: GetTrackUseCase,
+        @RemoteLegacyRepo getTracks: GetTracksUseCase,
+        @RemoteLegacyRepo getTrackWithLyrics: GetTrackWithLyricsUseCase
     ): PlayerStateSource {
         return PlayerStateSource(getTrack, getTracks, getTrackWithLyrics)
     }

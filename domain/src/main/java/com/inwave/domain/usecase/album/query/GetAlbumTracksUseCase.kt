@@ -1,4 +1,4 @@
-package com.inwave.domain.usecase.album
+package com.inwave.domain.usecase.album.query
 
 import com.inwave.domain.entity.Track
 import domain.repository.AlbumRepository

@@ -1,4 +1,4 @@
-package com.inwave.domain.usecase.track
+package com.inwave.domain.usecase.track.query
 
 import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.TrackRepository

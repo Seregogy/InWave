@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -18,27 +17,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.ColoredScaffoldState
-import com.inwave.player.state.PlayerCommand
 import com.inwave.player.state.PlayerState
 import com.inwave.viewmodel.AudioPlayerViewModel
-import io.github.vinceglb.confettikit.compose.ConfettiKit
-import io.github.vinceglb.confettikit.core.Angle
-import io.github.vinceglb.confettikit.core.Party
-import io.github.vinceglb.confettikit.core.Position
-import io.github.vinceglb.confettikit.core.Rotation
-import io.github.vinceglb.confettikit.core.Spread
-import io.github.vinceglb.confettikit.core.emitter.Emitter
-import io.github.vinceglb.confettikit.core.models.Shape
-import io.github.vinceglb.confettikit.core.models.Size
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 const val animationsSpeed = 1200
 
@@ -118,8 +103,8 @@ fun FullAudioPlayer(
                     TrackInfo(
                         track = track,
                         isTrackLoading = isLoading,
-                        onAlbumClicked = onAlbumClicked,
-                        onArtistClicked = onArtistClicked
+                        onReleaseClick = onAlbumClicked,
+                        onArtistClick = onArtistClicked
                     )
 
                     Spacer(Modifier.height(10.dp))
