@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -36,6 +39,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
+import com.inwave.R
 import com.inwave.control.mini.TrackMiniWithImage
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
 import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
@@ -47,6 +51,7 @@ import com.inwave.viewmodel.TracksPlaylistViewModel
 @OptIn(ExperimentalPermissionsApi::class)
 fun TracksPlaylist(
     innerPadding: PaddingValues,
+    miniPlayerHeight: State<Dp>,
     viewModel: TracksPlaylistViewModel = hiltViewModel()
 ) {
     val playlistState by remember { viewModel.tracksState }
@@ -109,7 +114,7 @@ fun TracksPlaylist(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Треки на устройстве",
+                    text = stringResource(R.string.tracks_on_device),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.W600,
                     color = Color.White
@@ -149,6 +154,8 @@ fun TracksPlaylist(
                                     }
                                 )
                             }
+
+                            Spacer(Modifier.height(miniPlayerHeight.value))
                         }
                     }
                 }

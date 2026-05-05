@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,11 +54,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.inwave.R
 import com.inwave.control.CircleButton
-import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMini
+import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.ColoredScaffoldState
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
@@ -273,7 +275,7 @@ private fun ColoredScaffoldState.AlbumHeader(
                     CircleButton(
                         containerColor = onPrimaryOrBackgroundColor.value,
                         onClick = { },
-                        underscoreText = "Скачать",
+                        underscoreText = stringResource(R.string.download),
                         underscoreTextColor = Color.White
                     ) {
                         Icon(
@@ -288,7 +290,7 @@ private fun ColoredScaffoldState.AlbumHeader(
                     CircleButton(
                         containerColor = onPrimaryOrBackgroundColor.value,
                         onClick = { },
-                        underscoreText = "Нравится",
+                        underscoreText = stringResource(R.string.like),
                         underscoreTextColor = Color.White
                     ) {
                         Icon(
@@ -299,21 +301,6 @@ private fun ColoredScaffoldState.AlbumHeader(
                             tint = primaryOrBackgroundColorAnimated.value
                         )
                     }
-
-                    /*CircleButton(
-                        containerColor = onPrimaryOrBackgroundColor.value,
-                        onClick = { },
-                        underscoreText = "Трейлер",
-                        underscoreTextColor = Color.White
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.QueueMusic,
-                            modifier = Modifier
-                                .size(28.dp),
-                            contentDescription = "",
-                            tint = primaryOrBackgroundColorAnimated.value
-                        )
-                    }*/
 
                     CircleButton(
                         containerColor = onPrimaryOrBackgroundColor.value,
@@ -351,11 +338,11 @@ fun ColoredScaffoldState.ReleaseContent(
     Column {
         Spacer(Modifier.height(20.dp))
 
-        for (track in tracks) {
+        tracks.forEach { track ->
             TrackMini(
                 track = track,
                 infiniteTransition = infiniteTransition,
-                primaryColor = primaryOrBackgroundColorAnimated.value,
+                primaryColor = Color.White.copy(.15f),
                 onPrimaryColor = Color.White,
                 onClick = onTrackClick,
                 onContextAction = onTrackHold

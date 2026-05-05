@@ -51,7 +51,11 @@ fun AudioPlayerScaffold(
     innerPadding: PaddingValues,
     navController: NavHostController,
     hazeState: HazeState,
-    content: @Composable (sheetPeekHeight: Dp, innerPadding: PaddingValues) -> Unit
+    content: @Composable (
+        sheetPeekHeight: Dp,
+        innerPadding: PaddingValues,
+        miniPlayerHeight: State<Dp>
+    ) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberBottomSheetScaffoldState()
@@ -150,7 +154,7 @@ fun AudioPlayerScaffold(
             )
         }
     ) { paddingValues ->
-        content(sheetPeekHeight, paddingValues)
+        content(sheetPeekHeight, paddingValues, bottomSectionHeight)
     }
 }
 

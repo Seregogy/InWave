@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download">Download</string>
+    <string name="like">Like</string>
+    <string name="top_releases">Top releases</string>
+    <string name="tracks_on_device">Tracks on device</string>
+    <string name="albums">Albums %1$s</string>
+    <string name="singles">Singles %1$s</string>
+    <string name="latest_release">Latest release</string>
+    <string name="popular_tracks">Popular tracks</string>
+    <string name="top_artists">Top artists</string>
+</resources>

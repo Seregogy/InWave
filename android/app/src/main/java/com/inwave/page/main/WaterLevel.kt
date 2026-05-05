@@ -1,25 +1,42 @@
 package com.inwave.page.main
 
 import android.graphics.BlendMode
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -42,7 +59,8 @@ fun androidx.compose.ui.graphics.Color.invert(): androidx.compose.ui.graphics.Co
  **/
 @Composable
 fun ColoredScaffoldState.WaterLevel(
-    depthMeasurement: String
+    depthMeasurement: String,
+    isPressed: MutableState<Boolean>
 ) = BoxWithConstraints {
     val infiniteTransition = rememberInfiniteTransition()
     val waterLevel by infiniteTransition.animateFloat(
@@ -67,9 +85,8 @@ fun ColoredScaffoldState.WaterLevel(
         )
     )
 
-    var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.9f else 1f,
+        targetValue = if (isPressed.value) 0.9f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium
@@ -78,8 +95,8 @@ fun ColoredScaffoldState.WaterLevel(
     )
 
     val haptic = LocalHapticFeedback.current
-    LaunchedEffect(isPressed) {
-        if (isPressed)
+    LaunchedEffect(isPressed.value) {
+        if (isPressed.value)
             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
         else
             haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
@@ -100,7 +117,7 @@ fun ColoredScaffoldState.WaterLevel(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        isPressed = !isPressed
+                        isPressed.value = !isPressed.value
                     }
                 )
             }
