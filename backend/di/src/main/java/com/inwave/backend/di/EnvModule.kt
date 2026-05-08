@@ -3,6 +3,7 @@ package com.inwave.backend.di
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import org.koin.dsl.module
+import java.io.File
 
 class Env(
     private val dotenv: Dotenv
@@ -39,9 +40,11 @@ val envModule = module {
 
     single<Dotenv> {
         dotenv {
-            directory = "backend/"
+            println(File("C:/Users/delhi/AndroidStudioProjects/InWave/backend/.env").exists())
+            directory = "C:/Users/delhi/AndroidStudioProjects/InWave/backend/"
             filename = ".env"
             systemProperties = true
+            ignoreIfMissing = true
         }
     }
 }

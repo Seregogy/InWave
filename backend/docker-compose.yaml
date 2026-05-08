@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: inwave-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB_NAME}"]
+      interval: 5s
+    networks:
+      - inwave-network
+
+  inwave-backend:
+    container_name: inwave-backend
+    image: reptiloidd/inwave-backend
+    #TODO: закинуть образ на Docker Hub
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PORT: ${PORT:-8080}
+      DB_URL: "jdbc:postgresql://postgres:5432/${POSTGRES_DB_NAME}"
+      DB_DRIVER: ${DB_DRIVER:-org.postgresql.Driver}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      DB_INIT: ${DB_INIT:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PORT}:8080"
+    networks:
+      - inwave-network
+
+networks:
+  inwave-network:
+    driver: bridge

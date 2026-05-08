@@ -3,8 +3,9 @@ package com.inwave.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
-import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
@@ -14,6 +15,7 @@ import com.inwave.tool.ImagePaletteExtractor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class ReleasePageViewModelState() {
@@ -30,9 +32,9 @@ sealed class ReleasePageViewModelState() {
 @HiltViewModel
 class ReleasePageViewModel @Inject constructor(
     private val colorExtractor: ImagePaletteExtractor,
-    @RemoteLegacyRepo private val getRelease: GetReleaseUseCase,
-    @RemoteLegacyRepo private val getReleaseTracks: GetReleaseTracksUseCase,
-    @RemoteLegacyRepo private val getArtistReleasesUseCase: GetArtistReleasesUseCase,
+    @RemoteRepo private val getRelease: GetReleaseUseCase,
+    @RemoteRepo private val getReleaseTracks: GetReleaseTracksUseCase,
+    @RemoteRepo private val getArtistReleasesUseCase: GetArtistReleasesUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val releaseId: String? = savedStateHandle["releaseId"]
@@ -42,6 +44,12 @@ class ReleasePageViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<ReleasePageViewModelState>(ReleasePageViewModelState.Idle)
     val state: StateFlow<ReleasePageViewModelState> = _state
+
+    init {
+        viewModelScope.launch {
+            loadRelease()
+        }
+    }
 
     suspend fun loadRelease() {
         _state.emit(ReleasePageViewModelState.Loading)
@@ -70,7 +78,7 @@ class ReleasePageViewModel @Inject constructor(
 
                 ReleasePageViewModelState.Success(
                     tracks, release, otherReleases
-                )
+                ).also { it }
             }.fold(
                 { it },
                 { ReleasePageViewModelState.Error(it) }

@@ -1,12 +1,14 @@
 package com.inwave.backend.db.entity
 
 import com.inwave.backend.db.table.ArtistOnTrackType
+import com.inwave.backend.db.table.ArtistTable
 import com.inwave.backend.db.table.ArtistTrackTable
+import com.inwave.backend.db.table.ReleaseTable
+import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackAdditionalDataTable
 import com.inwave.backend.db.table.TrackGenreTable
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
-import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.core.dao.id.CompositeID
@@ -18,8 +20,9 @@ import org.jetbrains.exposed.v1.dao.CompositeEntity
 import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.update
-import kotlin.collections.List
 
 data class TrackOnRelease(
     val track: TrackEntity,
@@ -86,29 +89,45 @@ class TrackEntity(id: EntityID<Int>) : IntEntity(id) {
     fun fetchAdditionalData(): TrackAdditionalDataEntity? =
         TrackAdditionalDataEntity.find { TrackAdditionalDataTable.trackId eq id }.firstOrNull()
 
-    fun fetchReleases(): List<TrackOnRelease> =
-        ReleaseTrackEntity.find { ReleaseTrackTable.trackId eq id }.map {
-            TrackOnRelease(it.track, it.release, it.positionInRelease, it.discNumber)
-        }
+    fun fetchRelease(): TrackOnRelease =
+        (ReleaseTrackTable innerJoin ReleaseTable)
+            .select(ReleaseTrackTable.columns + ReleaseTable.columns)
+            .where { ReleaseTrackTable.trackId eq id }
+            .first()
+            .let { row ->
+                TrackOnRelease(
+                    track = this,
+                    release = ReleaseEntity.findById(row[ReleaseTrackTable.releaseId].value)!!,
+                    positionInRelease = row[ReleaseTrackTable.positionInRelease],
+                    discNumber = row[ReleaseTrackTable.discNumber]
+                )
+            }
 
     fun fetchArtists(): List<ArtistOnTrack> =
-        ArtistTracksEntity.find { ArtistTrackTable.trackId eq id }.map {
-            ArtistOnTrack(it.artist, it.track, it.artistType)
-        }
+        (ArtistTrackTable innerJoin ArtistTable innerJoin TrackTable)
+            .select(ArtistTable.columns + TrackTable.columns + ArtistTrackTable.artistType)
+            .where { ArtistTrackTable.trackId eq id }
+            .map { row ->
+                ArtistOnTrack(
+                    artist = ArtistEntity.wrapRow(row),
+                    track = wrapRow(row),
+                    artistOnTrackType = row[ArtistTrackTable.artistType]
+                )
+            }
 
     fun addGenre(genre: GenreEntity, weight: Float? = null): Result<Unit> = runCatching {
-        TrackGenreEntity.new {
-            track = this@TrackEntity
-            this.genre = genre
-            this.weight = weight
+        TrackGenreTable.insert {
+            it[trackId] = this@TrackEntity.id
+            it[TrackGenreTable.genreId] = genre.id
+            it[TrackGenreTable.weight] = weight
         }
     }
 
     fun addArtist(artistEntity: ArtistEntity, artistType: ArtistOnTrackType): Result<Unit> = runCatching {
-        ArtistTracksEntity.new {
-            this.artist = artistEntity
-            this.artistType = artistType
-            track = this@TrackEntity
+        ArtistTrackTable.insert {
+            it[artistId] = artistEntity.id
+            it[trackId] = this@TrackEntity.id
+            it[ArtistTrackTable.artistType] = artistType
         }
     }
 

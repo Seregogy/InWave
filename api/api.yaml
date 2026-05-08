@@ -1,0 +1,675 @@
+openapi: 3.0.3
+info:
+  title: InWave API
+  description: API для музыкального сервиса InWave
+  version: 1.0.0
+  contact:
+    name: InWave Team
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Локальный сервер разработки
+
+paths:
+  /tracks/random:
+    get:
+      tags:
+        - Tracks
+      summary: Получить случайный трек
+      operationId: getRandomTrack
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRandomTrackResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tracks/random/id:
+    get:
+      tags:
+        - Tracks
+      summary: Получить ID случайного трека
+      operationId: getRandomTrackId
+      responses:
+        '200':
+          description: ID случайного трека
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "track_abc123"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tracks/{id}:
+    get:
+      tags:
+        - Tracks
+      summary: Получить трек по ID
+      operationId: getTrack
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID трека
+      responses:
+        '200':
+          description: Полная информация о треке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullTrackDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /releases/{id}:
+    get:
+      tags:
+        - Releases
+      summary: Получить релиз по ID
+      operationId: getRelease
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID релиза
+      responses:
+        '200':
+          description: Полная информация о релизе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullReleaseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /releases/{id}/tracks:
+    get:
+      tags:
+        - Releases
+      summary: Получить треки релиза
+      operationId: getReleaseTracks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID релиза
+      responses:
+        '200':
+          description: Список треков релиза
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrackSummaryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/top:
+    get:
+      tags:
+        - Artists
+      summary: Получить топ артистов
+      operationId: getTopArtists
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Количество возвращаемых артистов
+      responses:
+        '200':
+          description: Список топ артистов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArtistSummaryDto'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/{id}:
+    get:
+      tags:
+        - Artists
+      summary: Получить артиста по ID
+      operationId: getArtist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID артиста
+      responses:
+        '200':
+          description: Полная информация об артисте
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullArtistDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/{id}/tracks/top:
+    get:
+      tags:
+        - Artists
+      summary: Получить топ треки артиста
+      operationId: getArtistTopTracks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID артиста
+      responses:
+        '200':
+          description: Список топ треков артиста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrackSummaryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/{id}/releases:
+    get:
+      tags:
+        - Artists
+      summary: Получить все релизы артиста
+      operationId: getArtistReleases
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID артиста
+      responses:
+        '200':
+          description: Список релизов артиста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReleaseSummaryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/{id}/releases/singles:
+    get:
+      tags:
+        - Artists
+      summary: Получить синглы артиста
+      operationId: getArtistSingles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID артиста
+      responses:
+        '200':
+          description: Список синглов артиста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReleaseSummaryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/{id}/releases/albums:
+    get:
+      tags:
+        - Artists
+      summary: Получить альбомы артиста
+      operationId: getArtistAlbums
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID артиста
+      responses:
+        '200':
+          description: Список альбомов артиста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReleaseSummaryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artists/{id}/releases/last:
+    get:
+      tags:
+        - Artists
+      summary: Получить последний релиз артиста
+      operationId: getArtistLatestRelease
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID артиста
+      responses:
+        '200':
+          description: Последний релиз артиста
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullReleaseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    StatisticsDto:
+      type: object
+      properties:
+        playCount:
+          type: integer
+          description: Количество прослушиваний
+        likeCount:
+          type: integer
+          description: Количество лайков
+        repostCount:
+          type: integer
+          description: Количество репостов
+
+    ArtistSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        genres:
+          type: array
+          items:
+            type: string
+        statistics:
+          $ref: '#/components/schemas/StatisticsDto'
+
+    FullArtistDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        about:
+          type: string
+          nullable: true
+        avatarUrls:
+          type: array
+          items:
+            type: string
+        genres:
+          type: array
+          items:
+            type: string
+        statistics:
+          $ref: '#/components/schemas/StatisticsDto'
+        releases:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReleaseSummaryDto'
+
+    ArtistTrackSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coverArtUrl:
+          type: string
+          nullable: true
+        durationMs:
+          type: integer
+          format: int64
+          nullable: true
+        statistics:
+          $ref: '#/components/schemas/StatisticsDto'
+
+    TrackArtistDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        artistType:
+          type: string
+          enum: [Primary, Featured, Remixer]
+
+    TrackArtistDetailsDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        artistType:
+          type: string
+          enum: [Primary, Featured, Remixer]
+
+    TrackSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coverArtUrl:
+          type: string
+          nullable: true
+        audioUrl:
+          type: string
+          nullable: true
+        durationMs:
+          type: integer
+          format: int64
+          nullable: true
+        isExplicit:
+          type: boolean
+          default: false
+        artists:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackArtistDto'
+
+    TrackReleaseInfoDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coverArtUrl:
+          type: string
+          nullable: true
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+
+    TrackMetadataDto:
+      type: object
+      properties:
+        bpm:
+          type: integer
+          nullable: true
+        format:
+          type: string
+          nullable: true
+        bitrate:
+          type: integer
+          nullable: true
+        sampleRate:
+          type: integer
+          nullable: true
+
+    TrackLyricsDto:
+      type: object
+      properties:
+        plainText:
+          type: string
+          nullable: true
+        syncedText:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+          description: Синхронизированный текст (миллисекунды -> текст)
+        provider:
+          type: string
+          nullable: true
+
+    TrackAdditionalDataDto:
+      type: object
+      properties:
+        fullTitle:
+          type: string
+          nullable: true
+        descriptionPreviewPlainText:
+          type: string
+          nullable: true
+        producers:
+          type: array
+          items:
+            type: string
+        writers:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    FullTrackDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coverArtUrl:
+          type: string
+          nullable: true
+        audioUrl:
+          type: string
+        durationMs:
+          type: integer
+          format: int64
+          nullable: true
+        isExplicit:
+          type: boolean
+          default: false
+        placeInRelease:
+          type: integer
+          nullable: true
+        genres:
+          type: array
+          items:
+            type: string
+        statistics:
+          $ref: '#/components/schemas/StatisticsDto'
+        release:
+          $ref: '#/components/schemas/TrackReleaseInfoDto'
+        artists:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackArtistDetailsDto'
+        metadata:
+          $ref: '#/components/schemas/TrackMetadataDto'
+        lyrics:
+          $ref: '#/components/schemas/TrackLyricsDto'
+        additionalData:
+          $ref: '#/components/schemas/TrackAdditionalDataDto'
+
+    ReleaseSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coverArtUrl:
+          type: string
+          nullable: true
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+        type:
+          type: string
+          description: Тип релиза (SINGLE, EP, ALBUM)
+          enum: [SINGLE, EP, ALBUM]
+        trackCount:
+          type: integer
+
+    FullReleaseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coverArtUrl:
+          type: string
+          nullable: true
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+        artists:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArtistSummaryDto'
+        genres:
+          type: array
+          items:
+            type: string
+        statistics:
+          $ref: '#/components/schemas/StatisticsDto'
+        label:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        tracks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackSummaryDto'
+
+    GetRandomTrackResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        playCount:
+          type: integer
+          format: int64
+        hasLyrics:
+          type: boolean
+        syncedText:
+          type: object
+          additionalProperties:
+            type: string
+          description: Синхронизированный текст (миллисекунды -> текст)
+
+    GetTopArtistsResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        about:
+          type: string
+        playCount:
+          type: integer
+          format: int64
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        path:
+          type: string
+        timestamp:
+          type: string
+        details:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+
+  responses:
+    BadRequest:
+      description: Неверный запрос (отсутствует ID)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 400
+            message: "Artist ID is required"
+            path: "/api/v1/artists/"
+            timestamp: "2024-01-01T00:00:00Z"
+
+    InternalError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 500
+            message: "Failed to get artist"
+            path: "/api/v1/artists/123"
+            timestamp: "2024-01-01T00:00:00Z"
+
+tags:
+  - name: Tracks
+    description: Операции с треками
+  - name: Releases
+    description: Операции с релизами
+  - name: Artists
+    description: Операции с артистами

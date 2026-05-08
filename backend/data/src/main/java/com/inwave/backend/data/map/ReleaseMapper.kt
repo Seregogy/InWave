@@ -15,7 +15,7 @@ fun ReleaseEntity.toDomain(): Release {
         name = name,
         coverArtUrl = coverArtUrl,
         releaseDate = releaseDate?.toJavaLocalDate(),
-        tracks = fetchTracks().map { it.track.toDomain(releaseId = id.value.toString()) },
+        tracks = emptyList(), // TODO: Сделать отдельный маппер не .toDomain
         artists = artists.map { it.toDomain() },
         genres = genres.map { it.name }.toList(),
         statistics = fetchStatistics()?.toDomain(),

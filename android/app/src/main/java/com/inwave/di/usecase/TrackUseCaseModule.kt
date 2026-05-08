@@ -2,11 +2,11 @@ package com.inwave.di.usecase
 
 import com.inwave.di.LocalRepo
 import com.inwave.di.LyricsCache
-import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.di.TrackCache
 import com.inwave.domain.cache.CacheRepository
-import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.entity.Track
+import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.repository.query.TrackQueryRepository
 import com.inwave.domain.usecase.track.query.GetAllTracksUseCase
 import com.inwave.domain.usecase.track.query.GetRandomTrackIdUseCase
@@ -24,9 +24,9 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object TrackUseCaseModule {
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun provideGetAllTracksUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: TrackQueryRepository
+        @RemoteRepo repository: TrackQueryRepository
     ): GetAllTracksUseCase = GetAllTracksUseCase(repository)
 
     @Provides
@@ -36,42 +36,42 @@ object TrackUseCaseModule {
     ): GetAllTracksUseCase = GetAllTracksUseCase(repository)
 
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun provideGetRandomTrackIdUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: TrackQueryRepository
+        @RemoteRepo repository: TrackQueryRepository
     ): GetRandomTrackIdUseCase = GetRandomTrackIdUseCase(repository)
 
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetRandomTrackUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: TrackQueryRepository
+        @RemoteRepo repository: TrackQueryRepository
     ): GetRandomTrackUseCase = GetRandomTrackUseCase(repository)
 
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun provideGetTrackLyricsUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: TrackQueryRepository,
+        @RemoteRepo repository: TrackQueryRepository,
         @LyricsCache cacheRepository: CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Lyrics>
     ): GetTrackLyricsUseCase = GetTrackLyricsUseCase(repository, cacheRepository)
 
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun provideGetTracksUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: TrackQueryRepository,
+        @RemoteRepo repository: TrackQueryRepository,
         @TrackCache cacheRepository: CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Track>
     ): GetTracksUseCase = GetTracksUseCase(repository, cacheRepository)
 
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun provideGetTrackUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: TrackQueryRepository,
+        @RemoteRepo repository: TrackQueryRepository,
         @TrackCache cacheRepository: CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Track>
     ): GetTrackUseCase = GetTrackUseCase(repository, cacheRepository)
 
     @Provides
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun provideGetTrackWithLyricsUseCaseRemoteLegacy(
-        @RemoteLegacyRepo trackUseCase: GetTrackUseCase,
-        @RemoteLegacyRepo trackLyricsUseCase: GetTrackLyricsUseCase
+        @RemoteRepo trackUseCase: GetTrackUseCase,
+        @RemoteRepo trackLyricsUseCase: GetTrackLyricsUseCase
     ): GetTrackWithLyricsUseCase = GetTrackWithLyricsUseCase(trackUseCase, trackLyricsUseCase)
 }

@@ -18,7 +18,7 @@ material = "1.13.0"
 material3 = "1.4.0-beta02"
 materialIconsExtended = "1.7.8"
 media3Exoplayer = "1.8.0"
-hilt-version = "2.57.2"
+hilt-version = "2.58"
 paletteVerison = "1.0.0"
 bottomSheetVersion = "1.5.1"
 haze = "1.6.9"
@@ -99,6 +99,7 @@ ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 ktor-server-content-negotation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content", version.ref = "ktor" }
 
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 

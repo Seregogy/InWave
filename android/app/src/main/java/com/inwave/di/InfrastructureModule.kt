@@ -38,9 +38,10 @@ object InfrastructureModule {
             }
 
             install(HttpRequestRetry) {
-                maxRetries = 5
+                maxRetries = 3
                 delayMillis { retry ->
-                    Log.d("API", "resending request #$retry")
+                    request
+                    Log.d("API", "resending ${request.url} #$retry")
 
                     retry * 3000L
                 }
@@ -48,8 +49,8 @@ object InfrastructureModule {
 
             defaultRequest {
                 url {
-                    host = "onewave.duckdns.org"
-                    protocol = URLProtocol.HTTPS
+                    host = "158.160.212.225:8080/api"
+                    protocol = URLProtocol.HTTP
                 }
                 //header("Authorization", "Bearer $accessToken")
             }

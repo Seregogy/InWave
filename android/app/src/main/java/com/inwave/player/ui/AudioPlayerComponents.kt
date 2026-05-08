@@ -139,7 +139,7 @@ fun ColoredScaffoldState.TopBar(
         }
 
         MarqueeText(
-            text = "Плейлист \"${track?.name ?: "unknown"}\"",
+            text = "Плейлист \"${track?.release?.name ?: "unknown"}\"",
             fontWeight = FontWeight.W700,
             color = onBackgroundColorAnimated.value,
             maxLines = 1,

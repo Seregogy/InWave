@@ -21,9 +21,7 @@ class ReleaseQueryRepositoryImpl(
 
     override suspend fun getReleaseTracks(releaseId: String): Result<List<Track>> = catchingTransaction(db) {
         ReleaseEntity.findById(releaseId.toInt())!!.fetchTracks().map {
-            it.track.toDomain(
-                releaseId = releaseId
-            )
+            it.track.toDomain()
         }
     }
 

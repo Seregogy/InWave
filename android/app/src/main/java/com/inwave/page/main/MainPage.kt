@@ -17,11 +17,8 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,16 +55,15 @@ fun MainPage(
     viewModel: MainPageViewModel,
     coloredScaffoldState: ColoredScaffoldState,
 
+    isPlay: State<Boolean>,
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (releaseId: String) -> Unit,
     onArtistClick: (artistId: String) -> Unit,
-    onLocalTrackPageClick: () -> Unit
+    onLocalTrackPageClick: () -> Unit,
+    onInwaveClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadRelease()
-    }
+    val wave = viewModel.wave.collectAsStateWithLifecycle()
 
     when(val currentState = state) {
         MainPageViewModelState.Idle -> { }
@@ -77,10 +73,19 @@ fun MainPage(
                 padding = padding,
                 state = currentState,
                 coloredScaffoldState = coloredScaffoldState,
+                isPlay = isPlay,
+                wave = wave,
                 onTrackClick = onTrackClick,
                 onReleaseClick = onReleaseClick,
                 onArtistClick = onArtistClick,
-                onLocalTrackPageClick = onLocalTrackPageClick
+                onLocalTrackPageClick = onLocalTrackPageClick,
+                onInwaveClick = onInwaveClick,
+                onStartListener = {
+                    viewModel.startListener()
+                },
+                onPauseListener = {
+                    viewModel.pauseListener()
+                }
             )
         }
         is MainPageViewModelState.Error -> {
@@ -98,10 +103,16 @@ private fun DrawMainPage(
     padding: PaddingValues,
     state: MainPageViewModelState.Success,
     coloredScaffoldState: ColoredScaffoldState,
+    isPlay: State<Boolean>,
+    wave: State<FloatArray>,
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (releaseId: String) -> Unit,
     onArtistClick: (artistId: String) -> Unit,
-    onLocalTrackPageClick: () -> Unit
+    onLocalTrackPageClick: () -> Unit,
+    onInwaveClick: () -> Unit,
+
+    onStartListener: () -> Unit,
+    onPauseListener: () -> Unit
 ) {
     val screenWidth = with(LocalDensity.current) {
         LocalWindowInfo.current.containerSize.width.toDp()
@@ -111,15 +122,20 @@ private fun DrawMainPage(
         modifier = Modifier
             .fillMaxSize(),
         state = rememberFlingScaffoldState {
-            calcScrollState(20.dp)
+            calcScrollState(50.dp)
         },
         backgroundContent = {
-            val isPressed = remember { mutableStateOf(false) }
             if (currentItemIndex.value == 0) {
+                onStartListener()
+
                 HeadingSection(
                     coloredScaffoldState = coloredScaffoldState,
-                    isPressed = isPressed
+                    isPlay = isPlay,
+                    wave = wave,
+                    onClick = onInwaveClick
                 )
+            } else {
+                onPauseListener()
             }
         },
         headingContent = {
@@ -194,7 +210,9 @@ private fun TracksOnDeviceButton(onLocalTrackPageClick: () -> Unit) {
 @Composable
 private fun FlingScrollScaffoldState.HeadingSection(
     coloredScaffoldState: ColoredScaffoldState,
-    isPressed: MutableState<Boolean>
+    isPlay: State<Boolean>,
+    wave: State<FloatArray>,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -214,7 +232,12 @@ private fun FlingScrollScaffoldState.HeadingSection(
             }
     ) {
         with(coloredScaffoldState) {
-            WaterLevel(stringResource(R.string.app_name), isPressed)
+            WaterLevel(
+                stringResource(R.string.app_name),
+                isPlay,
+                wave,
+                onClick
+            )
         }
     }
 }

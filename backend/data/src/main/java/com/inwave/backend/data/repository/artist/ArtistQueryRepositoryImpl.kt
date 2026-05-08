@@ -42,16 +42,18 @@ class ArtistQueryRepositoryImpl(
     }
 
     //TODO: есть вариант сделать это через join, но это на потом =)
-    override suspend fun getArtistLastRelease(artistId: String): Result<Pair<Release, Long>> = catchingTransaction(db) {
+    override suspend fun getArtistLastRelease(artistId: String): Result<Release> = catchingTransaction(db) {
         ArtistEntity.findById(artistId.toInt())!!.releases.orderBy(ReleaseTable.releaseDate to SortOrder.ASC).first().let {
-            it.toDomain() to it.releaseDate!!.toEpochDays()
+            it.toDomain()
         }
     }
 
     override suspend fun getArtistTopTracks(
         artistId: String,
         limit: Int
-    ): Result<List<Track>> {
-        TODO("Not yet implemented")
+    ): Result<List<Track>> = catchingTransaction(db) {
+        ArtistEntity.findById(artistId.toInt())!!.fetchTracks()
+            .take(limit)
+            .map { (_, track, _) -> track.toDomain() }
     }
 }

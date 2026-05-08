@@ -1,5 +1,6 @@
 package com.inwave.backend.db.table
 
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 
@@ -36,7 +37,7 @@ object ArtistReleaseTable : CompositeIdTable() {
     override val primaryKey = PrimaryKey(artistId, releaseId)
 }
 
-object ArtistTrackTable : CompositeIdTable() {
+object ArtistTrackTable : Table("artisttrack") {
     val artistId = reference("artist_id", ArtistTable)
     val trackId = reference("track_id", TrackTable)
     val artistType = enumeration("artist_type", ArtistOnTrackType::class)

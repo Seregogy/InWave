@@ -1,7 +1,6 @@
 package com.inwave.backend.api.v1.artists
 
 import com.inwave.api.dto.map.toArtistSummaryDto
-import com.inwave.backend.map.toGetTopArtistsResponse
 import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route

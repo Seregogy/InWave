@@ -30,5 +30,6 @@ data class ReleaseSummaryDto(
     @Serializable(with = LocalDateSerializer::class)
     val releaseDate: LocalDate? = null,
     val type: String,
-    val trackCount: Int
+    val trackCount: Int,
+    val artists: List<ArtistSummaryDto>
 )

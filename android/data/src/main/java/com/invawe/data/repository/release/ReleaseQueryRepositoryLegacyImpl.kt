@@ -1,14 +1,14 @@
 package com.invawe.data.repository.release
 
 import com.invawe.data.repository.track.TrackMappers
+import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
+import com.inwave.domain.repository.query.ArtistQueryRepository
 import com.inwave.domain.repository.query.ReleaseQueryRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import com.inwave.domain.entity.Artist
-import com.inwave.domain.repository.query.ArtistQueryRepository
 import kotlinx.serialization.Serializable
 
 object ReleaseMappers {
@@ -90,7 +90,8 @@ object ReleaseMappers {
                         artist = artist.toDomain(),
                         artistType = Track.ArtistType.Primary
                     )
-                } ?: emptyList()
+                } ?: emptyList(),
+                release = null
             )
         }
     }

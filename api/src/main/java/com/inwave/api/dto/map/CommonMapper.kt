@@ -12,6 +12,14 @@ fun Statistics.toStatisticsDto(): StatisticsDto {
     )
 }
 
+fun StatisticsDto.toDomain(): Statistics {
+    return Statistics(
+        playCount = playCount,
+        likeCount = likeCount,
+        repostCount = repostCount
+    )
+}
+
 fun Release.determineReleaseType(): String {
     return when {
         this.tracks.size == 1 -> "SINGLE"

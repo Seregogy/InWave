@@ -10,6 +10,7 @@ data class Track(
     val isExplicit: Boolean,
     val placeInRelease: Int?,
     val genres: List<String>,
+    val release: Release?,
 
     val metadata: Metadata?,
     val statistics: Statistics?,

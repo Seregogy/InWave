@@ -120,7 +120,8 @@ object ArtistMappers {
                         else
                             Track.ArtistType.Featured
                     )
-                }
+                },
+                release = null
             )
         }
     }
@@ -182,9 +183,9 @@ class ArtistQueryRepositoryLegacyImpl(
         data.singles.map { it.toDomain() }
     }
 
-    override suspend fun getArtistLastRelease(artistId: String): Result<Pair<Release, Long>> = runCatching {
+    override suspend fun getArtistLastRelease(artistId: String): Result<Release> = runCatching {
         val response = client.get("/api/v1/artists/$artistId/albums/latest")
         val data = response.body<ArtistMappers.LatestReleaseResponse>()
-        data.toDomain()
+        data.toDomain().component1()
     }
 }

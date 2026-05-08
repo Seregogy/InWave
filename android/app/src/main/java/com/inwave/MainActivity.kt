@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -29,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
-import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.track.query.GetTracksUseCase
 import com.inwave.page.TracksPlaylist
@@ -60,8 +61,8 @@ class MainApplication : Application() {
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var playerStateSource: PlayerStateSource
-    @RemoteLegacyRepo @Inject lateinit var getTrackUseCase: GetTracksUseCase
-    @RemoteLegacyRepo @Inject lateinit var getReleaseTracksUseCase: GetReleaseTracksUseCase
+    @RemoteRepo  @Inject lateinit var getTrackUseCase: GetTracksUseCase
+    @RemoteRepo @Inject lateinit var getReleaseTracksUseCase: GetReleaseTracksUseCase
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,9 +112,6 @@ fun NavRoutes(
     NavHost(
         navController = navController,
         startDestination = "/"
-//        startDestination = "/artists/54af8669-44d9-4a1c-bbeb-f5f858274445"
-//        startDestination = "/tracks/local",
-//        startDestination = "/releases/release_twelve_carat_toothache"
     ) {
         composable("/") {
             ColoredScaffold(
@@ -121,12 +119,12 @@ fun NavRoutes(
                     audioPlayerViewModel.imagePaletteExtractor.palette.collectAsState()
                 }
             ) {
-
                 Box(Modifier.fillMaxSize().background(backgroundColorAnimated.value.copy(.25f)))
                 MainPage(
                     padding = innerPadding,
                     viewModel = hiltViewModel(),
                     coloredScaffoldState = this,
+                    isPlay = playerStateSource.isPlaying.collectAsStateWithLifecycle(),
                     onTrackClick = {
                         coroutineScope.launch {
                             getTracksUseCase(listOf(it)).onSuccess {
@@ -137,7 +135,12 @@ fun NavRoutes(
                     },
                     onReleaseClick = { navController.navigate("/releases/${it}") },
                     onArtistClick = { navController.navigate("/artists/${it}") },
-                    onLocalTrackPageClick = { navController.navigate("/tracks/local") }
+                    onLocalTrackPageClick = { navController.navigate("/tracks/local") },
+                    onInwaveClick = {
+                        coroutineScope.launch {
+                            playerStateSource.playPause()
+                        }
+                    }
                 )
             }
         }

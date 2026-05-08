@@ -1,6 +1,6 @@
 package com.inwave.di.usecase
 
-import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.repository.query.ReleaseQueryRepository
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.release.query.GetReleaseUseCase
@@ -17,27 +17,27 @@ object ReleaseUseCaseModule {
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetReleaseTracksUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ReleaseQueryRepository
+        @RemoteRepo repository: ReleaseQueryRepository
     ): GetReleaseTracksUseCase {
         return GetReleaseTracksUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetReleaseUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ReleaseQueryRepository
+        @RemoteRepo repository: ReleaseQueryRepository
     ): GetReleaseUseCase {
         return GetReleaseUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetTopReleasesUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ReleaseQueryRepository
+        @RemoteRepo repository: ReleaseQueryRepository
     ): GetTopReleasesUseCase {
         return GetTopReleasesUseCase(repository)
     }

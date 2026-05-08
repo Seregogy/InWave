@@ -38,6 +38,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":api"))
 
     implementation(libs.androidx.media3.exoplayer)
 
