@@ -33,3 +33,7 @@ annotation class ArtistCache
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class TrackCache
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class UserRemoteRepo
