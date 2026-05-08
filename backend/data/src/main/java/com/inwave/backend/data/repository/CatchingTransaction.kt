@@ -18,7 +18,7 @@ fun <T, R>T.catchingTransaction(
 
 suspend fun <T, R>T.suspendCatchingTransaction(
     db: Database,
-    transaction: context(Transaction) T.() -> R
+    transaction: suspend context(Transaction) T.() -> R
 ): Result<R> {
     return runCatching {
         suspendTransaction(db) {

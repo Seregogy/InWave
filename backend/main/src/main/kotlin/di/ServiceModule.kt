@@ -1,7 +1,7 @@
 package com.inwave.backend.di
 
-import com.inwave.backend.service.TrackAudioProviderService
-import com.inwave.backend.service.TrackAudioProviderStaticService
+import com.inwave.backend.service.provider.TrackAudioProviderStaticService
+import com.inwave.domain.service.TrackAudioProviderService
 import org.koin.dsl.module
 
 val serviceModule = module {

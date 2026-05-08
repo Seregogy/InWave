@@ -21,6 +21,7 @@ import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
+import com.inwave.backend.db.table.UserTable
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -52,6 +53,8 @@ open class DbInitializer(
 ) {
     open fun configureDb() {
         transaction(db) {
+            SchemaUtils.create(UserTable)
+
             SchemaUtils.create(
                 TrackTable, TrackMetadataTable, TrackStatisticsTable, TrackLyricsTable,
                 TrackAdditionalDataTable, ReleaseTrackTable, TrackGenreTable

@@ -23,7 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 class ArtistCommandRepositoryImpl(
     private val db: Database
 ) : ArtistCommandServerRepository {
-    override suspend fun toggleLikeToTrack(userId: String, resourceId: String): Result<Boolean> {
+    override suspend fun toggleLikeToTrack(userId: String, trackId: String): Result<Boolean> {
         TODO("Not yet implemented")
     }
 
