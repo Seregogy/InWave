@@ -1,7 +1,7 @@
 package com.inwave.di.usecase
 
 import com.inwave.di.ArtistCache
-import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.cache.CacheRepository
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.repository.query.ArtistQueryRepository
@@ -23,9 +23,9 @@ import javax.inject.Singleton
 object ArtistUseCaseModule {
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetArtistUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository,
+        @RemoteRepo repository: ArtistQueryRepository,
         @ArtistCache cacheRepository: CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Artist>
     ): GetArtistUseCase {
         return GetArtistUseCase(repository, cacheRepository)
@@ -33,54 +33,54 @@ object ArtistUseCaseModule {
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetArtistAlbumsUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository
+        @RemoteRepo repository: ArtistQueryRepository
     ): GetArtistAlbumsUseCase {
         return GetArtistAlbumsUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetArtistLastReleaseUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository
+        @RemoteRepo repository: ArtistQueryRepository
     ): GetArtistLastReleaseUseCase {
         return GetArtistLastReleaseUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetArtistReleasesUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository
+        @RemoteRepo repository: ArtistQueryRepository
     ): GetArtistReleasesUseCase {
         return GetArtistReleasesUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetArtistSinglesUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository
+        @RemoteRepo repository: ArtistQueryRepository
     ): GetArtistSinglesUseCase {
         return GetArtistSinglesUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetArtistTopTracksUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository
+        @RemoteRepo repository: ArtistQueryRepository
     ): GetArtistTopTracksUseCase {
         return GetArtistTopTracksUseCase(repository)
     }
 
     @Provides
     @Singleton
-    @RemoteLegacyRepo
+    @RemoteRepo
     fun providesGetTopArtistsUseCaseRemoteLegacy(
-        @RemoteLegacyRepo repository: ArtistQueryRepository
+        @RemoteRepo repository: ArtistQueryRepository
     ): GetTopArtistsUseCase {
         return GetTopArtistsUseCase(repository)
     }

@@ -1,25 +1,14 @@
 package com.inwave.api.dto.map
 
 import com.inwave.api.dto.track.FullTrackDto
-import com.inwave.api.dto.track.GetRandomTrackResponse
 import com.inwave.api.dto.track.TrackAdditionalDataDto
 import com.inwave.api.dto.track.TrackArtistDetailsDto
 import com.inwave.api.dto.track.TrackArtistDto
 import com.inwave.api.dto.track.TrackLyricsDto
 import com.inwave.api.dto.track.TrackMetadataDto
-import com.inwave.api.dto.track.TrackReleaseInfoDto
 import com.inwave.api.dto.track.TrackSummaryDto
+import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track
-
-fun Track.toGetRandomTrackResponse(): GetRandomTrackResponse {
-    return GetRandomTrackResponse(
-        this.id,
-        this.name,
-        this.statistics?.playCount?.toLong() ?: 0L,
-        this.hasLyrics,
-        this.lyrics?.syncedText ?: mapOf()
-    )
-}
 
 fun Track.toFullTrackDto(): FullTrackDto {
     return FullTrackDto(
@@ -32,14 +21,7 @@ fun Track.toFullTrackDto(): FullTrackDto {
         placeInRelease = this.placeInRelease,
         genres = this.genres,
         statistics = this.statistics?.toStatisticsDto(),
-        release = this.releaseId?.let { releaseId ->
-            TrackReleaseInfoDto(
-                id = releaseId,
-                name = "",
-                coverArtUrl = null,
-                releaseDate = null
-            )
-        },
+        release = this.release?.toFullReleaseDto(),
         artists = this.artists.map { it.toTrackArtistDetailsDto() },
         metadata = this.metadata?.toTrackMetadataDto(),
         lyrics = this.lyrics?.toTrackLyricsDto(),
@@ -55,7 +37,8 @@ fun Track.toTrackSummaryDto(): TrackSummaryDto {
         audioUrl = this.audioUrl,
         durationMs = this.durationMs,
         isExplicit = this.isExplicit,
-        artists = this.artists.map { it.toTrackArtistDto() }
+        artists = this.artists.map { it.toTrackArtistDto() },
+        release = this.release?.toReleaseSummaryDto()
     )
 }
 
@@ -108,5 +91,94 @@ fun Track.AdditionalData.toTrackAdditionalDataDto(): TrackAdditionalDataDto {
         producers = this.producers,
         writers = this.writers,
         tags = this.tags
+    )
+}
+
+fun TrackSummaryDto.toDomain(): Track {
+    return Track(
+        id = id,
+        releaseId = null,
+        name = name,
+        coverArtUrl = coverArtUrl,
+        audioUrl = audioUrl ?: "",
+        durationMs = durationMs,
+        isExplicit = isExplicit,
+        placeInRelease = null,
+        genres = emptyList(),
+        metadata = null,
+        statistics = null,
+        hasLyrics = false,
+        lyrics = null,
+        additionalData = null,
+        artists = artists.map { it.toDomain() },
+        release = this.release?.toDomain()
+    )
+}
+
+fun FullTrackDto.toDomain(): Track {
+    return Track(
+        id = id,
+        releaseId = release?.id,
+        name = name,
+        coverArtUrl = coverArtUrl,
+        audioUrl = audioUrl,
+        durationMs = durationMs,
+        isExplicit = isExplicit,
+        placeInRelease = placeInRelease,
+        genres = genres,
+        metadata = metadata?.let {
+            Track.Metadata(
+                bpm = it.bpm,
+                format = it.format,
+                bitrate = it.bitrate,
+                sampleRate = it.sampleRate
+            )
+        },
+        statistics = statistics?.toDomain(),
+        hasLyrics = lyrics != null,
+        lyrics = lyrics?.toDomain(),
+        additionalData = additionalData?.let {
+            Track.AdditionalData(
+                fullTitle = it.fullTitle,
+                descriptionMarkdown = null,
+                descriptionPreviewPlainText = it.descriptionPreviewPlainText,
+                videoShotUrl = null,
+                producers = it.producers,
+                writers = it.writers,
+                tags = it.tags,
+                credits = emptyMap(),
+                recordingLocation = null,
+                textLanguage = null
+            )
+        },
+        artists = artists.map { it.toDomain() },
+        release = release?.toDomain()
+    )
+}
+
+fun TrackLyricsDto.toDomain(): Track.Lyrics {
+    return Track.Lyrics(
+        plainText = plainText,
+        syncedText = syncedText,
+        provider = provider
+    )
+}
+
+fun TrackArtistDto.toDomain(): Track.ArtistOnTrack {
+    return Track.ArtistOnTrack(
+        artist = Artist(
+            id = id,
+            name = name,
+            about = null,
+            genres = emptyList(),
+            imagesUrl = emptyList(),
+            statistics = null,
+            releases = emptyList()
+        ),
+        artistType = when (artistType) {
+            TrackArtistDto.ArtistType.Primary -> Track.ArtistType.Primary
+            TrackArtistDto.ArtistType.Featured -> Track.ArtistType.Featured
+            TrackArtistDto.ArtistType.Remixer -> Track.ArtistType.Remixer
+        }
     )
 }

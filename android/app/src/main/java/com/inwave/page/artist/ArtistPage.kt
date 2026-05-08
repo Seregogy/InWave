@@ -26,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -47,11 +47,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.inwave.R
 import com.inwave.control.CirclePagerIndicator
-import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMiniWithImage
+import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.ColoredScaffoldState
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
@@ -84,9 +85,9 @@ fun ArtistPage(
         viewModel.palette.collectAsStateWithLifecycle()
     }
 
-    LaunchedEffect(Unit) {
+    /*LaunchedEffect(Unit) {
         viewModel.loadArtist()
-    }
+    }*/
 
     when(val currentState = state) {
         ArtistPageViewModelState.Idle -> { }
@@ -350,7 +351,7 @@ private fun Content(
 
             if (albums.isNotEmpty()) {
                 Section(
-                    label = "Альбомы ${artist.name}",
+                    label = stringResource(R.string.albums, artist.name),
                     items = albums
                 ) {
                     ReleaseMini(onReleaseClick, it)
@@ -361,7 +362,7 @@ private fun Content(
 
             if (singles.isNotEmpty()) {
                 Section(
-                    label = "Синглы ${artist.name}",
+                    label = stringResource(R.string.singles, artist.name),
                     items = singles,
                 ) {
                     ReleaseMini(onReleaseClick, it)
@@ -382,7 +383,7 @@ fun LatestRelease(
 ) {
     Column {
         Text(
-            text = "Последний релиз",
+            text = stringResource(R.string.latest_release),
             fontSize = 24.sp,
             fontWeight = FontWeight.W700,
             modifier = Modifier
@@ -435,7 +436,7 @@ private fun TopTracks(
 ) {
     Column {
         Text(
-            text = "Популярные треки",
+            text = stringResource(R.string.popular_tracks),
             fontSize = 24.sp,
             fontWeight = FontWeight.W700,
             modifier = Modifier

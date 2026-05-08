@@ -58,6 +58,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -109,7 +110,6 @@ import com.inwave.viewmodel.AudioPlayerViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
-import androidx.compose.runtime.collectAsState
 
 @Composable
 fun ColoredScaffoldState.TopBar(
@@ -139,7 +139,7 @@ fun ColoredScaffoldState.TopBar(
         }
 
         MarqueeText(
-            text = "Плейлист \"${track?.name ?: "unknown"}\"",
+            text = "Плейлист \"${track?.release?.name ?: "unknown"}\"",
             fontWeight = FontWeight.W700,
             color = onBackgroundColorAnimated.value,
             maxLines = 1,
@@ -273,19 +273,21 @@ fun ColoredScaffoldState.TrackInfo(
             ) {
                 track?.artists?.forEach { artistOnTrack ->
                     Box {
-                        AsyncImage(
-                            model = artistOnTrack.artist.imagesUrl,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .height(with(density) { columnSize.height.toDp() })
-                                .aspectRatio(1f)
-                                .clip(CircleShape)
-                                .clickable {
-                                    if (artistOnTrack.artist.id.isNotBlank())
-                                        onArtistClick(artistOnTrack.artist.id)
-                                },
-                            contentDescription = "mini avatar"
-                        )
+                        artistOnTrack.artist.imagesUrl.firstOrNull()?.let {
+                            AsyncImage(
+                                model = it,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .height(with(density) { columnSize.height.toDp() })
+                                    .aspectRatio(1f)
+                                    .clip(CircleShape)
+                                    .clickable {
+                                        if (artistOnTrack.artist.id.isNotBlank())
+                                            onArtistClick(artistOnTrack.artist.id)
+                                    },
+                                contentDescription = "mini avatar"
+                            )
+                        }
                     }
                 }
             }
@@ -303,15 +305,16 @@ fun ColoredScaffoldState.TrackInfo(
                 text = track?.name ?: "",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.W800,
+                containerModifier = Modifier
+                    .clip(MaterialTheme.shapes.small),
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.small)
-                    .clickable {
-                        track?.releaseId?.let {
-                            onReleaseClick(it)
-                        }
-                    }
                     .alpha(textAlpha),
-                color = textOnPrimaryOrBackgroundColorAnimated.value
+                color = textOnPrimaryOrBackgroundColorAnimated.value,
+                onClick = {
+                    track?.releaseId?.let {
+                        onReleaseClick(it)
+                    }
+                }
             )
 
             MarqueeText(
@@ -319,17 +322,17 @@ fun ColoredScaffoldState.TrackInfo(
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
-                    .clickable {
-                        if ((track?.artists?.size ?: 0) == 1) {
-                            track?.artists?.first()?.artist?.id?.let {
-                                onArtistClick(it)
-                            }
-                        } else {
-                            artistsSheet.value = true
-                        }
-                    }
                     .alpha(textAlpha),
-                color = onBackgroundColorAnimated.value
+                color = onBackgroundColorAnimated.value,
+                onClick = {
+                    if ((track?.artists?.size ?: 0) == 1) {
+                        track?.artists?.first()?.artist?.id?.let {
+                            onArtistClick(it)
+                        }
+                    } else {
+                        artistsSheet.value = true
+                    }
+                }
             )
         }
     }

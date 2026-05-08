@@ -13,16 +13,13 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inwave.control.TrackControl
-import com.inwave.player.state.PlayerCommand
 import com.inwave.viewmodel.AudioPlayerViewModel
 
 @Composable
@@ -33,12 +30,7 @@ fun MiniAudioPlayer(
 ) {
     val track by viewModel.track.collectAsStateWithLifecycle()
     val currentState by viewModel.playerState.collectAsStateWithLifecycle()
-
-    val isPlay by remember {
-        derivedStateOf {
-            currentState == PlayerCommand.Play()
-        }
-    }
+    val isPlay by viewModel.isPlaying.collectAsStateWithLifecycle()
 
     track?.let {
         TrackControl(

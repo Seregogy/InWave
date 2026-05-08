@@ -1,11 +1,5 @@
 package com.inwave.page.main
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,19 +9,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,16 +28,16 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.inwave.R
 import com.inwave.control.ArtistWithTracks
 import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
@@ -65,16 +55,15 @@ fun MainPage(
     viewModel: MainPageViewModel,
     coloredScaffoldState: ColoredScaffoldState,
 
+    isPlay: State<Boolean>,
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (releaseId: String) -> Unit,
     onArtistClick: (artistId: String) -> Unit,
-    onLocalTrackPageClick: () -> Unit
+    onLocalTrackPageClick: () -> Unit,
+    onInwaveClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadRelease()
-    }
+    val wave = viewModel.wave.collectAsStateWithLifecycle()
 
     when(val currentState = state) {
         MainPageViewModelState.Idle -> { }
@@ -84,14 +73,28 @@ fun MainPage(
                 padding = padding,
                 state = currentState,
                 coloredScaffoldState = coloredScaffoldState,
+                isPlay = isPlay,
+                wave = wave,
                 onTrackClick = onTrackClick,
                 onReleaseClick = onReleaseClick,
                 onArtistClick = onArtistClick,
-                onLocalTrackPageClick = onLocalTrackPageClick
+                onLocalTrackPageClick = onLocalTrackPageClick,
+                onInwaveClick = onInwaveClick,
+                onStartListener = {
+                    viewModel.startListener()
+                },
+                onPauseListener = {
+                    viewModel.pauseListener()
+                }
             )
         }
-        is MainPageViewModelState.Error ->
-            ErrorDrawer(Modifier.fillMaxSize(), currentState.exception)
+        is MainPageViewModelState.Error -> {
+            ErrorDrawer(Modifier.fillMaxSize(), currentState.exception) {
+                TracksOnDeviceButton {
+                    onLocalTrackPageClick()
+                }
+            }
+        }
     }
 }
 
@@ -100,10 +103,16 @@ private fun DrawMainPage(
     padding: PaddingValues,
     state: MainPageViewModelState.Success,
     coloredScaffoldState: ColoredScaffoldState,
+    isPlay: State<Boolean>,
+    wave: State<FloatArray>,
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (releaseId: String) -> Unit,
     onArtistClick: (artistId: String) -> Unit,
-    onLocalTrackPageClick: () -> Unit
+    onLocalTrackPageClick: () -> Unit,
+    onInwaveClick: () -> Unit,
+
+    onStartListener: () -> Unit,
+    onPauseListener: () -> Unit
 ) {
     val screenWidth = with(LocalDensity.current) {
         LocalWindowInfo.current.containerSize.width.toDp()
@@ -113,13 +122,20 @@ private fun DrawMainPage(
         modifier = Modifier
             .fillMaxSize(),
         state = rememberFlingScaffoldState {
-            calcScrollState(padding.calculateTopPadding())
+            calcScrollState(50.dp)
         },
         backgroundContent = {
             if (currentItemIndex.value == 0) {
+                onStartListener()
+
                 HeadingSection(
-                    coloredScaffoldState = coloredScaffoldState
+                    coloredScaffoldState = coloredScaffoldState,
+                    isPlay = isPlay,
+                    wave = wave,
+                    onClick = onInwaveClick
                 )
+            } else {
+                onPauseListener()
             }
         },
         headingContent = {
@@ -128,7 +144,7 @@ private fun DrawMainPage(
     ) {
         Column {
             Section(
-                label = "Топ артистов",
+                label = stringResource(R.string.top_artists),
                 items = state.topArtistsAndTracks,
             ) {
                 ArtistWithTracks(
@@ -143,7 +159,7 @@ private fun DrawMainPage(
             Spacer(Modifier.height(20.dp))
 
             Section(
-                label = "Топ релизов",
+                label = stringResource(R.string.top_releases),
                 items = state.topReleases,
             ) {
                 ReleaseMini(
@@ -152,34 +168,7 @@ private fun DrawMainPage(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(.1f))
-                    .clickable {
-                        onLocalTrackPageClick()
-                    }
-                    .padding(25.dp)
-            ) {
-                Text(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart),
-                    text = "Треки на устройстве",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W600,
-                    color = Color.White
-                )
-
-                Icon(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd),
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-                    contentDescription = "",
-                    tint = Color.White
-                )
-            }
+            TracksOnDeviceButton(onLocalTrackPageClick)
 
             Spacer(Modifier.height(120.dp))
         }
@@ -187,8 +176,43 @@ private fun DrawMainPage(
 }
 
 @Composable
+private fun TracksOnDeviceButton(onLocalTrackPageClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.White.copy(.1f))
+            .clickable {
+                onLocalTrackPageClick()
+            }
+            .padding(25.dp)
+    ) {
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterStart),
+            text = stringResource(R.string.tracks_on_device),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.W600,
+            color = Color.White
+        )
+
+        Icon(
+            modifier = Modifier
+                .align(Alignment.CenterEnd),
+            imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
+            contentDescription = "",
+            tint = Color.White
+        )
+    }
+}
+
+@Composable
 private fun FlingScrollScaffoldState.HeadingSection(
-    coloredScaffoldState: ColoredScaffoldState
+    coloredScaffoldState: ColoredScaffoldState,
+    isPlay: State<Boolean>,
+    wave: State<FloatArray>,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -208,7 +232,12 @@ private fun FlingScrollScaffoldState.HeadingSection(
             }
     ) {
         with(coloredScaffoldState) {
-            WaterLevel("InWave")
+            WaterLevel(
+                stringResource(R.string.app_name),
+                isPlay,
+                wave,
+                onClick
+            )
         }
     }
 }

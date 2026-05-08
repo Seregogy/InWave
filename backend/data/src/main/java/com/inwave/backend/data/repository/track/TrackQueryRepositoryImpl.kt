@@ -45,7 +45,8 @@ class TrackQueryRepositoryImpl(
             .orderBy(Random())
             .limit(1)
             .first().let {
-                TrackEntity.wrapRow(it).toDomain()
+                TrackEntity.wrapRow(it)
+                    .toDomain()
             }
     }
 

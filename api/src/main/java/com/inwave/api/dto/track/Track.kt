@@ -1,9 +1,9 @@
 package com.inwave.api.dto.track
 
 import com.inwave.api.dto.StatisticsDto
-import com.inwave.api.dto.serialization.LocalDateSerializer
+import com.inwave.api.dto.release.FullReleaseDto
+import com.inwave.api.dto.release.ReleaseSummaryDto
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 
 @Serializable
 data class TrackSummaryDto(
@@ -13,7 +13,8 @@ data class TrackSummaryDto(
     val audioUrl: String? = null,
     val durationMs: Long? = null,
     val isExplicit: Boolean = false,
-    val artists: List<TrackArtistDto> = emptyList()
+    val artists: List<TrackArtistDto> = emptyList(),
+    val release: ReleaseSummaryDto?
 )
 
 @Serializable
@@ -39,11 +40,11 @@ data class FullTrackDto(
     val placeInRelease: Int? = null,
     val genres: List<String> = emptyList(),
     val statistics: StatisticsDto? = null,
-    val release: TrackReleaseInfoDto? = null,
+    val release: FullReleaseDto? = null,
     val artists: List<TrackArtistDetailsDto> = emptyList(),
     val metadata: TrackMetadataDto? = null,
     val lyrics: TrackLyricsDto? = null,
-    val additionalData: TrackAdditionalDataDto? = null
+    val additionalData: TrackAdditionalDataDto? = null,
 )
 
 @Serializable
@@ -52,15 +53,6 @@ data class TrackArtistDetailsDto(
     val name: String,
     val imageUrl: String? = null,
     val artistType: TrackArtistDto.ArtistType
-)
-
-@Serializable
-data class TrackReleaseInfoDto(
-    val id: String,
-    val name: String,
-    val coverArtUrl: String? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val releaseDate: LocalDate? = null
 )
 
 @Serializable

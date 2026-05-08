@@ -1,25 +1,42 @@
 package com.inwave.page.main
 
 import android.graphics.BlendMode
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -42,7 +59,10 @@ fun androidx.compose.ui.graphics.Color.invert(): androidx.compose.ui.graphics.Co
  **/
 @Composable
 fun ColoredScaffoldState.WaterLevel(
-    depthMeasurement: String
+    depthMeasurement: String,
+    isPlay: State<Boolean>,
+    wave: State<FloatArray>,
+    onClick: () -> Unit
 ) = BoxWithConstraints {
     val infiniteTransition = rememberInfiniteTransition()
     val waterLevel by infiniteTransition.animateFloat(
@@ -53,12 +73,22 @@ fun ColoredScaffoldState.WaterLevel(
             repeatMode = RepeatMode.Reverse
         )
     )
+    //val waterLevel = .53f
+
+/*    val animatedWavePulse by animateFloatAsState(
+        targetValue = wave.value,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioHighBouncy,
+            stiffness = Spring.StiffnessVeryLow
+        )
+    )*/
 
     val density = LocalDensity.current
     val height = with(density) { maxHeight.roundToPx() }
     val width = with(density) { maxWidth.roundToPx() }
 
     val currentY = height * waterLevel
+
     val animatedY by animateFloatAsState(
         targetValue = height * waterLevel,
         animationSpec = spring(
@@ -67,9 +97,8 @@ fun ColoredScaffoldState.WaterLevel(
         )
     )
 
-    var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.9f else 1f,
+        targetValue = if (isPlay.value) 0.9f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium
@@ -78,16 +107,21 @@ fun ColoredScaffoldState.WaterLevel(
     )
 
     val haptic = LocalHapticFeedback.current
-    LaunchedEffect(isPressed) {
-        if (isPressed)
+    LaunchedEffect(isPlay.value) {
+        if (isPlay.value)
             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
         else
             haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
     }
 
-    val aYs = calculateYs(height = height, waterLevel = waterLevel, intensityMultiplier = .1f)
-    val aYs2 = calculateYs(height = height, waterLevel = waterLevel, intensityMultiplier = .2f)
-    val aYs3 = calculateYs(height = height, waterLevel = waterLevel, intensityMultiplier = .05f)
+    val aYs = (0..2).mapIndexed { index, _ ->
+        calculateYs(
+            height = height,
+            waterLevel = waterLevel - (index.toFloat() / 70),
+            intensityMultiplier = index.toFloat() / 16,
+            wave = wave
+        )
+    }
 
     Box(Modifier.fillMaxSize()
         .background(backgroundColorAnimated.value)
@@ -100,51 +134,44 @@ fun ColoredScaffoldState.WaterLevel(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        isPressed = !isPressed
+                        onClick()
                     }
                 )
             }
     ) {
         Canvas(
             modifier = Modifier
-                .graphicsLayer(alpha = 0.99f)
+                .graphicsLayer(alpha = .99f)
                 .fillMaxSize(),
             onDraw = {
-                drawPath(
-                    path = ayPath(
-                        aYs, size, currentY, animatedY
-                    ),
-                    color = textOnPrimaryOrBackgroundColorAnimated.value
-                    /*brush = Brush.verticalGradient(
-                        colors = listOf(
-                            onBackgroundColorAnimated.value
-                        )
-                    )*/
-                )
+                aYs.forEach {
+                    drawPath(
+                        path = ayPath(
+                            it, size, currentY, animatedY
+                        ),
+                        color = textOnPrimaryOrBackgroundColorAnimated.value
+                    )
+                }
 
-                drawPath(
-                    path = ayPath(
-                        aYs2, size, currentY, animatedY
-                    ),
-                    alpha = .5f,
-                    color = textOnPrimaryOrBackgroundColorAnimated.value,
-                )
-
-                drawPath(
-                    path = ayPath(
-                        aYs3, size, currentY, animatedY
-                    ),
-                    alpha = .3f,
-                    color = textOnPrimaryOrBackgroundColorAnimated.value,
-                )
-
-                val paint = androidx.compose.ui.graphics.Paint().asFrameworkPaint()
-
-                paint.apply {
+                val paint = androidx.compose.ui.graphics.Paint().asFrameworkPaint().apply {
                     isAntiAlias = true
                     textSize = (100 * scale).sp.toPx()
                     typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                     color = backgroundColorAnimated.value.invert().toArgb()
+                    textAlign = Paint.Align.CENTER
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        blendMode = BlendMode.XOR
+                    } else {
+                        xfermode = PorterDuffXfermode(PorterDuff.Mode.XOR)
+                    }
+                }
+
+                val miniTextPaint = androidx.compose.ui.graphics.Paint().asFrameworkPaint().apply {
+                    isAntiAlias = true
+                    textSize = (20 * scale).sp.toPx()
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    color = backgroundColorAnimated.value.toArgb()
                     textAlign = Paint.Align.CENTER
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -156,6 +183,13 @@ fun ColoredScaffoldState.WaterLevel(
 
                 drawIntoCanvas {
                     it.nativeCanvas.apply {
+                        drawText(
+                            if (isPlay.value.not()) "paused" else "",
+                            width / 2f,
+                            height / 2f - (100.sp.toPx()) + 10.sp.toPx(),
+                            miniTextPaint
+                        )
+
                         drawText(
                             depthMeasurement,
                             width / 2f,
@@ -202,12 +236,19 @@ fun ayPath(aYs: List<Int>, size: Size, currentY: Float, animatedY: Float): Path 
 }
 
 @Composable
-fun calculateYs(height: Int, waterLevel: Float, intensityMultiplier: Float): List<Int> {
-    val total = 3
-    return (0..total).map {
-        calculateY(height = height, waterLevel = waterLevel,
-            ((if (it > total / 2f) total - it else it) / (total / 2f) * 1f) *
-                intensityMultiplier
+fun calculateYs(
+    height: Int,
+    waterLevel: Float,
+    intensityMultiplier: Float,
+    wave: State<FloatArray>
+): List<Int> {
+    val total = wave.value.size
+    return wave.value.mapIndexed { index, it ->
+        calculateY(
+            height = height,
+            waterLevel = waterLevel - (it / 20),
+            intensity = ((if (index > total / 2f) total - index else index) / (total / 2f) * 1f) *
+                    intensityMultiplier
         )
     }.toList()
 }
@@ -219,13 +260,13 @@ fun calculateY(height: Int, waterLevel: Float, intensity: Float): Int {
     }
 
     val duration = remember {
-        Random.nextInt(500) + 800
+        Random.nextInt(500) + 1000
     }
 
     val yNoiseAnimation = rememberInfiniteTransition()
     val yNoise by yNoiseAnimation.animateFloat(
-        initialValue = -15f,
-        targetValue = 15f,
+        initialValue = -30f,
+        targetValue = 30f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = duration,
@@ -243,8 +284,8 @@ fun calculateY(height: Int, waterLevel: Float, intensity: Float): Int {
     val ay1 by animateIntAsState(
         targetValue = y1,
         animationSpec = spring(
-            dampingRatio = 1f - intensity,
-            stiffness = Spring.StiffnessVeryLow, //Spring.StiffnessVeryLow
+            dampingRatio = .4f,
+            stiffness = Spring.StiffnessVeryLow,
         )
     )
 

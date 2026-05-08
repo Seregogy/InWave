@@ -1,6 +1,9 @@
 package com.inwave.backend.data.repository
 
-import com.inwave.domain.entity.*
+import com.inwave.domain.entity.Artist
+import com.inwave.domain.entity.Release
+import com.inwave.domain.entity.Statistics
+import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.query.ArtistQueryRepository
 import com.inwave.domain.repository.query.ReleaseQueryRepository
 import com.inwave.domain.repository.query.TrackQueryRepository
@@ -71,7 +74,7 @@ class MockArtistQueryRepository : ArtistQueryRepository {
         }
     }
 
-    override suspend fun getArtistLastRelease(artistId: String): Result<Pair<Release, Long>> {
+    override suspend fun getArtistLastRelease(artistId: String): Result<Release> {
         return try {
             val artist = mockArtists.find { it.id == artistId }
                 ?: return Result.failure(NoSuchElementException("Artist not found: $artistId"))
@@ -84,7 +87,7 @@ class MockArtistQueryRepository : ArtistQueryRepository {
                 ChronoUnit.DAYS.between(releaseDate, LocalDate.now())
             } ?: 0L
 
-            Result.success(lastRelease to daysSinceRelease)
+            Result.success(lastRelease)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -520,6 +523,7 @@ private fun createMockTrack(
         hasLyrics = hasLyrics,
         lyrics = lyrics,
         additionalData = additionalData,
-        artists = listOf(artistOnTrack)
+        artists = listOf(artistOnTrack),
+        release = null
     )
 }

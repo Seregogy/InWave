@@ -3,8 +3,9 @@ package com.inwave.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
-import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
@@ -15,6 +16,7 @@ import com.inwave.tool.ImagePaletteExtractor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class ArtistPageViewModelState() {
@@ -33,9 +35,9 @@ sealed class ArtistPageViewModelState() {
 @HiltViewModel
 class ArtistPageViewModel @Inject constructor(
     private val colorExtractor: ImagePaletteExtractor,
-    @RemoteLegacyRepo private val getArtist: GetArtistUseCase,
-    @RemoteLegacyRepo private val getTopTracks: GetArtistTopTracksUseCase,
-    @RemoteLegacyRepo private val getArtistLastReleaseUseCase: GetArtistLastReleaseUseCase,
+    @RemoteRepo private val getArtist: GetArtistUseCase,
+    @RemoteRepo private val getTopTracks: GetArtistTopTracksUseCase,
+    @RemoteRepo private val getArtistLastReleaseUseCase: GetArtistLastReleaseUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val artistId: String? = savedStateHandle["artistId"]
@@ -45,6 +47,12 @@ class ArtistPageViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<ArtistPageViewModelState>(ArtistPageViewModelState.Idle)
     val state: StateFlow<ArtistPageViewModelState> = _state
+
+    init {
+        viewModelScope.launch {
+            loadArtist()
+        }
+    }
 
     suspend fun loadArtist() {
         _state.emit(ArtistPageViewModelState.Loading)
@@ -59,7 +67,7 @@ class ArtistPageViewModel @Inject constructor(
                 val topTracks = getTopTracks(artistId, 10).getOrNull()
                     ?: error("failed to fetch top tracks by artist")
 
-                val lastRelease = getArtistLastReleaseUseCase(artistId).getOrNull()?.first
+                val lastRelease = getArtistLastReleaseUseCase(artistId).getOrNull()
                     ?: error("failed to fetch latest artist release")
 
                 ArtistPageViewModelState.Success(

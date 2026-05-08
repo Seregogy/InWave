@@ -1,16 +1,19 @@
 package com.inwave.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.inwave.di.RemoteLegacyRepo
+import androidx.lifecycle.viewModelScope
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.domain.usecase.artist.query.GetArtistTopTracksUseCase
 import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase
 import com.inwave.domain.usecase.release.query.GetTopReleasesUseCase
+import com.inwave.player.AudioVisualizer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class MainPageViewModelState() {
@@ -25,12 +28,30 @@ sealed class MainPageViewModelState() {
 
 @HiltViewModel
 class MainPageViewModel @Inject constructor(
-    @RemoteLegacyRepo private val getTopArtistsUseCase: GetTopArtistsUseCase,
-    @RemoteLegacyRepo private val getArtistTopTracksUseCase: GetArtistTopTracksUseCase,
-    @RemoteLegacyRepo private val getTopReleasesUseCase: GetTopReleasesUseCase
+    private val visualizer: AudioVisualizer,
+    @RemoteRepo private val getTopArtistsUseCase: GetTopArtistsUseCase,
+    @RemoteRepo private val getArtistTopTracksUseCase: GetArtistTopTracksUseCase,
+    @RemoteRepo private val getTopReleasesUseCase: GetTopReleasesUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow<MainPageViewModelState>(MainPageViewModelState.Idle)
     val state: StateFlow<MainPageViewModelState> = _state
+
+    val wave = visualizer.wavePulse
+
+    init {
+        viewModelScope.launch {
+            loadRelease()
+        }
+    }
+
+    fun startListener() {
+        visualizer.startListener()
+    }
+
+    fun pauseListener() {
+        visualizer.pauseListener()
+
+    }
 
     suspend fun loadRelease() {
         _state.emit(MainPageViewModelState.Loading)

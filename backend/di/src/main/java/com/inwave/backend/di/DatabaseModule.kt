@@ -13,12 +13,12 @@ import com.inwave.backend.db.table.ReleaseGenreTable
 import com.inwave.backend.db.table.ReleaseLegacyTableId
 import com.inwave.backend.db.table.ReleaseStatisticsTable
 import com.inwave.backend.db.table.ReleaseTable
+import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackAdditionalDataTable
 import com.inwave.backend.db.table.TrackGenreTable
 import com.inwave.backend.db.table.TrackLegacyTableId
 import com.inwave.backend.db.table.TrackLyricsTable
 import com.inwave.backend.db.table.TrackMetadataTable
-import com.inwave.backend.db.table.ReleaseTrackTable
 import com.inwave.backend.db.table.TrackStatisticsTable
 import com.inwave.backend.db.table.TrackTable
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -96,7 +96,7 @@ class DbInitializerMigration1(
     }
 
     override fun showMigrations() {
-        val dbPath = "C:/Users/delhi/Desktop/KotlinLearn/ktor-test-backend/src/files/database.db"
+        val dbPath = "C:/Users/delhi/Desktop/KotlinLearn/ktor-test-backend/src/files/database-new.db"
         val oldDb = Database.connect("jdbc:sqlite:$dbPath", "org.sqlite.JDBC")
 
         migration1(oldDb, db)

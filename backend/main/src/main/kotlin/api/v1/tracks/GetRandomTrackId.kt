@@ -8,7 +8,7 @@ import io.ktor.server.routing.get
 fun Route.getRandomTrackId(
     getRandomTrack: GetRandomTrackUseCase
 ) {
-    get("tracks/random/id") {
+    get("/random/id") {
         getRandomTrack().onSuccess {
             call.respond(it.id)
         }.onFailure {

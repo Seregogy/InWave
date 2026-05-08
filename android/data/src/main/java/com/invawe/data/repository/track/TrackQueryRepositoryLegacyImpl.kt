@@ -1,7 +1,11 @@
 package com.invawe.data.repository.track
 
 import android.util.Log
+import com.inwave.domain.entity.Artist
+import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
+import com.inwave.domain.entity.Track.ArtistOnTrack
+import com.inwave.domain.entity.Track.ArtistType
 import com.inwave.domain.entity.Track.Lyrics
 import com.inwave.domain.repository.query.TrackQueryRepository
 import io.ktor.client.HttpClient
@@ -11,10 +15,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import com.inwave.domain.entity.Track.ArtistOnTrack
-import com.inwave.domain.entity.Track.ArtistType
-import com.inwave.domain.entity.Artist
-import com.inwave.domain.entity.Release
 import kotlinx.serialization.Serializable
 
 object TrackMappers {
@@ -62,7 +62,8 @@ object TrackMappers {
                     )
                 },
                 additionalData = null,
-                artists = trackArtists
+                artists = trackArtists,
+                release = null
             )
         }
     }
@@ -116,7 +117,8 @@ object TrackMappers {
                     )
                 },
                 additionalData = null,
-                artists = trackArtists
+                artists = trackArtists,
+                release = null
             )
         }
     }

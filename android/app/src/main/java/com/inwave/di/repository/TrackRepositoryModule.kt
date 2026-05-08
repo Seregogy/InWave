@@ -1,10 +1,12 @@
 package com.inwave.di.repository
 
 import android.content.Context
-import com.invawe.data.repository.track.TrackQueryRepositoryLegacyImpl
 import com.invawe.data.repository.track.TrackQueryRepositoryFileStorageImpl
+import com.invawe.data.repository.track.TrackQueryRepositoryImpl
+import com.invawe.data.repository.track.TrackQueryRepositoryLegacyImpl
 import com.inwave.di.LocalRepo
 import com.inwave.di.RemoteLegacyRepo
+import com.inwave.di.RemoteRepo
 import com.inwave.domain.repository.query.TrackQueryRepository
 import dagger.Module
 import dagger.Provides
@@ -30,4 +32,11 @@ object TrackRepositoryModule {
     fun provideTrackRepositoryRemoteLegacy(
         httpClient: HttpClient
     ): TrackQueryRepository = TrackQueryRepositoryLegacyImpl(httpClient)
+
+    @Provides
+    @Singleton
+    @RemoteRepo
+    fun provideTrackRepositoryRemote(
+        httpClient: HttpClient
+    ): TrackQueryRepository = TrackQueryRepositoryImpl(httpClient)
 }

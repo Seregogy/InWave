@@ -8,11 +8,8 @@ import com.inwave.backend.db.table.ArtistTable
 import com.inwave.backend.db.table.ArtistTrackTable
 import com.inwave.backend.db.table.ArtistTrackTable.artistType
 import com.inwave.backend.db.table.TrackTable
-import org.jetbrains.exposed.v1.core.dao.id.CompositeID
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.dao.CompositeEntity
-import org.jetbrains.exposed.v1.dao.CompositeEntityClass
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -96,13 +93,4 @@ class ArtistStatisticsEntity(id: EntityID<Int>) : IntEntity(id) {
     val playCount by ArtistStatisticsTable.playCount
     val likeCount by ArtistStatisticsTable.likeCount
     val repostCount by ArtistStatisticsTable.repostCount
-}
-
-class ArtistTracksEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
-    companion object : CompositeEntityClass<ArtistTracksEntity>(ArtistTrackTable)
-
-    var artist by ArtistEntity referencedOn ArtistTrackTable.artistId
-    var track by TrackEntity referencedOn ArtistTrackTable.trackId
-
-    var artistType by ArtistTrackTable.artistType
 }

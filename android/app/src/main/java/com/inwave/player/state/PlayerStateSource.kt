@@ -3,13 +3,21 @@ package com.inwave.player.state
 import android.util.Log
 import androidx.media3.common.MediaItem
 import com.inwave.domain.entity.Track
+import com.inwave.domain.usecase.track.query.GetRandomTrackIdUseCase
 import com.inwave.domain.usecase.track.query.GetTrackUseCase
 import com.inwave.domain.usecase.track.query.GetTrackWithLyricsUseCase
 import com.inwave.domain.usecase.track.query.GetTracksUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Singleton
 
 sealed class PlayerCommand {
@@ -47,7 +55,9 @@ sealed class PlayerState {
 class PlayerStateSource(
     private val getTrack: GetTrackUseCase,
     private val getTracks: GetTracksUseCase,
-    private val getTrackWithLyrics: GetTrackWithLyricsUseCase
+    private val getRandomTrackId: GetRandomTrackIdUseCase,
+    private val getTrackWithLyrics: GetTrackWithLyricsUseCase,
+    scope: CoroutineScope
 ) {
     private val _playlist = MutableStateFlow<MutableList<Track>>(mutableListOf())
     val playlist: StateFlow<List<Track>> = _playlist
@@ -58,9 +68,35 @@ class PlayerStateSource(
     val currentTrack: MutableStateFlow<Track?> = MutableStateFlow(null)
     val isLastTrack: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val currentTrackDuration: MutableStateFlow<Long> = MutableStateFlow(1L)
-    val currentRepeatModeState: MutableStateFlow<PlayerState.RepeatMode> = MutableStateFlow(PlayerState.RepeatMode.Playlist)
+    val currentRepeatModeState: MutableStateFlow<PlayerState.RepeatMode> = MutableStateFlow(PlayerState.RepeatMode.Forward)
     val currentPosition: MutableStateFlow<Long> = MutableStateFlow(1L)
     val isPlaying: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    init {
+        flow {
+            while (true) {
+                delay(5000)
+                emit(Unit)
+            }
+        }
+        .filter { currentRepeatModeState.value == PlayerState.RepeatMode.Forward }
+        .filter {
+            val remainTracksInPlaylist = playlist.value.size - playlist.value.indexOf(currentTrack.value)
+            remainTracksInPlaylist < 5
+        }
+        .onStart { loadRandomTracks(5) }
+        .onEach { loadRandomTracks(5) }
+        .launchIn(scope)
+    }
+
+    private suspend fun loadRandomTracks(amount: Int) {
+        //TODO: сделать отдельный ендпоинт для получения рандомных id списком
+        repeat(amount) {
+            getRandomTrackId().onSuccess {
+                addToPlaylist(listOf(it))
+            }
+        }
+    }
 
     suspend fun playPause() {
         if (isPlaying.value) {

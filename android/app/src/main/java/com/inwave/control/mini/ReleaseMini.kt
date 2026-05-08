@@ -29,7 +29,6 @@ fun ReleaseMini(
     Column(
         modifier = Modifier
             .width(180.dp)
-
     ) {
         AsyncImage(
             model = release.coverArtUrl,

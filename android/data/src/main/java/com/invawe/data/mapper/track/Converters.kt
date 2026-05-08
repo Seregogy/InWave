@@ -4,11 +4,11 @@ import android.content.ContentUris
 import android.database.Cursor
 import android.provider.MediaStore
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import com.inwave.domain.entity.Track
-import androidx.core.net.toUri
 import com.inwave.domain.entity.Artist
+import com.inwave.domain.entity.Track
 
 fun Track.toMediaItem(): MediaItem = MediaItem.Builder()
         .setMediaId(id)
@@ -78,6 +78,7 @@ fun Cursor.toDomainTrack(): Track {
                 ),
                 artistType = Track.ArtistType.Primary
             )
-        )
+        ),
+        release = null
     )
 }

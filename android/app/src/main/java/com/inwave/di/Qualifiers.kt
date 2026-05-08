@@ -8,6 +8,10 @@ annotation class RemoteLegacyRepo
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class RemoteRepo
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class LocalRepo
 
 @Qualifier

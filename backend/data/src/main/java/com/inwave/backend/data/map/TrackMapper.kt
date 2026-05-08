@@ -1,7 +1,6 @@
 package com.inwave.backend.data.map
 
 import com.inwave.backend.db.entity.ArtistOnTrack
-import com.inwave.backend.db.entity.ReleaseEntity
 import com.inwave.backend.db.entity.TrackAdditionalDataEntity
 import com.inwave.backend.db.entity.TrackEntity
 import com.inwave.backend.db.entity.TrackLyricsEntity
@@ -14,33 +13,28 @@ import org.jetbrains.exposed.v1.core.Transaction
 
 context(_: Transaction)
 fun TrackEntity.toDomain(
-    audioUrl: String = "",
-    releaseId: String? = null
+    audioUrl: String = ""
 ): Track {
-    val positionInRelease = releaseId?.let {
-        ReleaseEntity.findById(it.toInt())?.fetchTracks()?.first { trackOnRelease ->
-            trackOnRelease.track.id == this.id
-        }?.positionInRelease
-    }
-
-    val lyrics = this.fetchLyrics()
+    val trackOnRelease = fetchRelease()
+    val lyrics = fetchLyrics()
 
     return Track(
         id = id.value.toString(),
-        releaseId = releaseId,
+        releaseId = trackOnRelease.release.id.value.toString(),
         name = name,
         coverArtUrl = coverArtUrl,
         audioUrl = audioUrl,
         durationMs = durationMs,
         isExplicit = isExplicit,
-        placeInRelease = positionInRelease,
+        placeInRelease = trackOnRelease.positionInRelease,
         genres = fetchGenres().map { it.genre.name },
         metadata = fetchMetadata()?.toDomain(),
         statistics = fetchStatistics()?.toDomain(),
         hasLyrics = (lyrics != null),
         lyrics = lyrics?.toDomain(),
         additionalData = fetchAdditionalData()?.toDomain(),
-        artists = fetchArtists().map { it.toDomain() }
+        artists = fetchArtists().map { it.toDomain() },
+        release = trackOnRelease.release.toDomain()
     )
 }
 
