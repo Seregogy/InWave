@@ -18,14 +18,19 @@ import org.jetbrains.exposed.v1.core.plus
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import kotlin.uuid.ExperimentalUuidApi
 
 class ArtistCommandRepositoryImpl(
     private val db: Database
 ) : ArtistCommandServerRepository {
-    override suspend fun toggleLike(userId: String, resourceId: String): Result<Boolean> {
+    override suspend fun toggleLikeToTrack(userId: String, trackId: String): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun toggleLikeToRelease(
+        userId: String,
+        releaseId: String
+    ): Result<Boolean> {
         TODO("Not yet implemented")
     }
 

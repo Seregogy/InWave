@@ -1,5 +1,6 @@
-package com.inwave.backend.service
+package com.inwave.backend.service.provider
 
+import com.inwave.domain.service.TrackAudioProviderService
 import io.github.cdimascio.dotenv.Dotenv
 
 class TrackAudioProviderStaticService(

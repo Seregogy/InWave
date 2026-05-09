@@ -57,7 +57,7 @@ class PlayerStateSource(
     private val getTracks: GetTracksUseCase,
     private val getRandomTrackId: GetRandomTrackIdUseCase,
     private val getTrackWithLyrics: GetTrackWithLyricsUseCase,
-    scope: CoroutineScope
+    private val scope: CoroutineScope
 ) {
     private val _playlist = MutableStateFlow<MutableList<Track>>(mutableListOf())
     val playlist: StateFlow<List<Track>> = _playlist
@@ -72,21 +72,21 @@ class PlayerStateSource(
     val currentPosition: MutableStateFlow<Long> = MutableStateFlow(1L)
     val isPlaying: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    init {
+    fun start() {
         flow {
             while (true) {
                 delay(5000)
                 emit(Unit)
             }
         }
-        .filter { currentRepeatModeState.value == PlayerState.RepeatMode.Forward }
-        .filter {
-            val remainTracksInPlaylist = playlist.value.size - playlist.value.indexOf(currentTrack.value)
-            remainTracksInPlaylist < 5
-        }
-        .onStart { loadRandomTracks(5) }
-        .onEach { loadRandomTracks(5) }
-        .launchIn(scope)
+            .filter { currentRepeatModeState.value == PlayerState.RepeatMode.Forward }
+            .filter {
+                val remainTracksInPlaylist = playlist.value.size - playlist.value.indexOf(currentTrack.value)
+                remainTracksInPlaylist < 5
+            }
+            .onStart { loadRandomTracks(5) }
+            .onEach { loadRandomTracks(5) }
+            .launchIn(scope)
     }
 
     private suspend fun loadRandomTracks(amount: Int) {
@@ -148,7 +148,6 @@ class PlayerStateSource(
     suspend fun addToPlaylist(tracks: List<String>) {
         val newTracks = preparePlaylistTracks(tracks)
 
-        _playlist.value.addAll(newTracks)
         _playlist.value = _playlist.value.plus(newTracks).toMutableList()
 
         currentCommand.emit(PlayerCommand.AddTracks(newTracks))

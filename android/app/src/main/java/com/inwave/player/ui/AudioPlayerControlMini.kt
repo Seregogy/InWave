@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
@@ -50,10 +49,7 @@ fun MiniAudioPlayer(
                     onClick = { }
                 ) {
                     Icon(
-                        imageVector = if (false)
-                            Icons.Rounded.Favorite
-                        else
-                            Icons.Rounded.FavoriteBorder,
+                        imageVector = Icons.Rounded.Favorite,
                         contentDescription = "favorite icon button",
                         modifier = Modifier
                             .size(24.dp),

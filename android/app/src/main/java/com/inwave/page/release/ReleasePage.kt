@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Downloading
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
@@ -93,10 +92,6 @@ fun ReleasePage(
         viewModel.palette.collectAsStateWithLifecycle()
     }
 
-    /*LaunchedEffect(Unit) {
-        viewModel.loadRelease()
-    }*/
-
     when (val currentState = state) {
         ReleasePageViewModelState.Idle -> { }
         ReleasePageViewModelState.Loading -> {
@@ -114,7 +109,10 @@ fun ReleasePage(
                 onArtistClick,
                 onTrackClick,
                 onReleaseClick,
-                onReleasePlayClick
+                onReleasePlayClick,
+                onLikeClick = {
+                    viewModel.like()
+                }
             )
         }
         is ReleasePageViewModelState.Error -> {
@@ -135,7 +133,8 @@ private fun DrawReleasePage(
     onArtistClick: (String) -> Unit,
     onTrackClick: (String) -> Unit,
     onReleaseClick: (String) -> Unit,
-    onReleasePlayClick: (releaseId: String) -> Unit
+    onReleasePlayClick: (releaseId: String) -> Unit,
+    onLikeClick: () -> Unit
 ) {
     val toolBarScaffoldState = rememberToolScaffoldState(onBackRequest = onBackRequest)
     val topBarHazeState = rememberHazeState()
@@ -180,7 +179,8 @@ private fun DrawReleasePage(
                         alpha = alpha,
                         release = state.release,
                         onArtistClick = onArtistClick,
-                        onReleasePlayClick = onReleasePlayClick
+                        onReleasePlayClick = onReleasePlayClick,
+                        onLike = onLikeClick
                     )
                 }
             ) {
@@ -209,7 +209,8 @@ private fun ColoredScaffoldState.AlbumHeader(
     alpha: FloatState,
     release: Release,
     onArtistClick: (albumId: String) -> Unit,
-    onReleasePlayClick: (releaseId: String) -> Unit
+    onReleasePlayClick: (releaseId: String) -> Unit,
+    onLike: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -273,22 +274,7 @@ private fun ColoredScaffoldState.AlbumHeader(
                 ) {
                     CircleButton(
                         containerColor = onPrimaryOrBackgroundColor.value,
-                        onClick = { },
-                        underscoreText = stringResource(R.string.download),
-                        underscoreTextColor = Color.White
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Downloading,
-                            modifier = Modifier
-                                .size(28.dp),
-                            contentDescription = "",
-                            tint = primaryOrBackgroundColorAnimated.value
-                        )
-                    }
-
-                    CircleButton(
-                        containerColor = onPrimaryOrBackgroundColor.value,
-                        onClick = { },
+                        onClick = onLike,
                         underscoreText = stringResource(R.string.like),
                         underscoreTextColor = Color.White
                     ) {

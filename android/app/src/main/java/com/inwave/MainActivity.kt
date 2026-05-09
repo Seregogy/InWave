@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -31,15 +33,19 @@ import androidx.navigation.navArgument
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
 import com.inwave.di.RemoteRepo
+import com.inwave.domain.repository.command.UserCommandRepository
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.track.query.GetTracksUseCase
+import com.inwave.page.AuthScreen
 import com.inwave.page.TracksPlaylist
 import com.inwave.page.artist.ArtistPage
 import com.inwave.page.main.MainPage
 import com.inwave.page.release.ReleasePage
+import com.inwave.page.user.UserProfilePage
 import com.inwave.player.MediaControllerInitializer
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.player.ui.AudioPlayerScaffold
+import com.inwave.tool.TokenManager
 import com.inwave.ui.theme.InWaveTheme
 import com.inwave.viewmodel.AudioPlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,6 +67,8 @@ class MainApplication : Application() {
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var playerStateSource: PlayerStateSource
+    @Inject lateinit var userRepository: UserCommandRepository
+    @Inject lateinit var tokenManager: TokenManager
     @RemoteRepo  @Inject lateinit var getTrackUseCase: GetTracksUseCase
     @RemoteRepo @Inject lateinit var getReleaseTracksUseCase: GetReleaseTracksUseCase
 
@@ -84,6 +92,8 @@ class MainActivity : ComponentActivity() {
                             innerPadding = innerPadding,
                             miniPlayerHeight = miniPlayerHeight,
                             navController = navController,
+                            userRepository = userRepository,
+                            tokenManager = tokenManager,
                             playerStateSource = playerStateSource,
                             getTracksUseCase = getTrackUseCase,
                             getReleaseTracksUseCase = getReleaseTracksUseCase,
@@ -102,16 +112,19 @@ fun NavRoutes(
     innerPadding: PaddingValues,
     miniPlayerHeight: State<Dp>,
     navController: NavHostController,
+    userRepository: UserCommandRepository,
+    tokenManager: TokenManager,
     playerStateSource: PlayerStateSource,
     getTracksUseCase: GetTracksUseCase,
     getReleaseTracksUseCase: GetReleaseTracksUseCase,
     audioPlayerViewModel: AudioPlayerViewModel
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val startDestination = if (tokenManager.hasToken()) "/" else "/auth"
 
     NavHost(
         navController = navController,
-        startDestination = "/"
+        startDestination = startDestination
     ) {
         composable("/") {
             ColoredScaffold(
@@ -140,9 +153,63 @@ fun NavRoutes(
                         coroutineScope.launch {
                             playerStateSource.playPause()
                         }
+                    },
+                    onUserClick = {
+                        navController.navigate("/profile")
                     }
                 )
             }
+        }
+
+        composable("/auth") {
+            val errorText = remember { mutableStateOf("") }
+            AuthScreen(
+                errorText = errorText,
+                onLogin = { userName, password ->
+                    coroutineScope.launch {
+                        userRepository.login(userName, password).onSuccess {
+                            tokenManager.saveToken(it.token)
+
+                            navController.navigate("/") {
+                                popUpTo("/auth") { inclusive = true }
+                            }
+                        }.onFailure { errorText.value = it.message.toString() }
+                    }
+                },
+                onRegister = { userName, password ->
+                    coroutineScope.launch {
+                        userRepository.register(userName, password).onSuccess {
+                            tokenManager.saveToken(it.token)
+                            navController.navigate("/") {
+                                popUpTo("/auth") { inclusive = true }
+                            }
+                        }.onFailure { errorText.value = it.message.toString() }
+                    }
+                }
+            )
+        }
+
+        composable("/profile") {
+
+            UserProfilePage(
+                innerPadding = innerPadding,
+                bottomPadding = innerPadding.calculateBottomPadding(),
+                onBackRequest = { navController.popBackStack() },
+                onTrackClick = {
+                    coroutineScope.launch {
+                        getTracksUseCase(listOf(it)).onSuccess {
+                            playerStateSource.setPlaylist(it)
+                            playerStateSource.play()
+                        }
+                    }
+                },
+                onReleaseClick = { navController.navigate("/releases/$it") },
+                onLoginClick = {
+                    navController.navigate("/auth") {
+                        popUpTo("/profile") { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(

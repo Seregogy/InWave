@@ -40,7 +40,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SkipNext
@@ -115,7 +114,8 @@ import kotlin.math.roundToInt
 fun ColoredScaffoldState.TopBar(
     modifier: Modifier = Modifier,
     track: Track?,
-    onCollapseRequest: () -> Unit
+    onCollapseRequest: () -> Unit,
+    onShowQueueRequest: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -150,7 +150,7 @@ fun ColoredScaffoldState.TopBar(
 
 
         IconButton(
-            onClick = { }
+            onClick = onShowQueueRequest
         ) {
             Icon(
                 painter = painterResource(R.drawable.queue_music_icon),
@@ -396,6 +396,7 @@ fun ColoredScaffoldState.PlayerSlider(
     currentTrackDuration: Long,
     viewModel: AudioPlayerViewModel,
     isSliding: MutableState<Boolean>,
+    onLikeClick: () -> Unit
 ) {
     val coroutine = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -480,10 +481,7 @@ fun ColoredScaffoldState.PlayerSlider(
                 haptic.performHapticFeedback(
                     HapticFeedbackType.Confirm
                 )
-
-                coroutine.launch {
-                    viewModel.toggleLike()
-                }
+                onLikeClick()
             }
         ) {
             if (viewModel.isCurrentTrackLiked.collectAsState().value) {
@@ -491,10 +489,10 @@ fun ColoredScaffoldState.PlayerSlider(
             }
 
             Icon(
-                imageVector = if (viewModel.isCurrentTrackLiked.collectAsState().value)
+                imageVector = Icons.Rounded.Favorite/*if (viewModel.isCurrentTrackLiked.collectAsState().value)
                     Icons.Rounded.Favorite
                 else
-                    Icons.Rounded.FavoriteBorder,
+                    Icons.Rounded.FavoriteBorder*/,
                 contentDescription = "play/pause icon",
                 tint = onBackgroundColorAnimated.value,
                 modifier = Modifier

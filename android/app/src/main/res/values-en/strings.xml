@@ -9,4 +9,7 @@
     <string name="latest_release">Latest release</string>
     <string name="popular_tracks">Popular tracks</string>
     <string name="top_artists">Top artists</string>
+    <string name="settings">Settings</string>
+    <string name="liked_tracks">Liked tracks</string>
+    <string name="liked_releases">Liked releases</string>
 </resources>

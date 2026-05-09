@@ -1,12 +1,14 @@
 package com.inwave.di.repository
 
 import android.content.Context
+import com.invawe.data.repository.LikeRepositoryImpl
 import com.invawe.data.repository.track.TrackQueryRepositoryFileStorageImpl
 import com.invawe.data.repository.track.TrackQueryRepositoryImpl
 import com.invawe.data.repository.track.TrackQueryRepositoryLegacyImpl
 import com.inwave.di.LocalRepo
 import com.inwave.di.RemoteLegacyRepo
 import com.inwave.di.RemoteRepo
+import com.inwave.domain.repository.command.LikeRepository
 import com.inwave.domain.repository.query.TrackQueryRepository
 import dagger.Module
 import dagger.Provides
@@ -19,6 +21,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object TrackRepositoryModule {
+    @Provides
+    @Singleton
+    fun provideLikeToggleRepo(
+        httpClient: HttpClient
+    ): LikeRepository {
+        return LikeRepositoryImpl(httpClient)
+    }
+
     @Provides
     @Singleton
     @LocalRepo

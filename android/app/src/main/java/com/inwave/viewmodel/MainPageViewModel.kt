@@ -10,6 +10,7 @@ import com.inwave.domain.usecase.artist.query.GetArtistTopTracksUseCase
 import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase
 import com.inwave.domain.usecase.release.query.GetTopReleasesUseCase
 import com.inwave.player.AudioVisualizer
+import com.inwave.player.state.PlayerStateSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ sealed class MainPageViewModelState() {
 @HiltViewModel
 class MainPageViewModel @Inject constructor(
     private val visualizer: AudioVisualizer,
+    private val playerStateSource: PlayerStateSource,
     @RemoteRepo private val getTopArtistsUseCase: GetTopArtistsUseCase,
     @RemoteRepo private val getArtistTopTracksUseCase: GetArtistTopTracksUseCase,
     @RemoteRepo private val getTopReleasesUseCase: GetTopReleasesUseCase
@@ -39,8 +41,9 @@ class MainPageViewModel @Inject constructor(
     val wave = visualizer.wavePulse
 
     init {
+        playerStateSource.start()
         viewModelScope.launch {
-            loadRelease()
+            loadMainPage()
         }
     }
 
@@ -53,7 +56,7 @@ class MainPageViewModel @Inject constructor(
 
     }
 
-    suspend fun loadRelease() {
+    suspend fun loadMainPage() {
         _state.emit(MainPageViewModelState.Loading)
 
         _state.emit(

@@ -33,6 +33,9 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.config.yaml)
     implementation(libs.ktor.server.partial.content)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.cryptography.hasher)
 
     implementation(libs.dotenv)
     implementation(libs.koin.ktor)

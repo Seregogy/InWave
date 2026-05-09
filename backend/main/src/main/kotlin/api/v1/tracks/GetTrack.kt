@@ -2,7 +2,7 @@ package com.inwave.backend.api.v1.tracks
 
 import com.inwave.api.dto.ErrorResponse
 import com.inwave.api.dto.map.toFullTrackDto
-import com.inwave.backend.service.TrackAudioProviderService
+import com.inwave.domain.service.TrackAudioProviderService
 import com.inwave.domain.usecase.track.query.GetTrackUseCase
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.path

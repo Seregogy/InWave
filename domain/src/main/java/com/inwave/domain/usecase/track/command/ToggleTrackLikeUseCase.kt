@@ -6,6 +6,6 @@ class ToggleTrackLikeUseCase(
     private val trackCommandClientRepository: TrackCommandClientRepository
 ) {
     suspend operator fun invoke(userId: String, trackId: String): Result<Boolean> {
-        return trackCommandClientRepository.toggleLike(userId, trackId)
+        return trackCommandClientRepository.toggleLikeToTrack(userId, trackId)
     }
 }
