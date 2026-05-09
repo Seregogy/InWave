@@ -12,9 +12,11 @@ import com.inwave.backend.api.v1.artists.releases.getArtistSingles
 import com.inwave.backend.api.v1.artists.tracks.getArtistTopTracks
 import com.inwave.backend.api.v1.releases.getRelease
 import com.inwave.backend.api.v1.releases.getReleaseTracks
+import com.inwave.backend.api.v1.releases.likeRelease
 import com.inwave.backend.api.v1.tracks.getRandomTrack
 import com.inwave.backend.api.v1.tracks.getRandomTrackId
 import com.inwave.backend.api.v1.tracks.getTrack
+import com.inwave.backend.api.v1.tracks.likeTrack
 import com.inwave.backend.api.v1.users.getUser
 import com.inwave.backend.api.v1.users.loginUser
 import com.inwave.backend.api.v1.users.registerUser
@@ -25,22 +27,9 @@ import com.inwave.backend.di.serviceModule
 import com.inwave.backend.di.useCaseModule
 import com.inwave.backend.service.cryptography.JWTTokenServiceImpl
 import com.inwave.backend.service.cryptography.PasswordCryptographyServiceBCrypt
-import com.inwave.domain.repository.command.UserCommandRepository
 import com.inwave.domain.repository.query.UserQueryRepository
 import com.inwave.domain.service.JWTTokenService
 import com.inwave.domain.service.PasswordCryptographyService
-import com.inwave.domain.service.TrackAudioProviderService
-import com.inwave.domain.usecase.artist.query.GetArtistAlbumsUseCase
-import com.inwave.domain.usecase.artist.query.GetArtistLastReleaseUseCase
-import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
-import com.inwave.domain.usecase.artist.query.GetArtistSinglesUseCase
-import com.inwave.domain.usecase.artist.query.GetArtistTopTracksUseCase
-import com.inwave.domain.usecase.artist.query.GetArtistUseCase
-import com.inwave.domain.usecase.artist.query.GetTopArtistsUseCase
-import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
-import com.inwave.domain.usecase.release.query.GetReleaseUseCase
-import com.inwave.domain.usecase.track.query.GetRandomTrackUseCase
-import com.inwave.domain.usecase.track.query.GetTrackUseCase
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -58,7 +47,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
-import org.koin.ktor.ext.inject
+import org.koin.ktor.ext.get
 import org.koin.ktor.plugin.Koin
 
 fun main() {
@@ -67,46 +56,44 @@ fun main() {
         port = System.getenv()["PORT"]?.toInt() ?: 8080
     ) {
         setupKoin()
-        setupPlugins(
-            inject<UserQueryRepository>().value,
-            inject<Dotenv>().value
-        )
+        setupPlugins(get(), get())
 
         routing {
             route("/api/v1/") {
                 route("/tracks") {
-                    getRandomTrack(inject<GetRandomTrackUseCase>().value)
-                    getRandomTrackId(inject<GetRandomTrackUseCase>().value)
+                    getRandomTrack(get())
+                    getRandomTrackId(get())
 
-                    getTrack(
-                        inject<GetTrackUseCase>().value,
-                        inject<TrackAudioProviderService>().value
-                    )
+                    getTrack(get(), get())
+
+                    likeTrack(get())
                 }
 
                 route("/releases") {
-                    getRelease(inject<GetReleaseUseCase>().value)
-                    getReleaseTracks(inject<GetReleaseTracksUseCase>().value)
+                    getRelease(get())
+                    getReleaseTracks(get(), get())
+
+                    likeRelease(get())
                 }
 
                 route("/artists") {
-                    getTopArtists(inject<GetTopArtistsUseCase>().value)
+                    getTopArtists(get())
 
-                    getArtist(inject<GetArtistUseCase>().value)
-                    getArtistTopTracks(inject<GetArtistTopTracksUseCase>().value)
+                    getArtist(get())
+                    getArtistTopTracks(get())
 
-                    getArtistSingles(inject<GetArtistSinglesUseCase>().value)
-                    getArtistAlbums(inject<GetArtistAlbumsUseCase>().value)
-                    getArtistReleases(inject<GetArtistReleasesUseCase>().value)
+                    getArtistSingles(get())
+                    getArtistAlbums(get())
+                    getArtistReleases(get())
 
-                    getArtistLatestRelease(inject<GetArtistLastReleaseUseCase>().value)
+                    getArtistLatestRelease(get())
                 }
 
                 route("/users") {
-                    registerUser(inject<UserCommandRepository>().value)
-                    loginUser(inject<UserCommandRepository>().value)
+                    registerUser(get())
+                    loginUser(get())
 
-                    getUser(inject<UserQueryRepository>().value)
+                    getUser(get())
                 }
             }
         }

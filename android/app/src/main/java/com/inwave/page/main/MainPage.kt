@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -37,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.inwave.R
 import com.inwave.control.ArtistWithTracks
 import com.inwave.control.Section
@@ -49,6 +53,7 @@ import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
 import com.inwave.viewmodel.MainPageViewModel
 import com.inwave.viewmodel.MainPageViewModelState
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainPage(
     padding: PaddingValues,
@@ -60,7 +65,8 @@ fun MainPage(
     onReleaseClick: (releaseId: String) -> Unit,
     onArtistClick: (artistId: String) -> Unit,
     onLocalTrackPageClick: () -> Unit,
-    onInwaveClick: () -> Unit
+    onInwaveClick: () -> Unit,
+    onUserClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val wave = viewModel.wave.collectAsStateWithLifecycle()
@@ -80,6 +86,7 @@ fun MainPage(
                 onArtistClick = onArtistClick,
                 onLocalTrackPageClick = onLocalTrackPageClick,
                 onInwaveClick = onInwaveClick,
+                onUserClick = onUserClick,
                 onStartListener = {
                     viewModel.startListener()
                 },
@@ -110,6 +117,7 @@ private fun DrawMainPage(
     onArtistClick: (artistId: String) -> Unit,
     onLocalTrackPageClick: () -> Unit,
     onInwaveClick: () -> Unit,
+    onUserClick: () -> Unit,
 
     onStartListener: () -> Unit,
     onPauseListener: () -> Unit
@@ -132,7 +140,8 @@ private fun DrawMainPage(
                     coloredScaffoldState = coloredScaffoldState,
                     isPlay = isPlay,
                     wave = wave,
-                    onClick = onInwaveClick
+                    onClick = onInwaveClick,
+                    onUserClick = onUserClick
                 )
             } else {
                 onPauseListener()
@@ -212,7 +221,8 @@ private fun FlingScrollScaffoldState.HeadingSection(
     coloredScaffoldState: ColoredScaffoldState,
     isPlay: State<Boolean>,
     wave: State<FloatArray>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onUserClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -232,12 +242,29 @@ private fun FlingScrollScaffoldState.HeadingSection(
             }
     ) {
         with(coloredScaffoldState) {
-            WaterLevel(
-                stringResource(R.string.app_name),
-                isPlay,
-                wave,
-                onClick
-            )
+            Box {
+                WaterLevel(
+                    stringResource(R.string.app_name),
+                    isPlay,
+                    wave,
+                    onClick
+                )
+
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 25.dp, end = 5.dp),
+                    onClick = onUserClick
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        modifier = Modifier
+                            .size(28.dp),
+                        contentDescription = "",
+                        tint = primaryOrBackgroundColorAnimated.value
+                    )
+                }
+            }
         }
     }
 }

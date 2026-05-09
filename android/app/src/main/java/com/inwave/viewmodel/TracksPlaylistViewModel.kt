@@ -1,7 +1,5 @@
 package com.inwave.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inwave.di.LocalRepo
@@ -9,6 +7,9 @@ import com.inwave.domain.entity.Track
 import com.inwave.domain.usecase.track.query.GetAllTracksUseCase
 import com.inwave.player.state.PlayerStateSource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
@@ -25,8 +26,8 @@ class TracksPlaylistViewModel @Inject constructor(
     @LocalRepo private val getAllTracksUseCase: GetAllTracksUseCase,
     private val playerStateSource: PlayerStateSource
 ) : ViewModel() {
-    private val _tracksState = mutableStateOf<TracksPlaylistPageState>(TracksPlaylistPageState.Idle())
-    val tracksState: State<TracksPlaylistPageState> = _tracksState
+    private val _tracksState = MutableStateFlow<TracksPlaylistPageState>(TracksPlaylistPageState.Idle())
+    val tracksState: StateFlow<TracksPlaylistPageState> = _tracksState.asStateFlow()
 
     suspend fun loadTracks() {
         runCatching {

@@ -1,6 +1,7 @@
 package com.inwave.player
 
 import android.media.audiofx.Visualizer
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,13 +70,17 @@ class AudioVisualizer : AutoCloseable {
 
     fun startListener() {
         visualizer?.enabled = true
+        Log.d("Visualizer", "start")
     }
 
     fun pauseListener() {
+        Log.d("Visualizer", "stop")
+
         visualizer?.enabled = false
     }
 
     fun stopListener() {
+        Log.d("Visualizer", "stop")
         visualizer?.run {
             enabled = false
             release()

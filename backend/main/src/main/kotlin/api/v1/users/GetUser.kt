@@ -47,31 +47,31 @@ fun Route.getUser(
                     )
                 }
             }
+    }
 
-        get("/{id}") {
-            val userId = call.parameters["id"] ?: return@get call.respond(
+    get("/{id}") {
+        val userId = call.parameters["id"] ?: return@get call.respond(
+            HttpStatusCode.BadRequest,
+            ErrorResponse(
+                status = HttpStatusCode.BadRequest.value,
+                message = "Invalid user id",
+                path = call.request.path(),
+                timestamp = System.currentTimeMillis().toString()
+            )
+        )
+
+        userRepository.getUser(userId).onSuccess {
+            call.respond(it.fromDomain())
+        }.onFailure {
+            call.respond(
                 HttpStatusCode.BadRequest,
                 ErrorResponse(
                     status = HttpStatusCode.BadRequest.value,
-                    message = "Invalid user id",
+                    message = it.message ?: "Failed to fetch user",
                     path = call.request.path(),
                     timestamp = System.currentTimeMillis().toString()
                 )
             )
-
-            userRepository.getUser(userId).onSuccess {
-                call.respond(it.fromDomain())
-            }.onFailure {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse(
-                        status = HttpStatusCode.BadRequest.value,
-                        message = it.message ?: "Failed to fetch user",
-                        path = call.request.path(),
-                        timestamp = System.currentTimeMillis().toString()
-                    )
-                )
-            }
         }
     }
 }

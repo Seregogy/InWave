@@ -41,12 +41,21 @@ data class UserLoginResponse(
 
 @Serializable
 data class FullUserDto(
-    val id: String,
+    val id: String = "",
     val name: String,
-    val avatarUrl: String,
-    val isAuthenticated: Boolean,
+    val avatarUrl: String? = null,
+    val isAuthenticated: Boolean = false,
     val likedTracks: List<String>,
     val likedReleases: List<String>
+)
+
+fun FullUserDto.toDomain(): User = User(
+    id = id,
+    name = name,
+    avatarUrl = avatarUrl ?: "",
+    isAuthenticated = isAuthenticated,
+    likedTracks = likedTracks,
+    likedReleases = likedReleases
 )
 
 fun User.fromDomain(): FullUserDto = FullUserDto(

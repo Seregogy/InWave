@@ -6,6 +6,11 @@ import com.inwave.api.dto.release.ReleaseSummaryDto
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class TrackToggleLikeResponse(
+    val liked: Boolean
+)
+
+@Serializable
 data class TrackSummaryDto(
     val id: String,
     val name: String,

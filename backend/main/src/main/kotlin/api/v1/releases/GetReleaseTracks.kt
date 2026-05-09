@@ -2,6 +2,7 @@ package com.inwave.backend.api.v1.releases
 
 import com.inwave.api.dto.ErrorResponse
 import com.inwave.api.dto.map.toFullTrackDto
+import com.inwave.domain.service.TrackAudioProviderService
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.path
@@ -13,7 +14,8 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 fun Route.getReleaseTracks(
-    getReleaseTracksUseCase: GetReleaseTracksUseCase
+    getReleaseTracksUseCase: GetReleaseTracksUseCase,
+    trackAudioProviderService: TrackAudioProviderService
 ) {
     get("/{id}/tracks") {
         val id = call.parameters["id"] ?: run {
@@ -32,7 +34,9 @@ fun Route.getReleaseTracks(
         getReleaseTracksUseCase(id).onSuccess { tracks ->
             call.respond(
                 tracks.map {
-                    it.toFullTrackDto()
+                    it.toFullTrackDto().copy(
+                        audioUrl = trackAudioProviderService.provideUrl(id)
+                    )
                 }
             )
         }.onFailure {

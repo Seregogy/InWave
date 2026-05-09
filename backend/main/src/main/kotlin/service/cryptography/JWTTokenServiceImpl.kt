@@ -30,6 +30,6 @@ class JWTTokenServiceImpl(
     override fun extractId(token: String): Result<String> = runCatching {
         verifier.verify(token)
             .getClaim("userId")
-            .toString()
+            .asString()
     }
 }

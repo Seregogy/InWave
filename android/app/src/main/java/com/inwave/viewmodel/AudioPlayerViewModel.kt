@@ -1,24 +1,30 @@
 package com.inwave.viewmodel
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inwave.domain.entity.Track
+import com.inwave.domain.repository.command.LikeRepository
 import com.inwave.player.state.PlayerState
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.tool.ImagePaletteExtractor
+import com.inwave.tool.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 
 @HiltViewModel
 class AudioPlayerViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val playerStateSource: PlayerStateSource,
-    val imagePaletteExtractor: ImagePaletteExtractor
+    val imagePaletteExtractor: ImagePaletteExtractor,
+    private val likeRepository: LikeRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
     init {
         viewModelScope.launch {
@@ -31,6 +37,7 @@ class AudioPlayerViewModel @Inject constructor(
     }
 
     val track: StateFlow<Track?> = playerStateSource.currentTrack
+    val playlist: StateFlow<List<Track>> = playerStateSource.playlist
 
     val currentPosition: StateFlow<Long> = playerStateSource.currentPosition
     val trackDuration: StateFlow<Long> = playerStateSource.currentTrackDuration
@@ -43,6 +50,21 @@ class AudioPlayerViewModel @Inject constructor(
 
     private val _isCurrentTrackLiked = MutableStateFlow(false)
     val isCurrentTrackLiked: StateFlow<Boolean> = _isCurrentTrackLiked
+
+    fun like() {
+        viewModelScope.launch {
+            tokenManager.getToken()?.let { token ->
+                track.value?.let { track ->
+                    likeRepository.toggleLikeToTrack(token, track.id).onSuccess {
+                        val message = if (it) "Добавлено в понравившиеся треки" else "Убрано из понравившихся треков"
+                        Toast.makeText(context, message, Toast.LENGTH_LONG)
+                    }.onFailure {
+                        Toast.makeText(context, it.message, Toast.LENGTH_LONG)
+                    }
+                }
+            }
+        }
+    }
 
     fun playPause() {
         viewModelScope.launch {
@@ -88,18 +110,5 @@ class AudioPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             playerStateSource.release()
         }
-    }
-
-    suspend fun toggleLike(): Result<Boolean> {
-        if (_isCurrentTrackLiked.value)
-            return Result.failure(NotImplementedError())
-
-        _isCurrentTrackLiked.value = !_isCurrentTrackLiked.value
-
-        delay(5000)
-
-        _isCurrentTrackLiked.value = false
-
-        return Result.failure(NotImplementedError())
     }
 }

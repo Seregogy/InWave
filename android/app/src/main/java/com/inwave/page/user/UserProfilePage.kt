@@ -2,21 +2,28 @@
 package com.inwave.page.user
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -35,33 +42,34 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.R
+import com.inwave.control.Section
+import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMiniWithImage
 import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.scaffold.fling.FlingScrollScaffold
+import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
 import com.inwave.control.scaffold.tool.ToolScaffold
 import com.inwave.control.scaffold.tool.rememberToolScaffoldState
+import com.inwave.domain.entity.Release
+import com.inwave.domain.entity.Track
 import com.inwave.domain.entity.User
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 
 private const val TOP_PART_WEIGHT = .55f
 
 @Composable
 fun UserProfilePage(
-    userId: String,
     innerPadding: PaddingValues,
     bottomPadding: Dp,
     onBackRequest: () -> Unit = {},
     onTrackClick: (trackId: String) -> Unit = {},
-    onPlaylistClick: (playlistId: String) -> Unit = {},
-    onArtistClick: (artistId: String) -> Unit = {},
-    onSettingsClick: () -> Unit = {},
+    onReleaseClick: (releaseId: String) -> Unit = {},
+    onLoginClick: () -> Unit = {},
     viewModel: UserProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(userId) {
-        viewModel.loadUserProfile(userId)
-    }
 
     when (val currentState = state) {
         is UserProfilePageState.Idle -> {}
@@ -73,16 +81,20 @@ fun UserProfilePage(
                 bottomPadding = bottomPadding,
                 onBackRequest = onBackRequest,
                 onTrackClick = onTrackClick,
-                onPlaylistClick = onPlaylistClick,
-                onArtistClick = onArtistClick,
-                onSettingsClick = onSettingsClick
+                onReleaseClick = onReleaseClick,
             )
         }
         is UserProfilePageState.Error -> {
             ErrorDrawer(
                 modifier = Modifier.fillMaxSize(),
-                exception = currentState.exception
-            )
+                throwable = currentState.exception
+            ) {
+                TextButton(
+                    onClick = onLoginClick
+                ) {
+                    Text(stringResource(R.string.on_login_page))
+                }
+            }
         }
     }
 }
@@ -94,29 +106,21 @@ private fun DrawUserProfilePage(
     bottomPadding: Dp,
     onBackRequest: () -> Unit,
     onTrackClick: (trackId: String) -> Unit,
-    onPlaylistClick: (playlistId: String) -> Unit,
-    onArtistClick: (artistId: String) -> Unit,
-    onSettingsClick: () -> Unit
+    onReleaseClick: (releaseId: String) -> Unit,
 ) {
     val toolScaffoldState = rememberToolScaffoldState(onBackRequest)
+    val topBarHazeState = rememberHazeState()
 
     ToolScaffold(
         modifier = Modifier
             .padding(top = innerPadding.calculateTopPadding()),
         state = toolScaffoldState,
-        actions = {
-            IconButton(onClick = onSettingsClick) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.settings),
-                    tint = Color.White
-                )
-            }
-        }
+        hazeState = topBarHazeState,
     ) { toolScaffoldInnerPadding ->
 
         FlingScrollScaffold(
             modifier = Modifier
+                .hazeSource(state = topBarHazeState)
                 .fillMaxSize()
                 .background(Color.Black),
             state = rememberFlingScaffoldState(
@@ -149,13 +153,11 @@ private fun DrawUserProfilePage(
             }
         ) {
             ProfileContent(
-                playlists = state.playlists,
-                topArtists = state.topArtists,
-                recentlyPlayed = state.recentlyPlayed,
+                likedTracks = state.likedTracks,
+                likedReleases = state.likedReleases,
                 bottomPadding = bottomPadding,
                 onTrackClick = onTrackClick,
-                onPlaylistClick = onPlaylistClick,
-                onArtistClick = onArtistClick
+                onReleaseClick = onReleaseClick
             )
         }
     }
@@ -187,12 +189,16 @@ private fun ProfileBackground(
                 IntOffset(0, (-currentOffset.value / 4).roundToPx())
             }
     ) {
-        AsyncImage(
-            model = avatarUrl,
-            contentDescription = "Profile background",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        Box {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = "Profile background",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(15.dp)
+            )
+        }
     }
 }
 
@@ -217,7 +223,6 @@ private fun ProfileHeader(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Аватар
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -233,7 +238,6 @@ private fun ProfileHeader(
                 )
             }
 
-            // Имя пользователя
             Text(
                 text = user.name,
                 fontWeight = FontWeight.W800,
@@ -242,7 +246,6 @@ private fun ProfileHeader(
                 color = Color.White
             )
 
-            // Статус аутентификации
             if (user.isAuthenticated) {
                 Box(
                     modifier = Modifier
@@ -264,23 +267,20 @@ private fun ProfileHeader(
 
 @Composable
 private fun ProfileContent(
-    playlists: List<com.inwave.domain.entity.Playlist>,
-    topArtists: List<com.inwave.domain.entity.Artist>,
-    recentlyPlayed: List<com.inwave.domain.entity.Track>,
+    likedTracks: List<Track>,
+    likedReleases: List<Release>,
     bottomPadding: Dp,
     onTrackClick: (trackId: String) -> Unit,
-    onPlaylistClick: (playlistId: String) -> Unit,
-    onArtistClick: (artistId: String) -> Unit
+    onReleaseClick: (releaseId: String) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Недавно прослушанные треки
-        if (recentlyPlayed.isNotEmpty()) {
+        if (likedTracks.isNotEmpty()) {
             Text(
-                text = stringResource(R.string.recently_played),
+                text = stringResource(R.string.liked_tracks),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.W700,
                 modifier = Modifier.padding(start = 25.dp)
@@ -288,7 +288,7 @@ private fun ProfileContent(
 
             Spacer(Modifier.height(15.dp))
 
-            recentlyPlayed.take(5).forEach { track ->
+            likedTracks.forEach { track ->
                 TrackMiniWithImage(
                     modifier = Modifier
                         .padding(start = 20.dp, end = 10.dp)
@@ -302,109 +302,14 @@ private fun ProfileContent(
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        // Топ артисты
-        if (topArtists.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.top_artists),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.W700,
-                modifier = Modifier.padding(start = 25.dp)
-            )
-
+        if (likedReleases.isNotEmpty()) {
             Spacer(Modifier.height(15.dp))
 
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(15.dp)
+            Section(
+                label = stringResource(R.string.liked_releases),
+                items = likedReleases,
             ) {
-                items(topArtists) { artist ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .width(75.dp)
-                            .clickable { onArtistClick(artist.id) }
-                    ) {
-                        AsyncImage(
-                            model = artist.imagesUrl.firstOrNull(),
-                            contentDescription = artist.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(65.dp)
-                                .clip(CircleShape)
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(
-                            text = artist.name,
-                            fontSize = 12.sp,
-                            color = Color.White,
-                            maxLines = 1,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        // Плейлисты
-        if (playlists.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.playlists),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.W700,
-                modifier = Modifier.padding(start = 25.dp)
-            )
-
-            Spacer(Modifier.height(15.dp))
-
-            playlists.forEach { playlist ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onPlaylistClick(playlist.id) }
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Gray.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (playlist.coverArtUrl != null) {
-                            AsyncImage(
-                                model = playlist.coverArtUrl,
-                                contentDescription = playlist.name,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.MusicNote,
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.5f),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-
-                    Column {
-                        Text(
-                            text = playlist.name,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "${playlist.tracksCount} tracks",
-                            fontSize = 13.sp,
-                            color = Color.White.copy(alpha = 0.5f)
-                        )
-                    }
-                }
+                ReleaseMini(onReleaseClick, it)
             }
         }
 

@@ -1,6 +1,8 @@
 package com.inwave.viewmodel
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,11 +10,14 @@ import androidx.palette.graphics.Palette
 import com.inwave.di.RemoteRepo
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
+import com.inwave.domain.repository.command.LikeRepository
 import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.release.query.GetReleaseUseCase
 import com.inwave.tool.ImagePaletteExtractor
+import com.inwave.tool.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,10 +36,13 @@ sealed class ReleasePageViewModelState() {
 
 @HiltViewModel
 class ReleasePageViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val colorExtractor: ImagePaletteExtractor,
     @RemoteRepo private val getRelease: GetReleaseUseCase,
     @RemoteRepo private val getReleaseTracks: GetReleaseTracksUseCase,
     @RemoteRepo private val getArtistReleasesUseCase: GetArtistReleasesUseCase,
+    private val likeRepository: LikeRepository,
+    private val tokenManager: TokenManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val releaseId: String? = savedStateHandle["releaseId"]
@@ -48,6 +56,21 @@ class ReleasePageViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             loadRelease()
+        }
+    }
+
+    fun like() {
+        viewModelScope.launch {
+            tokenManager.getToken()?.let { token ->
+                releaseId?.let {
+                    likeRepository.toggleLikeToRelease(token, releaseId).onSuccess {
+                        val message = if (it) "Добавлено в понравившиеся релизы" else "Убрано из понравившихся релизов"
+                        Toast.makeText(context, message, Toast.LENGTH_LONG)
+                    }.onFailure {
+                        Toast.makeText(context, it.message, Toast.LENGTH_LONG)
+                    }
+                }
+            }
         }
     }
 

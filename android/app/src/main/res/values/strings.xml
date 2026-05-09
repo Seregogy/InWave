@@ -9,4 +9,8 @@
     <string name="latest_release">Последний релиз</string>
     <string name="popular_tracks">Популярные треки</string>
     <string name="top_artists">Топ исполнителей</string>
+    <string name="settings">Настройки</string>
+    <string name="liked_tracks">Понравившиеся треки</string>
+    <string name="liked_releases">Понравившиеся релизы</string>
+    <string name="on_login_page">На страницу логина</string>
 </resources>
