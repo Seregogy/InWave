@@ -1,7 +1,7 @@
 package com.inwave.backend.api.v1.artists.releases
 
 import com.inwave.api.dto.ErrorResponse
-import com.inwave.api.dto.map.toReleaseSummaryDto
+import com.inwave.api.dto.map.toFullReleaseDto
 import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.path
@@ -32,7 +32,7 @@ fun Route.getArtistReleases(
         getArtistReleasesUseCase(id).onSuccess { releases ->
             call.respond(
                 releases.map {
-                    it.toReleaseSummaryDto()
+                    it.toFullReleaseDto()
                 }
             )
         }.onFailure {

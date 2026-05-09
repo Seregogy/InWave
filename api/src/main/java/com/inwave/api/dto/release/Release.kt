@@ -8,6 +8,11 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 @Serializable
+data class ReleaseToggleLikeResponse(
+    val liked: Boolean
+)
+
+@Serializable
 data class FullReleaseDto(
     val id: String,
     val name: String,
@@ -30,5 +35,6 @@ data class ReleaseSummaryDto(
     @Serializable(with = LocalDateSerializer::class)
     val releaseDate: LocalDate? = null,
     val type: String,
-    val trackCount: Int
+    val trackCount: Int,
+    val artists: List<ArtistSummaryDto>
 )

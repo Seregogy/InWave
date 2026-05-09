@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -46,11 +47,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.inwave.R
 import com.inwave.control.CirclePagerIndicator
-import com.inwave.control.ErrorDrawer
 import com.inwave.control.Section
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMiniWithImage
+import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.ColoredScaffoldState
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
@@ -66,8 +68,6 @@ import com.inwave.viewmodel.ArtistPageViewModel
 import com.inwave.viewmodel.ArtistPageViewModelState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 const val TOP_PART_WEIGHT = .55f
 
@@ -84,6 +84,10 @@ fun ArtistPage(
     val coloredScaffoldState = rememberColoredScaffoldState {
         viewModel.palette.collectAsStateWithLifecycle()
     }
+
+    /*LaunchedEffect(Unit) {
+        viewModel.loadArtist()
+    }*/
 
     when(val currentState = state) {
         ArtistPageViewModelState.Idle -> { }
@@ -293,7 +297,7 @@ private fun Header(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                artist.genres.forEach {
+                artist.genres.take(3).forEach {
                     Box(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.small)
@@ -347,7 +351,7 @@ private fun Content(
 
             if (albums.isNotEmpty()) {
                 Section(
-                    label = "Альбомы ${artist.name}",
+                    label = stringResource(R.string.albums, artist.name),
                     items = albums
                 ) {
                     ReleaseMini(onReleaseClick, it)
@@ -358,7 +362,7 @@ private fun Content(
 
             if (singles.isNotEmpty()) {
                 Section(
-                    label = "Синглы ${artist.name}",
+                    label = stringResource(R.string.singles, artist.name),
                     items = singles,
                 ) {
                     ReleaseMini(onReleaseClick, it)
@@ -366,6 +370,8 @@ private fun Content(
             }
 
             Spacer(Modifier.height(bottomPadding))
+            Spacer(Modifier.height(120.dp))
+
         }
     }
 }
@@ -377,7 +383,7 @@ fun LatestRelease(
 ) {
     Column {
         Text(
-            text = "Последний релиз",
+            text = stringResource(R.string.latest_release),
             fontSize = 24.sp,
             fontWeight = FontWeight.W700,
             modifier = Modifier
@@ -414,10 +420,10 @@ fun LatestRelease(
                     fontWeight = FontWeight.W700
                 )
 
-                Text(
+                /*Text(
                     text = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(release.releaseDate),
                     fontSize = 14.sp
-                )
+                )*/
             }
         }
     }
@@ -430,7 +436,7 @@ private fun TopTracks(
 ) {
     Column {
         Text(
-            text = "Популярные треки",
+            text = stringResource(R.string.popular_tracks),
             fontSize = 24.sp,
             fontWeight = FontWeight.W700,
             modifier = Modifier
@@ -441,6 +447,9 @@ private fun TopTracks(
 
         for (track in tracks) {
             TrackMiniWithImage(
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 10.dp)
+                    .padding(vertical = 5.dp),
                 track = track,
                 onPrimaryColor = Color.White,
                 onClick = { onTrackClick(it.id) }

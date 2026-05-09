@@ -1,37 +1,18 @@
 package com.inwave.player.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -45,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
@@ -53,7 +33,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
@@ -68,11 +47,15 @@ import kotlinx.coroutines.launch
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AudioPlayerScaffold(
-    viewModel: AudioPlayerViewModel = hiltViewModel(),
+    viewModel: AudioPlayerViewModel,
     innerPadding: PaddingValues,
     navController: NavHostController,
     hazeState: HazeState,
-    content: @Composable (sheetPeekHeight: Dp, innerPadding: PaddingValues) -> Unit
+    content: @Composable (
+        sheetPeekHeight: Dp,
+        innerPadding: PaddingValues,
+        miniPlayerHeight: State<Dp>
+    ) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberBottomSheetScaffoldState()
@@ -93,12 +76,6 @@ fun AudioPlayerScaffold(
     LaunchedEffect(Unit) {
         delay(300)
         allInit = true
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            //viewModel.releasePlayer()
-        }
     }
 
     if (bottomSheetState.bottomSheetState.currentValue == SheetValue.Expanded) {
@@ -149,9 +126,9 @@ fun AudioPlayerScaffold(
                 innerPadding = innerPadding,
                 viewModel = viewModel,
                 modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
-                hazeState = hazeState,
                 targetMiniPlayerAlpha = targetMiniPlayerAlpha,
                 blurTargetMiniPlayerAlpha = blurTargetMiniPlayerAlpha,
+                hazeState = hazeState,
                 onExpandRequest = {
                     coroutineScope.launch {
                         bottomSheetState.bottomSheetState.expand()
@@ -162,22 +139,22 @@ fun AudioPlayerScaffold(
                         bottomSheetState.bottomSheetState.partialExpand()
                     }
                 },
-                onAlbumClicked = { albumId ->
+                onReleaseClick = { releaseId ->
                     coroutineScope.launch {
                         bottomSheetState.bottomSheetState.partialExpand()
-                        navController.navigate("AlbumPage?id=$albumId")
+                        navController.navigate("/releases/$releaseId")
                     }
                 },
-                onArtistClicked = { artistId ->
+                onArtistClick = { artistId ->
                     coroutineScope.launch {
                         bottomSheetState.bottomSheetState.partialExpand()
-                        navController.navigate("ArtistPage?id=$artistId")
+                        navController.navigate("/artists/$artistId")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        content(sheetPeekHeight, paddingValues)
+        content(sheetPeekHeight, paddingValues, bottomSectionHeight)
     }
 }
 
@@ -193,8 +170,8 @@ fun BottomSheetAudioPlayer(
     hazeState: HazeState,
     onExpandRequest: () -> Unit = { },
     onCollapseRequest: () -> Unit = { },
-    onAlbumClicked: (albumId: String) -> Unit,
-    onArtistClicked: (artistId: String) -> Unit
+    onReleaseClick: (albumId: String) -> Unit,
+    onArtistClick: (artistId: String) -> Unit
 ) {
     val density = LocalDensity.current
 
@@ -225,8 +202,8 @@ fun BottomSheetAudioPlayer(
                 modifier,
                 coloredScaffoldState,
                 onCollapseRequest,
-                onAlbumClicked,
-                onArtistClicked
+                onReleaseClick,
+                onArtistClick
             )
         }
 

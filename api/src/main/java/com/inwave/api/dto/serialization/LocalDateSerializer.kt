@@ -8,16 +8,20 @@ import kotlinx.serialization.encoding.Encoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-object LocalDateSerializer : KSerializer<LocalDate> {
+object LocalDateSerializer : KSerializer<LocalDate?> {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     override val descriptor = PrimitiveSerialDescriptor("LocalDate", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: LocalDate) {
-        encoder.encodeString(value.format(formatter))
+    override fun serialize(encoder: Encoder, value: LocalDate?) {
+        if (value == null) {
+            encoder.encodeString("1970-01-01")
+        } else {
+            encoder.encodeString(value.format(formatter))
+        }
     }
 
-    override fun deserialize(decoder: Decoder): LocalDate {
+    override fun deserialize(decoder: Decoder): LocalDate? {
         return LocalDate.parse(decoder.decodeString(), formatter)
     }
 }

@@ -29,7 +29,7 @@ fun Route.getArtistLatestRelease(
             return@get
         }
 
-        getArtistLastReleaseUseCase(id).onSuccess { (release, _) ->
+        getArtistLastReleaseUseCase(id).onSuccess { release ->
             call.respond(
                 release.toFullReleaseDto()
             )

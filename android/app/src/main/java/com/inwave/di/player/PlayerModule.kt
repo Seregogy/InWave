@@ -3,14 +3,19 @@ package com.inwave.di.player
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
-import com.inwave.domain.usecase.track.GetTrackUseCase
-import com.inwave.domain.usecase.track.GetTrackWithLyricsUseCase
-import com.inwave.domain.usecase.track.GetTracksUseCase
+import com.inwave.di.ApplicationSupervisorCoroutineScope
+import com.inwave.di.RemoteRepo
+import com.inwave.domain.usecase.track.query.GetRandomTrackIdUseCase
+import com.inwave.domain.usecase.track.query.GetTrackUseCase
+import com.inwave.domain.usecase.track.query.GetTrackWithLyricsUseCase
+import com.inwave.domain.usecase.track.query.GetTracksUseCase
+import com.inwave.player.AudioVisualizer
 import com.inwave.player.state.PlayerStateSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 object DefaultPlayerConfig {
@@ -47,11 +52,25 @@ class PlayerModule {
 
     @Provides
     @Singleton
+    fun provideVisualizer(): AudioVisualizer {
+        return AudioVisualizer()
+    }
+
+    @Provides
+    @Singleton
     fun provideAudioPlayer(
-        getTrack: GetTrackUseCase,
-        getTracks: GetTracksUseCase,
-        getTrackWithLyrics: GetTrackWithLyricsUseCase
+        @RemoteRepo getTrack: GetTrackUseCase,
+        @RemoteRepo getTracks: GetTracksUseCase,
+        @RemoteRepo getRandomTrackId: GetRandomTrackIdUseCase,
+        @RemoteRepo getTrackWithLyrics: GetTrackWithLyricsUseCase,
+        @ApplicationSupervisorCoroutineScope scope: CoroutineScope
     ): PlayerStateSource {
-        return PlayerStateSource(getTrack, getTracks, getTrackWithLyrics)
+        return PlayerStateSource(
+            getTrack,
+            getTracks,
+            getRandomTrackId,
+            getTrackWithLyrics,
+            scope
+        )
     }
 }

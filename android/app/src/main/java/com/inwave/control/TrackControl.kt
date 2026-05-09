@@ -29,7 +29,7 @@ fun TrackControl(
     onClick: (it: Track) -> Unit = { },
     controls: @Composable RowScope.() -> Unit
 ) {
-    val artistsNames = track.artists.joinToString(", ") { it.name }
+    val artistsNames = track.artists.joinToString(", ") { it.artist.name }
 
     Row(
         modifier = modifier
@@ -47,7 +47,7 @@ fun TrackControl(
             horizontalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             AsyncImage(
-                model = track.imageUrl,
+                model = track.coverArtUrl,
                 modifier = Modifier
                     .height(50.dp)
                     .aspectRatio(1f)

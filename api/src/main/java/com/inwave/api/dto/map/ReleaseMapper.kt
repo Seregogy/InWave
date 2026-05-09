@@ -26,6 +26,42 @@ fun Release.toReleaseSummaryDto(): ReleaseSummaryDto {
         coverArtUrl = this.coverArtUrl,
         releaseDate = this.releaseDate,
         type = this.determineReleaseType(),
-        trackCount = this.tracks.size
+        trackCount = this.tracks.size,
+        artists = this.artists.map { it.toArtistSummaryDto() }
+    )
+}
+
+fun FullReleaseDto.toDomain(): Release {
+    return Release(
+        id = id,
+        name = name,
+        coverArtUrl = coverArtUrl,
+        releaseDate = releaseDate,
+        tracks = tracks.map { it.toDomain() },
+        artists = artists.map { it.toDomain() },
+        genres = genres,
+        statistics = statistics?.toDomain(),
+        additionalData = Release.AdditionalData(
+            fullTitle = name,
+            descriptionMarkdown = null,
+            descriptionPreviewPlainText = null,
+            label = label,
+            tags = tags,
+            credits = emptyMap()
+        )
+    )
+}
+
+fun ReleaseSummaryDto.toDomain(): Release {
+    return Release(
+        id = id,
+        name = name,
+        coverArtUrl = coverArtUrl,
+        releaseDate = releaseDate,
+        tracks = emptyList(),
+        artists = emptyList(),
+        genres = emptyList(),
+        statistics = null,
+        additionalData = null
     )
 }

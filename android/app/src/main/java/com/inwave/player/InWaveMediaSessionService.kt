@@ -38,6 +38,9 @@ class InWaveMediaSessionService: MediaSessionService() {
     companion object {
         private const val FAVORITE_BUTTON = "FAVORITE_BUTTON"
         private const val REPEAT_MODE_BUTTON = "REPEAT_MODE_BUTTON"
+
+        var instance: InWaveMediaSessionService? = null
+            private set
     }
 
     private val handlerScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -54,8 +57,9 @@ class InWaveMediaSessionService: MediaSessionService() {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
-        var favoriteButton =
+        val favoriteButton =
             CommandButton.Builder(CommandButton.ICON_HEART_UNFILLED)
                 .setDisplayName("Save to favorites")
                 .setSessionCommand(favoriteCommand)
@@ -79,19 +83,6 @@ class InWaveMediaSessionService: MediaSessionService() {
             .setAudioAttributes(audioAttributes, true)
             .setLoadControl(playerLoadControl)
             .build()
-
-//        val mediaSession = MediaSessionCompat(this, "PlayerService")
-//
-//// Create a MediaStyle object and supply your media session token to it.
-//        val mediaStyle = Notification.MediaStyle().setMediaSession(mediaSession.sessionToken)
-//
-//// Create a Notification which is styled by your MediaStyle object.
-//// This connects your media session to the media controls.
-//// Don't forget to include a small icon.
-//        val notification = Notification.Builder(this@PlayerService, CHANNEL_ID)
-//            .setStyle(mediaStyle)
-//            .setSmallIcon(R.drawable.ic_app_logo)
-//            .build()
 
         mediaSession = MediaSession.Builder(this, player)
             .setSessionActivity(sessionActivityPending)

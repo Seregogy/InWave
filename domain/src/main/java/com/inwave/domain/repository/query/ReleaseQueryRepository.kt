@@ -6,4 +6,5 @@ import com.inwave.domain.entity.Track
 interface ReleaseQueryRepository {
     suspend fun getRelease(releaseId: String): Result<Release>
     suspend fun getReleaseTracks(releaseId: String): Result<List<Track>>
+    suspend fun getTopReleases(limit: Int): Result<List<Release>>
 }

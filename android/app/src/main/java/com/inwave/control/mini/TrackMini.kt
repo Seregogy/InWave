@@ -105,9 +105,9 @@ fun TrackMini(
             }
         } else {
             Text(
-                text = (track.placeInRelease?.plus(
+                text = (track.placeInRelease ?: 0).plus(
                     if(indexPlusOne) 1 else 0
-                )).toString(),
+                ).toString(),
                 color = onPrimaryColor * .8f,
                 fontWeight = FontWeight.W700,
                 fontSize = 12.sp

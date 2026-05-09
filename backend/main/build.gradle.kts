@@ -26,17 +26,24 @@ dependencies {
     implementation(project(":backend:data"))
     implementation(project(":backend:di"))
     implementation(project(":api"))
-    testImplementation(kotlin("test"))
 
-    testImplementation(libs.ktor.server.test.host)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.config.yaml)
+    implementation(libs.ktor.server.partial.content)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.cryptography.hasher)
 
     implementation(libs.dotenv)
     implementation(libs.koin.ktor)
 
     implementation(libs.logback.classic)
+}
+
+tasks.shadowJar {
+//    minimize()
+    mergeServiceFiles()
 }

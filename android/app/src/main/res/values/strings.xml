@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">InWave</string>
+    <string name="app_name" translatable="false">InWave</string>
+    <string name="download">Скачать</string>
+    <string name="like">Нравится</string>
+    <string name="top_releases">Топ релизов</string>
+    <string name="tracks_on_device">Треки на устройстве</string>
+    <string name="albums">Альбомы %1$s</string>
+    <string name="singles">Синглы %1$s</string>
+    <string name="latest_release">Последний релиз</string>
+    <string name="popular_tracks">Популярные треки</string>
+    <string name="top_artists">Топ исполнителей</string>
+    <string name="settings">Настройки</string>
+    <string name="liked_tracks">Понравившиеся треки</string>
+    <string name="liked_releases">Понравившиеся релизы</string>
+    <string name="on_login_page">На страницу логина</string>
 </resources>

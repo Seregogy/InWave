@@ -1,6 +1,7 @@
 package com.inwave.control
 
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,13 +41,15 @@ fun MarqueeText(
     textAlign: Alignment = Alignment.CenterStart,
     lineHeight: TextUnit = TextUnit.Unspecified,
     maxLines: Int = Int.MAX_VALUE,
+    onClick: (() -> Unit)? = null
 ) {
     val textLayoutResult: MutableState<TextLayoutResult?> = remember { mutableStateOf(null) }
 
     MarqueeText(
         modifier = containerModifier,
         textLayoutResult = textLayoutResult.value,
-        contentAlignment = textAlign
+        contentAlignment = textAlign,
+        onClick = onClick
     ) {
         Text(
             text = text,
@@ -69,6 +72,7 @@ fun MarqueeText(
     modifier: Modifier = Modifier,
     textLayoutResult: TextLayoutResult?,
     contentAlignment: Alignment = Alignment.CenterStart,
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
@@ -76,6 +80,9 @@ fun MarqueeText(
 
     Box(
         modifier = modifier
+            .then(
+                if (onClick != null) Modifier.clickable { onClick() } else Modifier
+            )
             .onSizeChanged {
                 boxSize = it
             }

@@ -1,6 +1,7 @@
 package com.inwave.backend.di
 
 import com.inwave.domain.usecase.artist.query.GetArtistAlbumsUseCase
+import com.inwave.domain.usecase.artist.query.GetArtistLastReleaseUseCase
 import com.inwave.domain.usecase.artist.query.GetArtistReleasesUseCase
 import com.inwave.domain.usecase.artist.query.GetArtistSinglesUseCase
 import com.inwave.domain.usecase.artist.query.GetArtistTopTracksUseCase
@@ -51,7 +52,12 @@ val useCaseModule = module {
     single<GetRandomTrackUseCase> {
         GetRandomTrackUseCase(get())
     }
+
     single<GetTopArtistsUseCase> {
         GetTopArtistsUseCase(get())
+    }
+
+    single<GetArtistLastReleaseUseCase> {
+        GetArtistLastReleaseUseCase(get())
     }
 }

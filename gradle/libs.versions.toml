@@ -1,9 +1,10 @@
 [versions]
+#Android versions
 accompanistPermissions = "0.37.3"
 agp = "8.13.1"
 coilCompose = "3.3.0"
 appyx-version = "1.7.1"
-kotlin = "2.2.21"
+kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -17,14 +18,32 @@ material = "1.13.0"
 material3 = "1.4.0-beta02"
 materialIconsExtended = "1.7.8"
 media3Exoplayer = "1.8.0"
-hilt-version = "2.57.2"
+hilt-version = "2.58"
 paletteVerison = "1.0.0"
 bottomSheetVersion = "1.5.1"
 haze = "1.6.9"
 particlesConfettiVersion = "0.7.0"
 composeShimmer = "1.3.2"
+ktor-client = "2.3.10"
+jbcrypt="0.4"
+
+#Backend versions
+ktor = "3.4.3"
+koin = "4.1.1"
+logback = "1.5.27"
+exposed = "1.0.0"
+h2 = "2.4.240"
+postgres-driver = "42.7.8"
+sqlite-driver = "3.50.2.0"
+dotenvVersion = "6.5.1"
+kotlinx-serialization-datetime = "0.7.1"
+
+#Shared versions
+kotlinx-serialization = "1.10.0"
 
 [libraries]
+
+#Android libraries
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
@@ -69,7 +88,51 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "haze" }
 
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor-client" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor-client" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor-client" }
+ktor-client-content-negotation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor-client" }
+ktor-client-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-client" }
+
+#Backend libraries
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+ktor-server-content-negotation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content", version.ref = "ktor" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+
+cryptography-hasher = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt" }
+
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback"}
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed"}
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
+exposed-migration-core = { module = "org.jetbrains.exposed:exposed-migration-core", version.ref = "exposed" }
+exposed-migration-jdbc = { module = "org.jetbrains.exposed:exposed-migration-jdbc", version.ref = "exposed" }
+
+exposed-driver-postgres = { module = "org.postgresql:postgresql", version.ref = "postgres-driver" }
+exposed-driver-sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-driver" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+
+dotenv = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenvVersion" }
+
+#Shared libraries
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-serialization-datetime" }
+
+
 [plugins]
+
+#Android plugins
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
@@ -78,3 +141,7 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
 
+#Backend plugins
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+
+#Shared plugins

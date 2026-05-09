@@ -23,3 +23,8 @@ rootProject.name = "InWave"
 include(":domain")
 include(":android:app")
 include(":android:data")
+include(":api")
+include(":backend:main")
+include(":backend:data")
+include(":backend:db")
+include(":backend:di")

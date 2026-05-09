@@ -1,19 +1,25 @@
 package com.inwave.backend.di
 
-import com.inwave.backend.data.repository.MockArtistQueryRepository
-import com.inwave.backend.data.repository.MockReleaseQueryRepository
-import com.inwave.backend.data.repository.MockTrackQueryRepository
+import com.inwave.backend.data.repository.LikeRepositoryImpl
+import com.inwave.backend.data.repository.artist.ArtistQueryRepositoryImpl
 import com.inwave.backend.data.repository.cache.GenericMemoryCacheRepository
+import com.inwave.backend.data.repository.release.ReleaseQueryRepositoryImpl
+import com.inwave.backend.data.repository.track.TrackQueryRepositoryImpl
+import com.inwave.backend.data.repository.user.UserCommandRepositoryImpl
+import com.inwave.backend.data.repository.user.UserQueryRepositoryImpl
 import com.inwave.domain.cache.CacheRepository
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track
+import com.inwave.domain.repository.command.LikeRepository
+import com.inwave.domain.repository.command.UserCommandRepository
 import com.inwave.domain.repository.query.ArtistQueryRepository
 import com.inwave.domain.repository.query.ReleaseQueryRepository
 import com.inwave.domain.repository.query.TrackQueryRepository
+import com.inwave.domain.repository.query.UserQueryRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    /*single<TrackQueryRepository> {
+    single<TrackQueryRepository> {
         TrackQueryRepositoryImpl(get())
     }
 
@@ -23,26 +29,25 @@ val repositoryModule = module {
 
     single<ArtistQueryRepository> {
         ArtistQueryRepositoryImpl(get())
-    }*/
-
-
-    single<TrackQueryRepository> {
-        MockTrackQueryRepository()
     }
 
-    single<ReleaseQueryRepository> {
-        MockReleaseQueryRepository()
+    single<UserCommandRepository> {
+        UserCommandRepositoryImpl(get(), get(), get())
     }
 
-    single<ArtistQueryRepository> {
-        MockArtistQueryRepository()
+    single<LikeRepository> {
+        LikeRepositoryImpl(get(), get())
     }
 
-    single<CacheRepository<String, Artist>> {
+    single<UserQueryRepository> {
+        UserQueryRepositoryImpl(get(), get())
+    }
+
+    single<CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Artist>> {
         GenericMemoryCacheRepository()
     }
 
-    single<CacheRepository<String, Track>> {
+    single<CacheRepository<@JvmSuppressWildcards String, @JvmSuppressWildcards Track>> {
         GenericMemoryCacheRepository()
     }
 }

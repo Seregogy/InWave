@@ -104,4 +104,10 @@ dependencies {
     implementation(libs.coil.network)
 
     implementation(libs.accompanist.permissions)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotation)
+    implementation(libs.ktor.client.serialization.kotlinx.json)
 }
