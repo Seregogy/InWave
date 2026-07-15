@@ -2,6 +2,7 @@ package com.inwave.backend.di
 
 import com.inwave.backend.db.migration.migration1
 import com.inwave.backend.db.migration.migration2
+import com.inwave.backend.db.migration.migration3
 import com.inwave.backend.db.table.ArtistGenreTable
 import com.inwave.backend.db.table.ArtistLegacyTableId
 import com.inwave.backend.db.table.ArtistReleaseTable
@@ -32,10 +33,10 @@ val databaseModule = module {
     single<Database> {
         get<Env>().let { env ->
             Database.connect(
-                env.databaseUrl,
-                env.databaseDriver,
-                env.databaseUser,
-                env.databasePassword
+                env.databaseUrl.also { println(it) },
+                env.databaseDriver.also { println(it) },
+                env.databaseUser.also { println(it) },
+                env.databasePassword.also { println(it) }
             ).also {
                 if (env.isDatabaseInitRequired) {
                     DbInitializer(it).apply {
@@ -99,7 +100,7 @@ class DbInitializerMigration1(
     }
 
     override fun showMigrations() {
-        val dbPath = "C:/Users/delhi/Desktop/KotlinLearn/ktor-test-backend/src/files/database-new.db"
+        val dbPath = "C:/Users/delhi/Desktop/kotlin/ktor-test-backend/src/files/database-main.db"
         val oldDb = Database.connect("jdbc:sqlite:$dbPath", "org.sqlite.JDBC")
 
         migration1(oldDb, db)
@@ -119,6 +120,18 @@ class DbInitializerMigration2(
 ): DbInitializer(db) {
     override fun showMigrations() {
         migration2(db)
+        super.showMigrations()
+    }
+}
+
+class DbInitializerMigration3(
+    db: Database
+): DbInitializer(db) {
+    override fun showMigrations() {
+        val dbPath = "C:/Users/delhi/Desktop/kotlin/ktor-test-backend/src/files/database-main.db"
+        val oldDb = Database.connect("jdbc:sqlite:$dbPath", "org.sqlite.JDBC")
+
+        migration3(oldDb, db)
         super.showMigrations()
     }
 }

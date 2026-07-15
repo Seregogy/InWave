@@ -14,12 +14,16 @@ data class Track(
 
     val metadata: Metadata?,
     val statistics: Statistics?,
-    val hasLyrics: Boolean,
     val lyrics: Lyrics?,
     val additionalData: AdditionalData?,
 
     val artists: List<ArtistOnTrack>
 ) {
+    val hasLyrics: Boolean
+        get() = lyrics != null &&
+                (lyrics.syncedText.isNullOrEmpty() && lyrics.plainText.isNullOrEmpty())
+                    .not()
+
     enum class ArtistType {
         Primary, Featured, Remixer
     }

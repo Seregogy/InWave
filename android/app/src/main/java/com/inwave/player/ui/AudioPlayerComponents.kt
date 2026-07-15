@@ -48,7 +48,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -96,6 +95,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.R
+import com.inwave.control.BorderedIconToggleButton
 import com.inwave.control.CircleButton
 import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
@@ -106,7 +106,6 @@ import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
-import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -685,8 +684,8 @@ fun ColoredScaffoldState.BottomControls(
     viewModel: AudioPlayerViewModel,
     isLyricsOpen: MutableState<Boolean>
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val repeatMode by viewModel.repeatMode.collectAsStateWithLifecycle()
+    val track by viewModel.track.collectAsStateWithLifecycle()
 
     Row(
         modifier = modifier,
@@ -702,22 +701,14 @@ fun ColoredScaffoldState.BottomControls(
             )
         }
 
-        IconToggleButton(
-            checked = isLyricsOpen.value,
+        BorderedIconToggleButton(
+            checked = isLyricsOpen,
             onCheckedChange = {
                 isLyricsOpen.value = !isLyricsOpen.value
-
-                coroutineScope.launch {
-                    viewModel.fetchCurrentTrackWithLyrics()
-                }
             },
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.lyrics_icon),
-                contentDescription = "time icon",
-                tint = onBackgroundColorAnimated.value
-            )
-        }
+            icon = painterResource(R.drawable.lyrics_icon),
+            enabled = track?.hasLyrics ?: false
+        )
 
         IconButton(
             onClick = {

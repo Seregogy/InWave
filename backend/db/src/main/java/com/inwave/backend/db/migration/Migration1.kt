@@ -1,15 +1,30 @@
 package com.inwave.backend.db.migration
 
+import com.inwave.backend.db.entity.ReleaseEntity
+import com.inwave.backend.db.entity.TrackLyricsEntity
+import com.inwave.backend.db.table.ArtistLegacyTableId
+import com.inwave.backend.db.table.ArtistReleaseTable
+import com.inwave.backend.db.table.ArtistStatisticsTable
+import com.inwave.backend.db.table.ArtistTable
+import com.inwave.backend.db.table.ReleaseLegacyTableId
+import com.inwave.backend.db.table.ReleaseStatisticsTable
+import com.inwave.backend.db.table.ReleaseTrackTable
+import com.inwave.backend.db.table.TrackLegacyTableId
+import com.inwave.backend.db.table.TrackStatisticsTable
+import com.inwave.backend.db.table.TrackTable
+import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.plus
 import org.jetbrains.exposed.v1.dao.java.UUIDEntity
 import org.jetbrains.exposed.v1.dao.java.UUIDEntityClass
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.io.BufferedWriter
-import java.io.FileWriter
+import org.jetbrains.exposed.v1.jdbc.update
 import java.util.UUID
 
 
@@ -180,7 +195,7 @@ fun migration1(
     oldDb: Database,
     newDb: Database
 ) {
-    runCatching {
+    /*runCatching {
         BufferedWriter(FileWriter("C:\\Users\\delhi\\Desktop\\scp-downloader\\files.txt")).use { file ->
             transaction(newDb) {
                 com.inwave.backend.db.entity.TrackEntity.all().forEach { newDbTrack ->
@@ -198,8 +213,9 @@ fun migration1(
             }
         }
 
-    }
-    /*runCatching {
+    }*/
+
+    runCatching {
         transaction(newDb) {
             ReleaseEntity.all().forEach { releaseEntity ->
                 releaseEntity.fetchTracks().forEach { (track) ->
@@ -207,8 +223,9 @@ fun migration1(
                 }
             }
         }
-    }*/
-    /*runCatching {
+    }
+
+    runCatching {
         transaction(oldDb) {
             ArtistEntity.all().forEach { artistEntity ->
                 artistEntity.albums.forEach { albums ->
@@ -226,8 +243,9 @@ fun migration1(
                 }
             }
         }
-    }*/
-    /*runCatching {
+    }
+
+    runCatching {
         val oldTracks = transaction(oldDb) { TrackEntity.all().toList() }
         val oldAlbums = transaction(oldDb) { AlbumEntity.all().toList() }
         val oldArtists = transaction(oldDb) { ArtistEntity.all().toList() }
@@ -326,7 +344,7 @@ fun migration1(
                 }
             }
         }
-    }.onFailure { println("EXCEPTION: ${it.stackTrace.joinToString("\n")}") }*/
+    }.onFailure { println("EXCEPTION: ${it.stackTrace.joinToString("\n")}") }
 }
 
 fun parseSyncedLyrics(syncedLyrics: String): Map<Long, String> {

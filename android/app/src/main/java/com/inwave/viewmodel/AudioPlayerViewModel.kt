@@ -58,8 +58,10 @@ class AudioPlayerViewModel @Inject constructor(
                     likeRepository.toggleLikeToTrack(token, track.id).onSuccess {
                         val message = if (it) "Добавлено в понравившиеся треки" else "Убрано из понравившихся треков"
                         Toast.makeText(context, message, Toast.LENGTH_LONG)
+                            .show()
                     }.onFailure {
                         Toast.makeText(context, it.message, Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
             }
