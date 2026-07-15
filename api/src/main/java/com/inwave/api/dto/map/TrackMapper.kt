@@ -1,5 +1,6 @@
 package com.inwave.api.dto.map
 
+import com.inwave.api.dto.artist.ArtistSummaryDto
 import com.inwave.api.dto.track.FullTrackDto
 import com.inwave.api.dto.track.TrackAdditionalDataDto
 import com.inwave.api.dto.track.TrackArtistDetailsDto
@@ -11,18 +12,29 @@ import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track
 
 fun Track.toFullTrackDto(): FullTrackDto {
+    val release = this.release?.toFullReleaseDto()
+    val coverArtUrl = if (this.coverArtUrl.isNullOrEmpty()) release?.coverArtUrl else this.coverArtUrl
+
     return FullTrackDto(
         id = this.id,
         name = this.name,
-        coverArtUrl = this.coverArtUrl,
+        coverArtUrl = coverArtUrl,
         audioUrl = this.audioUrl,
         durationMs = this.durationMs,
         isExplicit = this.isExplicit,
         placeInRelease = this.placeInRelease,
         genres = this.genres,
         statistics = this.statistics?.toStatisticsDto(),
-        release = this.release?.toFullReleaseDto(),
-        artists = this.artists.map { it.toTrackArtistDetailsDto() },
+        release = release,
+        artists = this.artists
+            .map { it.toTrackArtistDetailsDto() }
+            .plus(
+                release?.artists?.map {
+                    it.toTrackArtistDetailsDto()
+                } ?: emptyList()
+            )
+            .toSet()
+            .toList(),
         metadata = this.metadata?.toTrackMetadataDto(),
         lyrics = this.lyrics?.toTrackLyricsDto(),
         additionalData = this.additionalData?.toTrackAdditionalDataDto()
@@ -67,6 +79,15 @@ fun Track.ArtistOnTrack.toTrackArtistDetailsDto(): TrackArtistDetailsDto {
     )
 }
 
+fun ArtistSummaryDto.toTrackArtistDetailsDto(): TrackArtistDetailsDto {
+    return TrackArtistDetailsDto(
+        id = this.id,
+        name = this.name,
+        imageUrl = this.imageUrl,
+        artistType = TrackArtistDto.ArtistType.Primary
+    )
+}
+
 fun Track.Metadata.toTrackMetadataDto(): TrackMetadataDto {
     return TrackMetadataDto(
         bpm = this.bpm,
@@ -107,7 +128,6 @@ fun TrackSummaryDto.toDomain(): Track {
         genres = emptyList(),
         metadata = null,
         statistics = null,
-        hasLyrics = false,
         lyrics = null,
         additionalData = null,
         artists = artists.map { it.toDomain() },
@@ -135,7 +155,6 @@ fun FullTrackDto.toDomain(): Track {
             )
         },
         statistics = statistics?.toDomain(),
-        hasLyrics = lyrics != null,
         lyrics = lyrics?.toDomain(),
         additionalData = additionalData?.let {
             Track.AdditionalData(

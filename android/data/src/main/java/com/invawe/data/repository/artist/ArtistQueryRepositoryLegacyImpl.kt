@@ -109,7 +109,6 @@ object ArtistMappers {
                 genres = emptyList(),
                 metadata = null,
                 statistics = null,
-                hasLyrics = false,
                 lyrics = null,
                 additionalData = null,
                 artists = artists.map {

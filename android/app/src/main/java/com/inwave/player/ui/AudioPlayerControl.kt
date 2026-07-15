@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,11 +47,6 @@ fun FullAudioPlayer(
 
     val track by viewModel.track.collectAsStateWithLifecycle()
     val playlist by viewModel.playlist.collectAsStateWithLifecycle()
-    val lyrics by remember {
-        derivedStateOf {
-            track?.lyrics
-        }
-    }
 
     val trackDuration by viewModel.trackDuration.collectAsStateWithLifecycle()
     val state by viewModel.playerState.collectAsStateWithLifecycle()
@@ -70,10 +64,6 @@ fun FullAudioPlayer(
     val isLyricsOpen = remember { mutableStateOf(false) }
 
     val showQueue = remember { mutableStateOf(false) }
-
-    LaunchedEffect(track) {
-        isLyricsOpen.value = isLyricsOpen.value && lyrics != null
-    }
 
     ColoredScaffold(coloredScaffoldState) {
         val secondaryColorWithLoadingState by remember {

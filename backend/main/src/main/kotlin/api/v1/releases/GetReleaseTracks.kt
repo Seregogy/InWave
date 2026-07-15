@@ -33,9 +33,9 @@ fun Route.getReleaseTracks(
 
         getReleaseTracksUseCase(id).onSuccess { tracks ->
             call.respond(
-                tracks.map {
-                    it.toFullTrackDto().copy(
-                        audioUrl = trackAudioProviderService.provideUrl(id)
+                tracks.map { track ->
+                    track.toFullTrackDto().copy(
+                        audioUrl = trackAudioProviderService.provideUrl(track.id)
                     )
                 }
             )

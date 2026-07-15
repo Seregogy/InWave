@@ -6,7 +6,7 @@ import io.ktor.server.http.content.staticFiles
 import io.ktor.server.routing.routing
 import java.io.File
 
-fun Application.staticContent() {
+fun Application.setupStaticContent() {
     routing {
         staticFiles("/images", File("src/files/images"))
 

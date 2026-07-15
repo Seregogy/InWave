@@ -44,11 +44,9 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -64,7 +62,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,6 +80,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -96,6 +94,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.R
+import com.inwave.control.BorderedIconToggleButton
 import com.inwave.control.CircleButton
 import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
@@ -106,7 +105,6 @@ import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
-import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -320,8 +318,9 @@ fun ColoredScaffoldState.TrackInfo(
             MarqueeText(
                 text = track?.artists?.map { it.artist }?.joinToString(", ") { it.name } ?: "unknown",
                 fontWeight = FontWeight.W600,
+                containerModifier = Modifier
+                    .clip(MaterialTheme.shapes.small),
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.small)
                     .alpha(textAlpha),
                 color = onBackgroundColorAnimated.value,
                 onClick = {
@@ -371,11 +370,12 @@ fun ColoredScaffoldState.TrackInfo(
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         AsyncImage(
-                            model = it.artist.imagesUrl,
+                            model = it.artist.imagesUrl.first(),
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .size(60.dp),
-                            contentDescription = ""
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop
                         )
 
                         Text(
@@ -398,7 +398,6 @@ fun ColoredScaffoldState.PlayerSlider(
     isSliding: MutableState<Boolean>,
     onLikeClick: () -> Unit
 ) {
-    val coroutine = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
 
     var localCurrentPos by remember { mutableFloatStateOf(0f) }
@@ -685,8 +684,8 @@ fun ColoredScaffoldState.BottomControls(
     viewModel: AudioPlayerViewModel,
     isLyricsOpen: MutableState<Boolean>
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val repeatMode by viewModel.repeatMode.collectAsStateWithLifecycle()
+    val track by viewModel.track.collectAsStateWithLifecycle()
 
     Row(
         modifier = modifier,
@@ -702,22 +701,14 @@ fun ColoredScaffoldState.BottomControls(
             )
         }
 
-        IconToggleButton(
-            checked = isLyricsOpen.value,
+        BorderedIconToggleButton(
+            checked = isLyricsOpen,
             onCheckedChange = {
                 isLyricsOpen.value = !isLyricsOpen.value
-
-                coroutineScope.launch {
-                    viewModel.fetchCurrentTrackWithLyrics()
-                }
             },
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.lyrics_icon),
-                contentDescription = "time icon",
-                tint = onBackgroundColorAnimated.value
-            )
-        }
+            icon = painterResource(R.drawable.lyrics_icon),
+            enabled = track?.hasLyrics ?: false
+        )
 
         IconButton(
             onClick = {
@@ -742,34 +733,21 @@ fun ColoredScaffoldState.LyricsDrawer(
     viewModel: AudioPlayerViewModel
 ) {
     val density = LocalDensity.current
-    val trackName by remember {
-        derivedStateOf {
-            viewModel.track.value?.name ?: "unknown"
-        }
-    }
+
     val track by viewModel.track.collectAsStateWithLifecycle()
-    val lyrics by remember {
-        derivedStateOf {
-            track?.lyrics
-        }
-    }
+    val lyrics by viewModel.lyrics.collectAsStateWithLifecycle(Track.Lyrics.defaultLyrics)
 
     when {
-        lyrics == null -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    color = onBackgroundColorAnimated.value
-                )
-            }
-        }
         lyrics?.syncedText?.isNotEmpty() ?: false -> {
             val currentPosition by viewModel.currentPosition.collectAsStateWithLifecycle()
             val lazyListState = rememberLazyListState()
             val syncedTextPairs = remember {
-                return@remember lyrics!!.syncedText!!.map { it.key to it.value.trim() }.toMutableList().apply {
-                    add(Long.MAX_VALUE to "")
-                }
+                return@remember lyrics?.syncedText!!
+                    .map { it.key to it.value.trim() }
+                    .toMutableList()
+                    .apply { add(Long.MAX_VALUE to "") }
             }
+
             val syncedTextSizes = remember { mutableMapOf<Long, IntSize>() }
 
             var columnSize by remember { mutableStateOf(IntSize.Zero) }
@@ -845,14 +823,14 @@ fun ColoredScaffoldState.LyricsDrawer(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = trackName,
+                    text = track?.name ?: "unknown",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.W700,
                     color = bodyTextOnBackgroundAnimated.value
                 )
 
                 Text(
-                    text = lyrics!!.plainText!!,
+                    text = lyrics?.plainText!!,
                     modifier = Modifier,
                     color = bodyTextOnBackgroundAnimated.value
                 )
@@ -881,7 +859,7 @@ fun ColoredScaffoldState.LyricsDrawer(
                     )
 
                     Text(
-                        text = "Не удалось найти текст для этого трека",
+                        text = stringResource(R.string.text_not_found),
                         color = onBackgroundColor.value,
                         textAlign = TextAlign.Center
                     )

@@ -53,7 +53,6 @@ object TrackMappers {
                 genres = emptyList(),
                 metadata = null,
                 statistics = null,
-                hasLyrics = !lyrics.isNullOrEmpty(),
                 lyrics = lyrics?.let {
                     Track.Lyrics(
                         plainText = it,
@@ -108,7 +107,6 @@ object TrackMappers {
                 genres = emptyList(),
                 metadata = null,
                 statistics = null,
-                hasLyrics = !lyrics.isNullOrEmpty(),
                 lyrics = lyrics?.let {
                     Track.Lyrics(
                         plainText = it,

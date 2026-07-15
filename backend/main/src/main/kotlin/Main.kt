@@ -2,7 +2,7 @@ package com.inwave.backend
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.inwave.backend.api.audio.staticContent
+import com.inwave.backend.api.audio.setupStaticContent
 import com.inwave.backend.api.v1.artists.getArtist
 import com.inwave.backend.api.v1.artists.getTopArtists
 import com.inwave.backend.api.v1.artists.releases.getArtistAlbums
@@ -13,6 +13,7 @@ import com.inwave.backend.api.v1.artists.tracks.getArtistTopTracks
 import com.inwave.backend.api.v1.releases.getRelease
 import com.inwave.backend.api.v1.releases.getReleaseTracks
 import com.inwave.backend.api.v1.releases.likeRelease
+import com.inwave.backend.api.v1.status
 import com.inwave.backend.api.v1.tracks.getRandomTrack
 import com.inwave.backend.api.v1.tracks.getRandomTrackId
 import com.inwave.backend.api.v1.tracks.getTrack
@@ -58,10 +59,15 @@ fun main() {
         setupKoin()
         setupPlugins(get(), get())
 
+        setupStaticContent()
         routing {
             route("/api/v1/") {
+                route("/status") {
+                    status()
+                }
+
                 route("/tracks") {
-                    getRandomTrack(get())
+                    getRandomTrack(get(), get())
                     getRandomTrackId(get())
 
                     getTrack(get(), get())
@@ -126,7 +132,6 @@ fun Application.setupPlugins(
     userRepository: UserQueryRepository,
     dotenv: Dotenv
 ) {
-    staticContent()
     install(PartialContent)
 
     install(ContentNegotiation) {

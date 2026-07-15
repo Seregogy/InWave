@@ -49,8 +49,8 @@ object InfrastructureModule {
 
             defaultRequest {
                 url {
-                    host = "158.160.212.225:8080/api"
-                    protocol = URLProtocol.HTTP
+                    host = "onewave.duckdns.org/api"
+                    protocol = URLProtocol.HTTPS
                 }
                 //header("Authorization", "Bearer $accessToken")
             }

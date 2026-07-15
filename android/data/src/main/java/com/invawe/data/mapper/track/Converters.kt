@@ -62,7 +62,6 @@ fun Cursor.toDomainTrack(): Track {
         genres = listOf(),
         metadata = null,
         statistics = null,
-        hasLyrics = false,
         lyrics = null,
         additionalData = null,
         artists = listOf(
