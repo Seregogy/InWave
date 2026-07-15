@@ -3,6 +3,7 @@ package com.inwave.player.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -28,16 +29,23 @@ fun MiniAudioPlayer(
     onExpandRequest: () -> Unit
 ) {
     val track by viewModel.track.collectAsStateWithLifecycle()
-    val currentState by viewModel.playerState.collectAsStateWithLifecycle()
     val isPlay by viewModel.isPlaying.collectAsStateWithLifecycle()
+
+    val currentPosition by viewModel.currentPosition.collectAsStateWithLifecycle()
+    val duration by viewModel.trackDuration.collectAsStateWithLifecycle()
 
     track?.let {
         TrackControl(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 25.dp),
+                .padding(vertical = 7.dp)
+                .fillMaxWidth(),
             onClick = { onExpandRequest() },
-            track = it
+            track = it,
+            trackTimelinePosition = if (duration > 0f) {
+                (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
         ) {
             Row(
                 modifier = Modifier
@@ -46,7 +54,9 @@ fun MiniAudioPlayer(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { }
+                    modifier = Modifier
+                        .heightIn(max = 40.dp),
+                    onClick = { viewModel.like() }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Favorite,
@@ -58,6 +68,8 @@ fun MiniAudioPlayer(
                 }
 
                 IconButton(
+                    modifier = Modifier
+                        .heightIn(max = 40.dp),
                     onClick = {
                         viewModel.playPause()
                     }
@@ -69,7 +81,7 @@ fun MiniAudioPlayer(
                             Icons.Rounded.PlayArrow,
                         contentDescription = "play/pause icon",
                         modifier = Modifier
-                            .size(26.dp),
+                            .size(24.dp),
                         tint = Color.White.copy(.7f)
                     )
                 }

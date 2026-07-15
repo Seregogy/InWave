@@ -35,7 +35,7 @@ private fun ColoredScaffoldState.CalculateColors() {
         derivedStateOf {
             return@derivedStateOf if (currentPalette.value?.vibrantSwatch == null) {
                 Color(currentPalette.value?.dominantSwatch?.rgb
-                    ?: colorScheme.tertiary.toArgb()
+                    ?: Color.White.copy(.4f).toArgb()
                 )
             } else {
                 Color(currentPalette.value?.vibrantSwatch?.rgb!!)
@@ -48,7 +48,7 @@ private fun ColoredScaffoldState.CalculateColors() {
             return@derivedStateOf if (currentPalette.value?.vibrantSwatch == null) {
                 Color(
                     currentPalette.value?.dominantSwatch?.titleTextColor
-                        ?: colorScheme.tertiary.toArgb()
+                        ?: Color.White.copy(.2f).toArgb()
                 )
             } else {
                 Color(currentPalette.value?.vibrantSwatch?.titleTextColor!!).copy(0.8f)
@@ -62,18 +62,18 @@ private fun ColoredScaffoldState.CalculateColors() {
                 if (currentPalette.value?.vibrantSwatch?.rgb!!.contrast(currentPalette.value?.dominantSwatch?.rgb) < 3f) {
                     Color(
                         currentPalette.value?.dominantSwatch?.titleTextColor
-                            ?: colorScheme.onTertiary.toArgb()
+                            ?: Color.White.toArgb()
                     )
                 } else {
                     Color(
                         currentPalette.value?.vibrantSwatch?.rgb
-                            ?: colorScheme.tertiary.toArgb()
+                            ?: Color.White.toArgb()
                     )
                 }
             } else {
                 Color(
                     currentPalette.value?.dominantSwatch?.titleTextColor
-                        ?: colorScheme.onTertiary.toArgb()
+                        ?: Color.White.toArgb()
                 ).copy(0.8f)
             }
         }
@@ -81,7 +81,7 @@ private fun ColoredScaffoldState.CalculateColors() {
 
     backgroundColor = remember {
         derivedStateOf {
-            Color(currentPalette.value?.dominantSwatch?.rgb ?: colorScheme.background.toArgb())
+            Color(currentPalette.value?.dominantSwatch?.rgb ?: Color.Black.toArgb())
         }
     }
 
@@ -89,7 +89,7 @@ private fun ColoredScaffoldState.CalculateColors() {
         derivedStateOf {
             Color(
                 currentPalette.value?.dominantSwatch?.titleTextColor
-                    ?: colorScheme.onBackground.toArgb()
+                    ?: Color.White.copy(.5f).toArgb()
             )
         }
     }
@@ -98,7 +98,7 @@ private fun ColoredScaffoldState.CalculateColors() {
         derivedStateOf {
             Color(
                 currentPalette.value?.dominantSwatch?.bodyTextColor
-                    ?: colorScheme.onBackground.toArgb()
+                    ?: Color.White.toArgb()
             )
         }
     }

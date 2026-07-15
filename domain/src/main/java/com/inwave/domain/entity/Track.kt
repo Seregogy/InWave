@@ -44,7 +44,11 @@ data class Track(
         val plainText: String?,
         val syncedText: Map<Long, String>?,
         val provider: String?
-    )
+    ) {
+        companion object {
+            val defaultLyrics = Lyrics(null, null, null)
+        }
+    }
 
     data class AdditionalData(
         val fullTitle: String?,

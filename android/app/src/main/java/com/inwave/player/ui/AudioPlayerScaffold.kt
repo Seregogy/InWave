@@ -179,12 +179,6 @@ fun BottomSheetAudioPlayer(
         viewModel.imagePaletteExtractor.palette.collectAsState()
     }
 
-    val bottomBarShown by remember {
-        derivedStateOf {
-            targetMiniPlayerAlpha.value > 0.94f
-        }
-    }
-
     Box {
         Box(
             Modifier
@@ -214,8 +208,9 @@ fun BottomSheetAudioPlayer(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(bottom = innerPadding.calculateBottomPadding())
                     .alpha(targetMiniPlayerAlpha.value)
+                    .background(additionalHorizontalGradientBrush.value)
+                    .padding(bottom = innerPadding.calculateBottomPadding())
                     .align(Alignment.TopCenter)
                     .then(
                         if (targetMiniPlayerAlpha.value > 0.99f) {
@@ -236,7 +231,6 @@ fun BottomSheetAudioPlayer(
                             it.height.toDp()
                         }
                     }
-                    .background(additionalHorizontalGradientBrush.value)
             ) {
                 MiniAudioPlayer(
                     viewModel = viewModel,

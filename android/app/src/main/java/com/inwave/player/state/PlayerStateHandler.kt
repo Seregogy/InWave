@@ -11,11 +11,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+
+const val PLAYER_POSITION_PULLING_DELAY_MS: Long = 500
 
 class PlayerStateHandler(
     val playerStateSource: PlayerStateSource,
@@ -43,7 +42,7 @@ class PlayerStateHandler(
                     playerStateSource.currentTrackDuration.value = mediaController.contentDuration
                 }
 
-                delay(500)
+                delay(PLAYER_POSITION_PULLING_DELAY_MS)
             } while (playerStateSource.currentState.value != PlayerState.Released())
         }
     }

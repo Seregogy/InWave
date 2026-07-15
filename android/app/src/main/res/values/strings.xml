@@ -13,4 +13,5 @@
     <string name="liked_tracks">Понравившиеся треки</string>
     <string name="liked_releases">Понравившиеся релизы</string>
     <string name="on_login_page">На страницу логина</string>
+    <string name="text_not_found">Не удалось найти текст для этого трека. Вполне возможно, что текст для этого трека появится чуть позже!</string>
 </resources>

@@ -53,8 +53,7 @@ fun BorderedIconToggleButton(
                         shape = CircleShape
                     )
                 } else { Modifier }
-            ),
-        enabled = enabled
+            )
     ) {
         Icon(
             painter = icon,

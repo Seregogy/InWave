@@ -13,8 +13,10 @@ import com.inwave.tool.ImagePaletteExtractor
 import com.inwave.tool.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +39,7 @@ class AudioPlayerViewModel @Inject constructor(
     }
 
     val track: StateFlow<Track?> = playerStateSource.currentTrack
+    val lyrics: Flow<Track.Lyrics?> = track.map { it?.lyrics }
     val playlist: StateFlow<List<Track>> = playerStateSource.playlist
 
     val currentPosition: StateFlow<Long> = playerStateSource.currentPosition
