@@ -79,14 +79,14 @@ class PlayerStateSource(
                 emit(Unit)
             }
         }
-            .filter { currentRepeatModeState.value == PlayerState.RepeatMode.Forward }
-            .filter {
-                val remainTracksInPlaylist = playlist.value.size - playlist.value.indexOf(currentTrack.value)
-                remainTracksInPlaylist < 5
-            }
-            .onStart { loadRandomTracks(5) }
-            .onEach { loadRandomTracks(5) }
-            .launchIn(scope)
+        .filter { currentRepeatModeState.value == PlayerState.RepeatMode.Forward }
+        .filter {
+            val remainTracksInPlaylist = playlist.value.size - playlist.value.indexOf(currentTrack.value)
+            remainTracksInPlaylist < 5
+        }
+        .onStart { loadRandomTracks(5) }
+        .onEach { loadRandomTracks(5) }
+        .launchIn(scope)
     }
 
     private suspend fun loadRandomTracks(amount: Int) {

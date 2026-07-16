@@ -32,7 +32,7 @@ fun MiniAudioPlayer(
     val isPlay by viewModel.isPlaying.collectAsStateWithLifecycle()
 
     val currentPosition by viewModel.currentPosition.collectAsStateWithLifecycle()
-    val duration by viewModel.trackDuration.collectAsStateWithLifecycle()
+    val duration by viewModel.trackDuration.collectAsStateWithLifecycle(1L)
 
     track?.let {
         TrackControl(
