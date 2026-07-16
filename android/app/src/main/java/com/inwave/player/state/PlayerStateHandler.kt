@@ -1,6 +1,7 @@
 package com.inwave.player.state
 
 import android.util.Log
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -12,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 const val PLAYER_POSITION_PULLING_DELAY_MS: Long = 500
@@ -36,10 +38,13 @@ class PlayerStateHandler(
     private fun handlePosition() {
         handlerScope.launch {
             do {
-                playerStateSource.currentPosition.value = mediaController.currentPosition
+                if (isActive.not()) break
 
-                if (mediaController.duration != 0L && mediaController.duration == mediaController.contentDuration) {
+                if (mediaController.contentDuration != 0L && mediaController.contentDuration != C.TIME_UNSET) {
+                    playerStateSource.currentPosition.value = mediaController.currentPosition
                     playerStateSource.currentTrackDuration.value = mediaController.contentDuration
+                } else {
+                    playerStateSource.currentPosition.value = 0L
                 }
 
                 delay(PLAYER_POSITION_PULLING_DELAY_MS)

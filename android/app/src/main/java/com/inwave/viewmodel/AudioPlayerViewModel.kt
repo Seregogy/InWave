@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.C
 import com.inwave.domain.entity.Track
 import com.inwave.domain.repository.command.LikeRepository
 import com.inwave.player.state.PlayerState
@@ -43,7 +44,9 @@ class AudioPlayerViewModel @Inject constructor(
     val playlist: StateFlow<List<Track>> = playerStateSource.playlist
 
     val currentPosition: StateFlow<Long> = playerStateSource.currentPosition
-    val trackDuration: StateFlow<Long> = playerStateSource.currentTrackDuration
+    val trackDuration: Flow<Long> = playerStateSource.currentTrackDuration.map {
+        if (it == C.TIME_UNSET) 1L else it
+    }
 
     val isLastTrack: StateFlow<Boolean> = playerStateSource.isLastTrack
     val isPlaying: StateFlow<Boolean> = playerStateSource.isPlaying

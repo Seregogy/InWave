@@ -48,7 +48,7 @@ fun FullAudioPlayer(
     val track by viewModel.track.collectAsStateWithLifecycle()
     val playlist by viewModel.playlist.collectAsStateWithLifecycle()
 
-    val trackDuration by viewModel.trackDuration.collectAsStateWithLifecycle()
+    val trackDuration by viewModel.trackDuration.collectAsStateWithLifecycle(1L)
     val state by viewModel.playerState.collectAsStateWithLifecycle()
     val currentPosition = viewModel.currentPosition.collectAsStateWithLifecycle()
     val isLastTrack = viewModel.isLastTrack.collectAsStateWithLifecycle()

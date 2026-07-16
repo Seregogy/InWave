@@ -110,4 +110,6 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotation)
     implementation(libs.ktor.client.serialization.kotlinx.json)
+
+    implementation(libs.timer.picker)
 }

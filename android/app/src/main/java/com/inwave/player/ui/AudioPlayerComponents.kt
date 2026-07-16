@@ -96,11 +96,13 @@ import coil3.compose.AsyncImage
 import com.inwave.R
 import com.inwave.control.BorderedIconToggleButton
 import com.inwave.control.CircleButton
-import com.inwave.control.ContextMenu
 import com.inwave.control.MarqueeText
+import com.inwave.control.menu.ContextMenu
+import com.inwave.control.menu.TimerMenu
 import com.inwave.control.scaffold.color.ColoredScaffoldState
 import com.inwave.domain.entity.Track
 import com.inwave.layout.AvatarRow
+import com.inwave.player.state.PLAYER_POSITION_PULLING_DELAY_MS
 import com.inwave.player.state.PlayerState
 import com.inwave.tool.formatMinuteTimer
 import com.inwave.tool.times
@@ -336,7 +338,11 @@ fun ColoredScaffoldState.TrackInfo(
         }
     }
 
-    ContextMenu(artistsSheet) { padding ->
+    ContextMenu(
+        expanded = artistsSheet,
+        label = "Артисты",
+        description = "Учавствующие в этом релизе"
+    ) { padding ->
         track?.artists?.let { artistsOnTrack ->
             LazyColumn(
                 modifier = Modifier
@@ -345,17 +351,6 @@ fun ColoredScaffoldState.TrackInfo(
                     .padding(bottom = 25.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                item {
-                    Text(
-                        text = "Артисты",
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .padding(bottom = 15.dp),
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.W700
-                    )
-                }
-
                 items(artistsOnTrack) {
                     Row(
                         modifier = Modifier
@@ -406,10 +401,12 @@ fun ColoredScaffoldState.PlayerSlider(
     val sliderGap = 1f / tickCount
     var currentGap by remember { mutableFloatStateOf(0f) }
 
+    val trackDuration by viewModel.trackDuration.collectAsStateWithLifecycle(1L)
+
     LaunchedEffect(Unit) {
         viewModel.currentPosition.collect {
             if (isSliding.value.not()) {
-                localCurrentPos = it / viewModel.trackDuration.value.toFloat()
+                localCurrentPos = it.toFloat() / trackDuration
             }
         }
     }
@@ -485,6 +482,7 @@ fun ColoredScaffoldState.PlayerSlider(
         ) {
             if (viewModel.isCurrentTrackLiked.collectAsState().value) {
                 Log.d("PlayerComponent", "Play particles")
+                //TODO: добавить партиклы через конфетти библиотеку
             }
 
             Icon(
@@ -517,7 +515,10 @@ fun ColoredScaffoldState.TimingText(
 
     val currentPositionAnimated = animateFloatAsState(
         targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
-        animationSpec = if (isSliding.value) tween(0) else tween(300, easing = LinearEasing),
+        animationSpec = if (isSliding.value)
+                tween(0)
+            else
+                tween(PLAYER_POSITION_PULLING_DELAY_MS.toInt(), easing = LinearEasing),
         label = "slider animation"
     )
 
@@ -686,13 +687,22 @@ fun ColoredScaffoldState.BottomControls(
 ) {
     val repeatMode by viewModel.repeatMode.collectAsStateWithLifecycle()
     val track by viewModel.track.collectAsStateWithLifecycle()
+    val isTimerOpen = remember { mutableStateOf(false) }
+
+    //TODO: вынести создаение вью модели наверх
+    TimerMenu(
+        viewModel = hiltViewModel(),
+        expanded = isTimerOpen
+    )
 
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         IconButton(
-            onClick = { }
+            onClick = {
+                isTimerOpen.value = !isTimerOpen.value
+            }
         ) {
             Icon(
                 painter = painterResource(R.drawable.timer_icon),
