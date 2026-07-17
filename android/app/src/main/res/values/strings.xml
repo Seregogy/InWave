@@ -18,4 +18,6 @@
     <string name="timer">Таймер</string>
     <string name="setup_timer">Установите таймер отключения музыки</string>
     <string name="cancel_timer">Отменить таймер</string>
+    <string name="artists">Артисты</string>
+    <string name="participate_in_the_release">Учавствующие в этом релизе</string>
 </resources>

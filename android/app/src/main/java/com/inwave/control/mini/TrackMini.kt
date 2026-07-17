@@ -1,5 +1,6 @@
 package com.inwave.control.mini
 
+import android.util.Log
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -76,6 +77,8 @@ fun TrackMini(
                 },
                 onLongClick = {
                     onContextAction(track)
+                    Log.d("ContextAction", "AAAAAAAAA")
+
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
@@ -130,6 +133,7 @@ fun TrackMini(
                 .align(Alignment.CenterEnd),
             onClick = {
                 onContextAction(track)
+                Log.d("ContextAction", "AAAAAAAAA")
             }
         ) {
             Icon(

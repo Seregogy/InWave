@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.holix.android.bottomsheetdialog.compose.BottomSheetBehaviorProperties
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 fun ContextMenu(
     expanded: MutableState<Boolean>,
     containerColor: Color = Color.Black,
+    isDraggable: Boolean = true,
     label: String? = null,
     description: String? = null,
     content: @Composable (padding: PaddingValues) -> Unit
@@ -51,7 +53,10 @@ fun ContextMenu(
             },
             properties = BottomSheetDialogProperties(
                 dismissWithAnimation = true,
-                enableEdgeToEdge = true
+                enableEdgeToEdge = true,
+                behaviorProperties = BottomSheetBehaviorProperties(
+                    isDraggable = isDraggable
+                )
             )
         ) {
             Box(

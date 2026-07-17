@@ -27,8 +27,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,6 +58,7 @@ import coil3.compose.AsyncImage
 import com.inwave.R
 import com.inwave.control.CircleButton
 import com.inwave.control.Section
+import com.inwave.control.menu.TrackAdditionalDataContextMenu
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMini
 import com.inwave.control.scaffold.ErrorDrawer
@@ -138,6 +142,10 @@ private fun DrawReleasePage(
 ) {
     val toolBarScaffoldState = rememberToolScaffoldState(onBackRequest = onBackRequest)
     val topBarHazeState = rememberHazeState()
+
+    val track: MutableState<Track?> = remember { mutableStateOf(null) }
+    val isContextMenuOpen = remember { mutableStateOf(false) }
+
     ColoredScaffold(
         state = coloredScaffoldState
     ) {
@@ -193,6 +201,8 @@ private fun DrawReleasePage(
                     onTrackClick = { onTrackClick(it.id) },
                     onReleaseClick = onReleaseClick,
                     onTrackHold = {
+                        track.value = it
+                        isContextMenuOpen.value = !isContextMenuOpen.value
                         /*toolBarScaffoldState.launchContextAction { padding ->
                             MockAdditionalTrackData(padding, primaryOrBackgroundColor.value)
                         }*/
@@ -200,6 +210,15 @@ private fun DrawReleasePage(
                 )
             }
         }
+    }
+
+    track.value?.let {
+        TrackAdditionalDataContextMenu(
+            track = it,
+            expanded = isContextMenuOpen,
+            padding = PaddingValues(bottom = bottomPadding),
+            imagePrimaryColor = coloredScaffoldState.primaryOrBackgroundColor.value
+        )
     }
 }
 

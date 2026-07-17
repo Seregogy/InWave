@@ -112,4 +112,5 @@ dependencies {
     implementation(libs.ktor.client.serialization.kotlinx.json)
 
     implementation(libs.timer.picker)
+    implementation(libs.markdown.render)
 }
