@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inwave.control.TrackControl
@@ -26,6 +28,7 @@ import com.inwave.viewmodel.AudioPlayerViewModel
 fun MiniAudioPlayer(
     viewModel: AudioPlayerViewModel,
     modifier: Modifier = Modifier,
+    fillBrush: Brush = SolidColor(Color.White.copy(.1f)),
     onExpandRequest: () -> Unit
 ) {
     val track by viewModel.track.collectAsStateWithLifecycle()

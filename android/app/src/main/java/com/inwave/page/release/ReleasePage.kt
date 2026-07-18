@@ -74,12 +74,14 @@ import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.viewmodel.ReleasePageViewModel
 import com.inwave.viewmodel.ReleasePageViewModelState
+import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 
 @Composable
 fun ReleasePage(
     viewModel: ReleasePageViewModel,
+    hazeState: HazeState,
     innerPadding: PaddingValues,
     bottomPadding: Dp,
     onBackRequest: () -> Unit = { },
@@ -104,6 +106,7 @@ fun ReleasePage(
         is ReleasePageViewModelState.Success -> {
             DrawReleasePage(
                 currentState,
+                hazeState,
                 coloredScaffoldState,
                 innerPadding,
                 imageBitmap,
@@ -128,6 +131,7 @@ fun ReleasePage(
 @Composable
 private fun DrawReleasePage(
     state: ReleasePageViewModelState.Success,
+    hazeState: HazeState,
     coloredScaffoldState: ColoredScaffoldState,
     innerPadding: PaddingValues,
     imageBitmap: Bitmap?,
@@ -146,68 +150,70 @@ private fun DrawReleasePage(
     val track: MutableState<Track?> = remember { mutableStateOf(null) }
     val isContextMenuOpen = remember { mutableStateOf(false) }
 
-    ColoredScaffold(
-        state = coloredScaffoldState
-    ) {
-        ToolScaffold(
-            modifier = Modifier
-                .padding(innerPadding),
-            hazeState = topBarHazeState,
-            state = toolBarScaffoldState
-        ) { toolBarInnerPadding ->
-
-            FlingScrollScaffold(
+    Box(Modifier.hazeSource(hazeState)) {
+        ColoredScaffold(
+            state = coloredScaffoldState
+        ) {
+            ToolScaffold(
                 modifier = Modifier
-                    .hazeSource(state = topBarHazeState)
-                    .background(Color.Black)
-                    .fillMaxSize(),
-                listBackground = SolidColor(primaryOrBackgroundColor.value.copy(.25f)),
-                state = rememberFlingScaffoldState(
-                    yFlingOffset = toolBarInnerPadding.calculateTopPadding()
-                ) {
-                    calcScrollState(toolBarInnerPadding.calculateTopPadding())
+                    .padding(innerPadding),
+                hazeState = topBarHazeState,
+                state = toolBarScaffoldState
+            ) { toolBarInnerPadding ->
 
-                    toolBarScaffoldState.toolBarTitle.value = if (isHeaderSwiped.value.not()) {
-                        state.release.name
-                    } else {
-                        null
+                FlingScrollScaffold(
+                    modifier = Modifier
+                        .hazeSource(state = topBarHazeState)
+                        .background(Color.Black)
+                        .fillMaxSize(),
+                    listBackground = SolidColor(primaryOrBackgroundColor.value.copy(.25f)),
+                    state = rememberFlingScaffoldState(
+                        yFlingOffset = toolBarInnerPadding.calculateTopPadding()
+                    ) {
+                        calcScrollState(toolBarInnerPadding.calculateTopPadding())
+
+                        toolBarScaffoldState.toolBarTitle.value = if (isHeaderSwiped.value.not()) {
+                            state.release.name
+                        } else {
+                            null
+                        }
+                    },
+                    backgroundContent = {
+                        ReleaseHeaderImage(
+                            bitmap = imageBitmap,
+                            currentOffset = currentOffset,
+                            screenHeight = screenHeight,
+                            alpha = alpha
+                        )
+                    },
+                    headingContent = {
+                        AlbumHeader(
+                            screenHeight = screenHeight,
+                            alpha = alpha,
+                            release = state.release,
+                            onArtistClick = onArtistClick,
+                            onReleasePlayClick = onReleasePlayClick,
+                            onLike = onLikeClick
+                        )
                     }
-                },
-                backgroundContent = {
-                    ReleaseHeaderImage(
-                        bitmap = imageBitmap,
-                        currentOffset = currentOffset,
-                        screenHeight = screenHeight,
-                        alpha = alpha
-                    )
-                },
-                headingContent = {
-                    AlbumHeader(
-                        screenHeight = screenHeight,
-                        alpha = alpha,
+                ) {
+                    ReleaseContent(
+                        bottomPadding = bottomPadding,
                         release = state.release,
-                        onArtistClick = onArtistClick,
-                        onReleasePlayClick = onReleasePlayClick,
-                        onLike = onLikeClick
+                        tracks = state.tracks,
+                        infiniteTransition = infiniteTransition,
+                        otherReleases = state.otherReleases,
+                        onTrackClick = { onTrackClick(it.id) },
+                        onReleaseClick = onReleaseClick,
+                        onTrackHold = {
+                            track.value = it
+                            isContextMenuOpen.value = !isContextMenuOpen.value
+                            /*toolBarScaffoldState.launchContextAction { padding ->
+                                MockAdditionalTrackData(padding, primaryOrBackgroundColor.value)
+                            }*/
+                        }
                     )
                 }
-            ) {
-                ReleaseContent(
-                    bottomPadding = bottomPadding,
-                    release = state.release,
-                    tracks = state.tracks,
-                    infiniteTransition = infiniteTransition,
-                    otherReleases = state.otherReleases,
-                    onTrackClick = { onTrackClick(it.id) },
-                    onReleaseClick = onReleaseClick,
-                    onTrackHold = {
-                        track.value = it
-                        isContextMenuOpen.value = !isContextMenuOpen.value
-                        /*toolBarScaffoldState.launchContextAction { padding ->
-                            MockAdditionalTrackData(padding, primaryOrBackgroundColor.value)
-                        }*/
-                    }
-                )
             }
         }
     }

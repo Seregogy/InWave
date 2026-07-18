@@ -21,11 +21,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -35,27 +38,29 @@ import com.inwave.domain.entity.Track
 fun TrackControl(
     modifier: Modifier = Modifier,
     track: Track,
+
+    fillBrush: Brush = SolidColor(Color.White.copy(.1f)),
     trackTimelinePosition: Float = 0f,
     onClick: (it: Track) -> Unit = { },
     controls: @Composable RowScope.() -> Unit
 ) {
     val density = LocalDensity.current
     val artistsNames = track.artists.joinToString(", ") { it.artist.name }
-    var trackControlsHeight by remember { mutableStateOf(0.dp) }
+    var trackControlsHeight by remember { mutableStateOf(DpSize.Zero) }
 
     Box(
         modifier = modifier
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(12.dp))
+            .background(Color.Black.copy(.9f))
             .clickable {
                 onClick(track)
             }
-            .background(Color.White.copy(.1f))
     ) {
         Box(
             modifier = Modifier
-                .height(trackControlsHeight)
-                .background(Color.White.copy(.1f))
+                .height(trackControlsHeight.height)
+                .background(fillBrush)
                 .fillMaxWidth(trackTimelinePosition)
                 .align(Alignment.CenterStart)
         )
@@ -63,7 +68,9 @@ fun TrackControl(
         Row(
             modifier = Modifier
                 .onSizeChanged {
-                    trackControlsHeight = with(density) { it.height.toDp() }
+                    with(density) {
+                        trackControlsHeight = DpSize(it.width.toDp(), it.height.toDp())
+                    }
                 }
                 .padding(7.dp),
             verticalAlignment = Alignment.CenterVertically,

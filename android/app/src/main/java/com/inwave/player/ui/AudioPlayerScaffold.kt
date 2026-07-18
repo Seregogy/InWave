@@ -1,14 +1,16 @@
 package com.inwave.player.ui
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -26,7 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,9 +42,6 @@ import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
 import com.inwave.viewmodel.AudioPlayerViewModel
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -103,7 +104,14 @@ fun AudioPlayerScaffold(
     val alphaStateThreshold = with(density) { bottomSectionHeight.value.roundToPx() }
     val targetMiniPlayerAlpha = remember {
         derivedStateOf {
-            yCurrentOffset.value / (screenHeight - bottomSectionHeightPx)
+            if (
+                bottomSheetState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded &&
+                bottomSheetState.bottomSheetState.targetValue == SheetValue.PartiallyExpanded
+            ) {
+                1f
+            } else {
+                yCurrentOffset.value / (screenHeight - bottomSectionHeightPx)
+            }
         }
     }
 
@@ -115,11 +123,14 @@ fun AudioPlayerScaffold(
 
     val sheetPeekHeight = bottomSectionHeight.value + innerPadding.calculateBottomPadding()
     BottomSheetScaffold(
+        sheetShadowElevation = 0.dp,
+        sheetTonalElevation = 0.dp,
         sheetPeekHeight = sheetPeekHeight,
         scaffoldState = bottomSheetState,
         sheetDragHandle = { },
-        sheetShape = RoundedCornerShape(0.dp),
+        sheetShape = RectangleShape,
         sheetContainerColor = Color.Transparent,
+        containerColor = Color.Transparent,
         sheetContent = {
             BottomSheetAudioPlayer(
                 bottomSectionHeight = bottomSectionHeight,
@@ -129,6 +140,7 @@ fun AudioPlayerScaffold(
                 targetMiniPlayerAlpha = targetMiniPlayerAlpha,
                 blurTargetMiniPlayerAlpha = blurTargetMiniPlayerAlpha,
                 hazeState = hazeState,
+                sheetState = bottomSheetState,
                 onExpandRequest = {
                     coroutineScope.launch {
                         bottomSheetState.bottomSheetState.expand()
@@ -154,11 +166,26 @@ fun AudioPlayerScaffold(
             )
         }
     ) { paddingValues ->
-        content(sheetPeekHeight, paddingValues, bottomSectionHeight)
+        Box(Modifier.fillMaxSize()) {
+            content(sheetPeekHeight, paddingValues, bottomSectionHeight)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .height(100.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            1f to Color.Black
+                        )
+                    )
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetAudioPlayer(
     bottomSectionHeight: MutableState<Dp>,
@@ -168,6 +195,8 @@ fun BottomSheetAudioPlayer(
     targetMiniPlayerAlpha: State<Float>,
     blurTargetMiniPlayerAlpha: Float,
     hazeState: HazeState,
+    sheetState: BottomSheetScaffoldState,
+
     onExpandRequest: () -> Unit = { },
     onCollapseRequest: () -> Unit = { },
     onReleaseClick: (albumId: String) -> Unit,
@@ -180,13 +209,6 @@ fun BottomSheetAudioPlayer(
     }
 
     Box {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .alpha(blurTargetMiniPlayerAlpha)
-        )
-
         Box(
             modifier = Modifier
                 .alpha(1f - targetMiniPlayerAlpha.value)
@@ -206,26 +228,20 @@ fun BottomSheetAudioPlayer(
                 viewModel.imagePaletteExtractor.palette.collectAsState()
             }
         ) {
-            Column(
+            Log.d("AAA", targetMiniPlayerAlpha.value.toString())
+
+            Box(
                 modifier = Modifier
                     .alpha(targetMiniPlayerAlpha.value)
-                    .background(additionalHorizontalGradientBrush.value)
                     .padding(bottom = innerPadding.calculateBottomPadding())
                     .align(Alignment.TopCenter)
-                    .then(
-                        if (targetMiniPlayerAlpha.value > 0.99f) {
-                            Modifier
-                                .hazeEffect(hazeState, HazeMaterials.thin(Color.Black))
-                        } else {
-                            Modifier
-                        }
-                    )
                     .then(
                         if (targetMiniPlayerAlpha.value < .8f)
                             Modifier.pointerInteropFilter { return@pointerInteropFilter false }
                         else
                             Modifier
                     )
+
                     .onSizeChanged {
                         bottomSectionHeight.value = with(density) {
                             it.height.toDp()
@@ -234,6 +250,7 @@ fun BottomSheetAudioPlayer(
             ) {
                 MiniAudioPlayer(
                     viewModel = viewModel,
+                    fillBrush = additionalHorizontalGradientBrush.value,
                     onExpandRequest = onExpandRequest
                 )
             }

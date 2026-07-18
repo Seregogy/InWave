@@ -50,6 +50,8 @@ import com.inwave.ui.theme.InWaveTheme
 import com.inwave.viewmodel.AudioPlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import dev.chrisbanes.haze.HazePositionStrategy
+import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -79,17 +81,23 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             InWaveTheme {
+                val hazeState = rememberHazeState(positionStrategy = HazePositionStrategy.Screen)
                 val navController = rememberNavController()
                 val audioPlayerViewModel = hiltViewModel<AudioPlayerViewModel>()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) { innerPadding ->
                     AudioPlayerScaffold(
                         viewModel = audioPlayerViewModel,
                         innerPadding = innerPadding,
-                        hazeState = rememberHazeState(),
+                        hazeState = hazeState,
                         navController = navController
                     ) { sheetPeekHeight, padding, miniPlayerHeight ->
                         NavRoutes(
                             innerPadding = innerPadding,
+                            hazeState = hazeState,
                             miniPlayerHeight = miniPlayerHeight,
                             navController = navController,
                             userRepository = userRepository,
@@ -110,6 +118,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavRoutes(
     innerPadding: PaddingValues,
+    hazeState: HazeState,
     miniPlayerHeight: State<Dp>,
     navController: NavHostController,
     userRepository: UserCommandRepository,
@@ -137,6 +146,7 @@ fun NavRoutes(
                     padding = innerPadding,
                     viewModel = hiltViewModel(),
                     coloredScaffoldState = this,
+                    hazeState = hazeState,
                     isPlay = playerStateSource.isPlaying.collectAsStateWithLifecycle(),
                     onTrackClick = {
                         coroutineScope.launch {
@@ -239,6 +249,7 @@ fun NavRoutes(
         ) {
             ReleasePage(
                 viewModel = hiltViewModel(),
+                hazeState = hazeState,
                 innerPadding = innerPadding,
                 bottomPadding = innerPadding.calculateBottomPadding(),
                 onBackRequest = { navController.popBackStack() },

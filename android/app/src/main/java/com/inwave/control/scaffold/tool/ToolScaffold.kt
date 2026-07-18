@@ -29,15 +29,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.inwave.control.MarqueeText
 import com.inwave.control.menu.ContextMenu
-import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.blur.HazeProgressive
+import dev.chrisbanes.haze.blur.blurEffect
 import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 
 private val toolBarHeight = 50.dp
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun ToolScaffold(
     modifier: Modifier = Modifier,
@@ -57,17 +55,15 @@ fun ToolScaffold(
                 .then(
                     if (toolBarTitle.value != null) {
                         if (hazeState != null) {
-                            Modifier
-                                .hazeEffect(
-                                    state = hazeState,
-                                    style = HazeMaterials.ultraThin(Color.Black)
-                                ) {
+                            Modifier.hazeEffect(hazeState) {
+                                blurEffect {
                                     progressive = HazeProgressive.verticalGradient(
                                         startIntensity = 1f,
                                         endIntensity = 0f,
                                         easing = EaseIn
                                     )
                                 }
+                            }
                         } else {
                             Modifier.background(Color.Black.copy(.93f))
                         }

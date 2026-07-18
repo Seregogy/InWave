@@ -16,12 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,6 +54,9 @@ import com.inwave.control.scaffold.fling.FlingScrollScaffoldState
 import com.inwave.control.scaffold.fling.rememberFlingScaffoldState
 import com.inwave.viewmodel.MainPageViewModel
 import com.inwave.viewmodel.MainPageViewModelState
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -59,6 +64,7 @@ fun MainPage(
     padding: PaddingValues,
     viewModel: MainPageViewModel,
     coloredScaffoldState: ColoredScaffoldState,
+    hazeState: HazeState,
 
     isPlay: State<Boolean>,
     onTrackClick: (trackId: String) -> Unit,
@@ -70,6 +76,7 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val wave = viewModel.wave.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
 
     when(val currentState = state) {
         MainPageViewModelState.Idle -> { }
@@ -79,6 +86,7 @@ fun MainPage(
                 padding = padding,
                 state = currentState,
                 coloredScaffoldState = coloredScaffoldState,
+                hazeState = hazeState,
                 isPlay = isPlay,
                 wave = wave,
                 onTrackClick = onTrackClick,
@@ -97,8 +105,20 @@ fun MainPage(
         }
         is MainPageViewModelState.Error -> {
             ErrorDrawer(Modifier.fillMaxSize(), currentState.exception) {
-                TracksOnDeviceButton {
-                    onLocalTrackPageClick()
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    TracksOnDeviceButton {
+                        onLocalTrackPageClick()
+                    }
+
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.loadMainPage()
+                            }
+                        }
+                    ) {
+                        Text("Обновить страницу")
+                    }
                 }
             }
         }
@@ -110,6 +130,8 @@ private fun DrawMainPage(
     padding: PaddingValues,
     state: MainPageViewModelState.Success,
     coloredScaffoldState: ColoredScaffoldState,
+    hazeState: HazeState,
+
     isPlay: State<Boolean>,
     wave: State<FloatArray>,
     onTrackClick: (trackId: String) -> Unit,
@@ -128,6 +150,7 @@ private fun DrawMainPage(
 
     FlingScrollScaffold(
         modifier = Modifier
+            .hazeSource(hazeState)
             .fillMaxSize(),
         state = rememberFlingScaffoldState {
             calcScrollState(50.dp)
