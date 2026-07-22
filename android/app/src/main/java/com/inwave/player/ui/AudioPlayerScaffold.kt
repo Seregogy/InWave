@@ -35,6 +35,7 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -98,7 +99,7 @@ fun AudioPlayerScaffold(
     }
 
     val screenHeight = with(density) {
-        LocalConfiguration.current.screenHeightDp.dp.roundToPx()
+        LocalWindowInfo.current.containerDpSize.height.roundToPx()
     }
 
     val alphaStateThreshold = with(density) { bottomSectionHeight.value.roundToPx() }
