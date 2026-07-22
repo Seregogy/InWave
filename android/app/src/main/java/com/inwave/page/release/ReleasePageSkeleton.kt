@@ -33,107 +33,105 @@ import com.valentinilk.shimmer.shimmer
 @Preview(showBackground = true)
 @Composable
 fun ReleasePageSkeleton() {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(.7f)
-            .fillMaxWidth()
-            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-            .drawWithContent {
-                drawContent()
-
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.White.copy(.2f),
-                            Color.Transparent,
-                        )
-                    ),
-                    blendMode = BlendMode.DstIn
-                )
-            }
-            .background(Color.Gray)
-    )
-
-    Column(
-        modifier = Modifier
-            .shimmer()
-            .fillMaxSize()
-    ) {
+    Box(Modifier.shimmer()) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
                 .fillMaxHeight(.7f)
-                .padding(bottom = 20.dp)
-        ) {
+                .fillMaxWidth()
+                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                .drawWithContent {
+                    drawContent()
 
-            Column(
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(.2f),
+                                Color.Transparent,
+                            )
+                        ),
+                        blendMode = BlendMode.DstIn
+                    )
+                }
+                .background(Color.Gray)
+        )
+
+        Column(Modifier.fillMaxSize()) {
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight(.7f)
+                    .padding(bottom = 20.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(28.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(Color.Gray)
-                )
 
-                Box(
+                Column(
                     modifier = Modifier
-                        .width(60.dp)
-                        .height(20.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(Color.Gray)
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        .fillMaxWidth(.85f)
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    repeat(3) {
-                        Box(
-                            modifier = Modifier
-                                .size(65.dp)
-                                .clip(CircleShape)
-                                .background(Color.Gray)
-                        )
+                    Box(
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(28.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(Color.Gray)
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(20.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(Color.Gray)
+                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .fillMaxWidth(.85f)
+                    ) {
+                        repeat(3) {
+                            Box(
+                                modifier = Modifier
+                                    .size(65.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Gray)
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(20.dp))
 
-        Column {
-            repeat(5) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 10.dp)
-                        .padding(vertical = 10.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+            Column {
+                repeat(5) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 10.dp)
+                            .padding(vertical = 10.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(12.dp)
-                                .clip(MaterialTheme.shapes.small)
-                                .background(Color.Gray)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .background(Color.Gray)
+                            )
 
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 25.dp)
-                                .height(20.dp)
-                                .width(100.dp)
-                                .clip(MaterialTheme.shapes.small)
-                                .background(Color.Gray)
-                        )
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 25.dp)
+                                    .height(20.dp)
+                                    .width(100.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .background(Color.Gray)
+                            )
+                        }
                     }
                 }
             }

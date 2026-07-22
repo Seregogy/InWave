@@ -1,4 +1,3 @@
-// android/app/src/main/java/com/inwave/page/user/UserProfileSkeleton.kt
 package com.inwave.page.user
 
 import androidx.compose.foundation.background
