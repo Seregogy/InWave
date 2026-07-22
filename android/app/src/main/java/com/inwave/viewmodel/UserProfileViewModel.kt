@@ -1,10 +1,12 @@
-// android/app/src/main/java/com/inwave/page/user/UserProfileViewModel.kt
-package com.inwave.page.user
+package com.inwave.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inwave.di.RemoteRepo
 import com.inwave.di.UserRemoteRepo
+import com.inwave.domain.entity.Release
+import com.inwave.domain.entity.Track
+import com.inwave.domain.entity.User
 import com.inwave.domain.repository.query.UserQueryRepository
 import com.inwave.domain.usecase.release.query.GetReleaseUseCase
 import com.inwave.domain.usecase.track.query.GetTrackUseCase
@@ -15,6 +17,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.inwave.tool.TokenManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+sealed class UserProfilePageState {
+    object Idle : UserProfilePageState()
+    object Loading : UserProfilePageState()
+    data class Success(
+        val user: User,
+        val likedTracks: List<Track>,
+        val likedReleases: List<Release>,
+    ) : UserProfilePageState()
+    data class Error(val exception: Throwable) : UserProfilePageState()
+}
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
