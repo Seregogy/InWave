@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,13 +26,17 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,6 +50,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,8 +81,59 @@ import com.inwave.domain.entity.Track
 import com.inwave.viewmodel.ReleasePageViewModel
 import com.inwave.viewmodel.ReleasePageViewModelState
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.blur.blurEffect
+import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.launch
+
+@Composable
+fun ReleasePageRefreshable(
+    viewModel: ReleasePageViewModel,
+    hazeState: HazeState,
+    innerPadding: PaddingValues,
+    bottomPadding: Dp,
+    onBackRequest: () -> Unit = { },
+    onReleaseClick: (releaseId: String) -> Unit = { },
+    onArtistClick: (artistId: String) -> Unit = { },
+    onTrackClick: (trackId: String) -> Unit = { },
+    onReleasePlayClick: (releaseId: String) -> Unit = { }
+) {
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle(false)
+    val pullToRefreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val isRefreshing by remember {
+        derivedStateOf {
+            isLoading && pullToRefreshState.distanceFraction > 0
+        }
+    }
+
+    PullToRefreshBox(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = pullToRefreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            coroutineScope.launch {
+                viewModel.loadRelease()
+            }
+        }
+    ) {
+        ReleasePage(
+            viewModel = viewModel,
+            hazeState = hazeState,
+            innerPadding = innerPadding,
+            bottomPadding = bottomPadding,
+            onBackRequest = onBackRequest,
+            onReleaseClick = onReleaseClick,
+            onArtistClick = onArtistClick,
+            onTrackClick = onTrackClick,
+            onReleasePlayClick = onReleasePlayClick
+        )
+    }
+}
+
 
 @Composable
 fun ReleasePage(
@@ -345,7 +402,12 @@ fun ColoredScaffoldState.ReleaseContent(
     onTrackHold: (track: Track) -> Unit,
     onReleaseClick: (artistId: String) -> Unit
 ) {
-    Column {
+    val screenHeight = LocalWindowInfo.current.containerDpSize.height
+
+    Column(
+        modifier = Modifier
+            .heightIn(min = screenHeight)
+    ) {
         Spacer(Modifier.height(20.dp))
 
         tracks.forEach { track ->

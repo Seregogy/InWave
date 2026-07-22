@@ -91,7 +91,7 @@ fun ReleasePageSkeleton() {
                         modifier = Modifier
                             .fillMaxWidth(.85f)
                     ) {
-                        repeat(3) {
+                        repeat(2) {
                             Box(
                                 modifier = Modifier
                                     .size(65.dp)

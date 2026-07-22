@@ -16,6 +16,7 @@ import com.inwave.tool.ImagePaletteExtractor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,6 +48,8 @@ class ArtistPageViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<ArtistPageViewModelState>(ArtistPageViewModelState.Idle)
     val state: StateFlow<ArtistPageViewModelState> = _state
+
+    val isLoading = _state.map { it is ArtistPageViewModelState.Loading }
 
     init {
         viewModelScope.launch {

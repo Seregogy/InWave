@@ -1,5 +1,6 @@
 package com.inwave.page.artist
 
+import androidx.compose.animation.core.EaseIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,15 +21,21 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Headset
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,11 +47,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -66,14 +76,64 @@ import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.viewmodel.ArtistPageViewModel
 import com.inwave.viewmodel.ArtistPageViewModelState
+import dev.chrisbanes.haze.HazePositionStrategy
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.blur.HazeProgressive
+import dev.chrisbanes.haze.blur.blurEffect
+import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.launch
 
 const val TOP_PART_WEIGHT = .55f
 
 @Composable
+fun ArtistPageRefreshable(
+    viewModel: ArtistPageViewModel,
+    hazeState: HazeState,
+    innerPadding: PaddingValues,
+    bottomPadding: Dp,
+    onBackRequest: () -> Unit = { },
+    onTrackClick: (trackId: String) -> Unit = { },
+    onReleaseClick: (albumId: String) -> Unit = { }
+) {
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle(false)
+    val pullToRefreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val isRefreshing by remember {
+        derivedStateOf {
+            isLoading && pullToRefreshState.distanceFraction > 0
+        }
+    }
+
+    PullToRefreshBox(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = pullToRefreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            coroutineScope.launch {
+                viewModel.loadArtist()
+            }
+        }
+    ) {
+        ArtistPage(
+            viewModel = viewModel,
+            hazeState = hazeState,
+            innerPadding = innerPadding,
+            bottomPadding = bottomPadding,
+            onBackRequest = onBackRequest,
+            onTrackClick = onTrackClick,
+            onReleaseClick = onReleaseClick
+        )
+    }
+}
+
+@Composable
 fun ArtistPage(
     viewModel: ArtistPageViewModel,
+    hazeState: HazeState,
     innerPadding: PaddingValues,
     bottomPadding: Dp,
     onBackRequest: () -> Unit = { },
@@ -85,10 +145,6 @@ fun ArtistPage(
         viewModel.palette.collectAsStateWithLifecycle()
     }
 
-    /*LaunchedEffect(Unit) {
-        viewModel.loadArtist()
-    }*/
-
     when(val currentState = state) {
         ArtistPageViewModelState.Idle -> { }
         ArtistPageViewModelState.Loading -> ArtistPageSkeleton()
@@ -98,6 +154,7 @@ fun ArtistPage(
             DrawArtistPage(
                 currentState,
                 coloredScaffoldState,
+                hazeState = hazeState,
                 pagerState,
                 innerPadding,
                 bottomPadding,
@@ -115,6 +172,7 @@ fun ArtistPage(
 private fun DrawArtistPage(
     state: ArtistPageViewModelState.Success,
     coloredScaffoldState: ColoredScaffoldState,
+    hazeState: HazeState,
     pagerState: PagerState,
     innerPadding: PaddingValues,
     bottomPadding: Dp,
@@ -123,7 +181,6 @@ private fun DrawArtistPage(
     onAlbumClick: (albumId: String) -> Unit = { }
 ) {
     val toolScaffoldState = rememberToolScaffoldState(onBackRequest)
-    val hazeState = rememberHazeState()
 
     ColoredScaffold(
         state = coloredScaffoldState
@@ -142,8 +199,8 @@ private fun DrawArtistPage(
                     .background(Color.Black),
                 state = rememberFlingScaffoldState(
                     yFlingOffset = toolScaffoldInnerPadding.calculateTopPadding()
-                ) {
-                    calcScrollState(toolScaffoldInnerPadding.calculateTopPadding())
+            ) {
+                calcScrollState(toolScaffoldInnerPadding.calculateTopPadding())
 
                     toolScaffoldState.toolBarTitle.value = if (isHeaderSwiped.value.not()) {
                         state.artist.name
@@ -168,7 +225,7 @@ private fun DrawArtistPage(
                         screenHeight = screenHeight,
                         alpha = alpha,
                         state.artist.imagesUrl.size,
-                        pagerState
+                        pagerState = pagerState
                     )
                 }
             ) {
@@ -301,12 +358,14 @@ private fun Header(
                     Box(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.small)
-                            .background(Color.White.copy(.3f))
+                            .background(Color.Black)
                             .padding(horizontal = 10.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = it,
-                            fontWeight = FontWeight.W600
+                            fontWeight = FontWeight.W700,
+                            fontSize = 14.sp,
+                            color = Color.White.copy(.7f)
                         )
                     }
                 }
@@ -326,9 +385,11 @@ private fun Content(
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (albumId: String) -> Unit
 ) {
+    val screenHeight = LocalWindowInfo.current.containerDpSize.height
+
     Box(
         modifier = Modifier
-            .wrapContentHeight()
+            .heightIn(min = screenHeight)
     ) {
         Column {
             Spacer(Modifier.height(40.dp))

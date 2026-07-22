@@ -17,9 +17,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,8 +63,52 @@ import com.inwave.viewmodel.UserProfilePageState
 import com.inwave.viewmodel.UserProfileViewModel
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.launch
 
 private const val TOP_PART_WEIGHT = .55f
+
+@Composable
+fun UserProfilePageRefreshable(
+    innerPadding: PaddingValues,
+    bottomPadding: Dp,
+    onBackRequest: () -> Unit = {},
+    onTrackClick: (trackId: String) -> Unit = {},
+    onReleaseClick: (releaseId: String) -> Unit = {},
+    onLoginClick: () -> Unit = {},
+    viewModel: UserProfileViewModel = hiltViewModel()
+) {
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle(false)
+    val pullToRefreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val isRefreshing by remember {
+        derivedStateOf {
+            isLoading && pullToRefreshState.distanceFraction > 0
+        }
+    }
+
+    PullToRefreshBox(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = pullToRefreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            coroutineScope.launch {
+                viewModel.loadUserProfile()
+            }
+        }
+    ) {
+        UserProfilePage(
+            innerPadding = innerPadding,
+            bottomPadding = bottomPadding,
+            onBackRequest = onBackRequest,
+            onTrackClick = onTrackClick,
+            onReleaseClick = onReleaseClick,
+            onLoginClick = onLoginClick,
+            viewModel = viewModel
+        )
+    }
+}
 
 @Composable
 fun UserProfilePage(

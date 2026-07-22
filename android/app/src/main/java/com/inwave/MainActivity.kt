@@ -39,9 +39,12 @@ import com.inwave.domain.usecase.track.query.GetTracksUseCase
 import com.inwave.page.AuthScreen
 import com.inwave.page.TracksPlaylist
 import com.inwave.page.artist.ArtistPage
+import com.inwave.page.artist.ArtistPageRefreshable
 import com.inwave.page.main.MainPage
 import com.inwave.page.release.ReleasePage
+import com.inwave.page.release.ReleasePageRefreshable
 import com.inwave.page.user.UserProfilePage
+import com.inwave.page.user.UserProfilePageRefreshable
 import com.inwave.player.MediaControllerInitializer
 import com.inwave.player.state.PlayerStateSource
 import com.inwave.player.ui.AudioPlayerScaffold
@@ -81,7 +84,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             InWaveTheme {
-                val hazeState = rememberHazeState(positionStrategy = HazePositionStrategy.Screen)
+                val hazeState = rememberHazeState(
+                    positionStrategy = HazePositionStrategy.Screen
+                )
                 val navController = rememberNavController()
                 val audioPlayerViewModel = hiltViewModel<AudioPlayerViewModel>()
 
@@ -142,6 +147,7 @@ fun NavRoutes(
                 }
             ) {
                 Box(Modifier.fillMaxSize().background(backgroundColorAnimated.value.copy(.25f)))
+
                 MainPage(
                     padding = innerPadding,
                     viewModel = hiltViewModel(),
@@ -173,9 +179,12 @@ fun NavRoutes(
 
         composable("/auth") {
             val errorText = remember { mutableStateOf("") }
+
             AuthScreen(
                 errorText = errorText,
                 onLogin = { userName, password ->
+                    errorText.value = ""
+
                     coroutineScope.launch {
                         userRepository.login(userName, password).onSuccess {
                             tokenManager.saveToken(it.token)
@@ -187,6 +196,8 @@ fun NavRoutes(
                     }
                 },
                 onRegister = { userName, password ->
+                    errorText.value = ""
+
                     coroutineScope.launch {
                         userRepository.register(userName, password).onSuccess {
                             tokenManager.saveToken(it.token)
@@ -200,8 +211,7 @@ fun NavRoutes(
         }
 
         composable("/profile") {
-
-            UserProfilePage(
+            UserProfilePageRefreshable(
                 innerPadding = innerPadding,
                 bottomPadding = innerPadding.calculateBottomPadding(),
                 onBackRequest = { navController.popBackStack() },
@@ -247,7 +257,7 @@ fun NavRoutes(
             route = "/releases/{releaseId}",
             arguments = listOf(navArgument("releaseId") { type = NavType.StringType })
         ) {
-            ReleasePage(
+            ReleasePageRefreshable(
                 viewModel = hiltViewModel(),
                 hazeState = hazeState,
                 innerPadding = innerPadding,
@@ -278,8 +288,9 @@ fun NavRoutes(
             route = "/artists/{artistId}",
             arguments = listOf(navArgument("artistId") { type = NavType.StringType })
         ) {
-            ArtistPage(
+            ArtistPageRefreshable(
                 viewModel = hiltViewModel(),
+                hazeState = hazeState,
                 innerPadding = innerPadding,
                 bottomPadding = innerPadding.calculateBottomPadding(),
                 onBackRequest = { navController.popBackStack() },
