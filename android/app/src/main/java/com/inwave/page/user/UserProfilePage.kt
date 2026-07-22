@@ -54,6 +54,7 @@ import com.inwave.control.scaffold.tool.rememberToolScaffoldState
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.domain.entity.User
+import com.inwave.viewmodel.UserProfilePageState
 import com.inwave.viewmodel.UserProfileViewModel
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
