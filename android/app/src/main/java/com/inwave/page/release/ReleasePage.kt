@@ -6,6 +6,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -81,8 +84,6 @@ import com.inwave.domain.entity.Track
 import com.inwave.viewmodel.ReleasePageViewModel
 import com.inwave.viewmodel.ReleasePageViewModelState
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.blur.blurEffect
-import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
@@ -180,7 +181,12 @@ fun ReleasePage(
             )
         }
         is ReleasePageViewModelState.Error -> {
-            ErrorDrawer(Modifier.fillMaxSize(), currentState.exception)
+            ErrorDrawer(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()), //Костыль для работы PullToRefreshBox
+                currentState.exception
+            )
         }
     }
 }
@@ -213,7 +219,7 @@ private fun DrawReleasePage(
         ) {
             ToolScaffold(
                 modifier = Modifier
-                    .padding(innerPadding),
+                    .padding(top = innerPadding.calculateTopPadding()),
                 hazeState = topBarHazeState,
                 state = toolBarScaffoldState
             ) { toolBarInnerPadding ->

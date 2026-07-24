@@ -29,7 +29,8 @@ fun MiniAudioPlayer(
     viewModel: AudioPlayerViewModel,
     modifier: Modifier = Modifier,
     fillBrush: Brush = SolidColor(Color.White.copy(.1f)),
-    onExpandRequest: () -> Unit
+    onExpandRequest: () -> Unit,
+    onPauseRequest: () -> Unit
 ) {
     val track by viewModel.track.collectAsStateWithLifecycle()
     val isPlay by viewModel.isPlaying.collectAsStateWithLifecycle()
@@ -42,13 +43,15 @@ fun MiniAudioPlayer(
             modifier = modifier
                 .padding(vertical = 7.dp)
                 .fillMaxWidth(),
-            onClick = { onExpandRequest() },
             track = it,
+            fillBrush = fillBrush,
             trackTimelinePosition = if (duration > 0f) {
                 (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
             } else {
                 0f
-            }
+            },
+            onDoubleClick = onPauseRequest,
+            onClick = { onExpandRequest() },
         ) {
             Row(
                 modifier = Modifier

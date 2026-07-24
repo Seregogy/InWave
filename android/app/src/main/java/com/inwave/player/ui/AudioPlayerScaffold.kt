@@ -31,6 +31,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,9 +40,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.plus
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
+import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.delay
@@ -163,6 +168,9 @@ fun AudioPlayerScaffold(
                         bottomSheetState.bottomSheetState.partialExpand()
                         navController.navigate("/artists/$artistId")
                     }
+                },
+                onPauseRequest = {
+                    viewModel.playPause()
                 }
             )
         }
@@ -201,7 +209,8 @@ fun BottomSheetAudioPlayer(
     onExpandRequest: () -> Unit = { },
     onCollapseRequest: () -> Unit = { },
     onReleaseClick: (albumId: String) -> Unit,
-    onArtistClick: (artistId: String) -> Unit
+    onArtistClick: (artistId: String) -> Unit,
+    onPauseRequest: () -> Unit
 ) {
     val density = LocalDensity.current
 
@@ -251,8 +260,15 @@ fun BottomSheetAudioPlayer(
             ) {
                 MiniAudioPlayer(
                     viewModel = viewModel,
-                    fillBrush = additionalHorizontalGradientBrush.value,
-                    onExpandRequest = onExpandRequest
+                    fillBrush = SolidColor(
+                        lerp(
+                            start = primaryOrBackgroundColorAnimated.value.copy(alpha = .1f),
+                            stop = Color.White.copy(alpha = .1f),
+                            fraction = .5f
+                        )
+                    ),
+                    onExpandRequest = onExpandRequest,
+                    onPauseRequest = onPauseRequest
                 )
             }
         }

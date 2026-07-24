@@ -1,7 +1,11 @@
 package com.inwave.control
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.inwave.domain.entity.Track
+import com.inwave.player.state.PLAYER_POSITION_PULLING_DELAY_MS
 
 @Composable
 fun TrackControl(
@@ -42,26 +47,36 @@ fun TrackControl(
     fillBrush: Brush = SolidColor(Color.White.copy(.1f)),
     trackTimelinePosition: Float = 0f,
     onClick: (it: Track) -> Unit = { },
+    onDoubleClick: () -> Unit = { },
     controls: @Composable RowScope.() -> Unit
 ) {
     val density = LocalDensity.current
     val artistsNames = track.artists.joinToString(", ") { it.artist.name }
     var trackControlsHeight by remember { mutableStateOf(DpSize.Zero) }
 
+    val trackTimelinePositionAnimated by animateFloatAsState(
+        targetValue = trackTimelinePosition,
+        animationSpec = tween(
+            durationMillis = PLAYER_POSITION_PULLING_DELAY_MS.toInt(),
+            easing = LinearEasing
+        )
+    )
+
     Box(
         modifier = modifier
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.Black.copy(.9f))
-            .clickable {
-                onClick(track)
-            }
+            .background(Color(0xFF171717))
+            .combinedClickable(
+                onClick = { onClick(track) },
+                onDoubleClick = onDoubleClick
+            )
     ) {
         Box(
             modifier = Modifier
                 .height(trackControlsHeight.height)
                 .background(fillBrush)
-                .fillMaxWidth(trackTimelinePosition)
+                .fillMaxWidth(trackTimelinePositionAnimated)
                 .align(Alignment.CenterStart)
         )
 
