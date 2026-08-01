@@ -41,6 +41,9 @@ dependencies {
     implementation(libs.koin.ktor)
 
     implementation(libs.logback.classic)
+
+    implementation(libs.amqp.client)
+    implementation(libs.ktor.server.rabbitmq)
 }
 
 tasks.shadowJar {
