@@ -31,7 +31,7 @@ object TrackMetadataTable : IntIdTable() {
 }
 
 object TrackStatisticsTable : IntIdTable() {
-    val trackId = reference("track_id", TrackTable)
+    val trackId = reference("track_id", TrackTable).uniqueIndex()
 
     val playCount = long("play_count").default(0)
     val likeCount = integer("like_count").default(0)
@@ -47,7 +47,7 @@ object TrackLyricsTable : IntIdTable() {
 }
 
 object TrackAdditionalDataTable : IntIdTable() {
-    val trackId = reference("track_id", TrackTable)
+    val trackId = reference("track_id", TrackTable).uniqueIndex()
 
     val fullTitle = text("full_title").nullable()
     val descriptionMd = text("description_md").nullable()

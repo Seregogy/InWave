@@ -520,7 +520,6 @@ private fun createMockTrack(
         genres = listOf("Electronic", "Synthwave"),
         metadata = metadata,
         statistics = statistics,
-        hasLyrics = hasLyrics,
         lyrics = lyrics,
         additionalData = additionalData,
         artists = listOf(artistOnTrack),

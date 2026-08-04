@@ -129,7 +129,8 @@ fun TrackAdditionalDataMenu(
                         modifier = Modifier
                             .padding(top = 15.dp),
                         fontSize = 28.sp,
-                        fontWeight = FontWeight.W700
+                        fontWeight = FontWeight.W700,
+                        lineHeight = 28.sp
                     )
 
                     Text(
@@ -202,9 +203,9 @@ fun TrackAdditionalDataMenu(
                 ) {
                     MarkdownText(
                         markdown = if(!descriptionExpanded)
-                                track.additionalData?.descriptionPreviewPlainText ?: ""
+                                (track.additionalData?.descriptionPreviewPlainText + "...")
                             else
-                                track.additionalData?.descriptionMarkdown ?: "",
+                                track.additionalData?.descriptionMarkdown ?: "ass",
                         syntaxHighlightColor = Color.White.copy(.07f),
                         style = TextStyle(
                             color = Color.White.copy(.7f),
@@ -234,6 +235,7 @@ fun TrackAdditionalDataMenu(
                                 Text(
                                     text = "#${tag}",
                                     fontWeight = FontWeight.W500,
+                                    fontSize = 12.sp,
                                     color = Color.White.copy(.7f)
                                 )
                             }
