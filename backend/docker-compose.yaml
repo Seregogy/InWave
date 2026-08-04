@@ -1,43 +1,86 @@
-services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: inwave-postgres
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB_NAME}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB_NAME}"]
-      interval: 5s
-    networks:
-      - inwave-network
+  services:
+    postgres:
+      image: postgres:16-alpine
+      container_name: inwave-postgres
+      environment:
+        POSTGRES_DB: ${POSTGRES_DB_NAME}
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ports:
+        - "5432:5432"
+      volumes:
+        - ./pg_data:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB_NAME}"]
+        interval: 5s
+      networks:
+        - inwave-network
 
-  inwave-backend:
-    container_name: inwave-backend
-    image: reptiloidd/inwave-backend
-    #TODO: закинуть образ на Docker Hub
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      PORT: ${PORT:-8080}
-      DB_URL: "jdbc:postgresql://postgres:5432/${POSTGRES_DB_NAME}"
-      DB_DRIVER: ${DB_DRIVER:-org.postgresql.Driver}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
-      DB_INIT: ${DB_INIT:-true}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "${PORT}:8080"
-    networks:
-      - inwave-network
+    rabbitmq:
+      image: rabbitmq:4-management
+      container_name: rabbitmq
+      restart: always
+      ports:
+        - "${RABBIT_PORT}:${RABBIT_PORT}"   # AMQP protocol port for application connections
+        - "15672:15672" # HTTP Management UI port
+      healthcheck:
+        test: rabbitmq-diagnostics -q ping
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 10s
+      environment:
+        - RABBITMQ_DEFAULT_USER=${RABBIT_USER}
+        - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
+      volumes:
+        - ./rabbitmq/data:/var/lib/rabbitmq
+        - ./rabbitmq/log:/var/log/rabbitmq
+      networks:
+        - inwave-network
 
-networks:
-  inwave-network:
-    driver: bridge
+    redis:
+      image: redis:7-alpine
+      container_name: redis_server
+      restart: unless-stopped
+      ports:
+        - "127.0.0.1:${REDIS_PORT}:${REDIS_PORT}"
+      volumes:
+        - redis_data:/data
+      command: redis-server --appendonly yes
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+
+    inwave-backend:
+      container_name: inwave-backend
+      image: reptiloidd/inwave-backend
+      #TODO: закинуть образ на Docker Hub
+      build:
+        context: .
+        dockerfile: Dockerfile
+      environment:
+        PORT: ${PORT:-8080}
+        DB_URL: "jdbc:postgresql://postgres:5432/${POSTGRES_DB_NAME}"
+        DB_DRIVER: ${DB_DRIVER:-org.postgresql.Driver}
+        DB_USER: ${POSTGRES_USER}
+        DB_PASS: ${POSTGRES_PASSWORD}
+        DB_INIT: ${DB_INIT:-true}
+      depends_on:
+        postgres:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+      ports:
+        - "${PORT}:8080"
+      networks:
+        - inwave-network
+
+  networks:
+    inwave-network:
+      driver: bridge
+
+  volumes:
+    redis_data:
+      driver: local

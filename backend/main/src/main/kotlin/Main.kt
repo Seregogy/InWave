@@ -3,6 +3,8 @@ package com.inwave.backend
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.inwave.backend.api.audio.setupStaticContent
+import com.inwave.backend.api.rabbitmq.setupLyricsExchange
+import com.inwave.backend.api.rabbitmq.setupTrackAdditionalDataExchange
 import com.inwave.backend.api.v1.artists.getArtist
 import com.inwave.backend.api.v1.artists.getTopArtists
 import com.inwave.backend.api.v1.artists.releases.getArtistAlbums
@@ -14,6 +16,7 @@ import com.inwave.backend.api.v1.releases.getRelease
 import com.inwave.backend.api.v1.releases.getReleaseTracks
 import com.inwave.backend.api.v1.releases.likeRelease
 import com.inwave.backend.api.v1.status
+import com.inwave.backend.api.v1.tracks.getAdditionalTrackData
 import com.inwave.backend.api.v1.tracks.getRandomTrack
 import com.inwave.backend.api.v1.tracks.getRandomTrackId
 import com.inwave.backend.api.v1.tracks.getTrack
@@ -28,10 +31,18 @@ import com.inwave.backend.di.serviceModule
 import com.inwave.backend.di.useCaseModule
 import com.inwave.backend.service.cryptography.JWTTokenServiceImpl
 import com.inwave.backend.service.cryptography.PasswordCryptographyServiceBCrypt
+import com.inwave.backend.service.provider.VideoShotProviderStaticService
+import com.inwave.backend.service.track.additionaldata.TrackAdditionalDataRabbitMqService
 import com.inwave.domain.repository.query.UserQueryRepository
 import com.inwave.domain.service.JWTTokenService
 import com.inwave.domain.service.PasswordCryptographyService
+import com.inwave.domain.service.TrackAdditionalDataService
+import com.inwave.domain.service.VideoShotProviderService
+import com.inwave.domain.usecase.track.command.server.FetchAdditionalDataUseCase
+import com.rabbitmq.client.Connection
+import com.rabbitmq.client.ConnectionFactory
 import io.github.cdimascio.dotenv.Dotenv
+import io.github.damir.denis.tudor.ktor.server.rabbitmq.RabbitMQ
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -47,9 +58,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
+import org.koin.core.Koin
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.ktor.ext.get
 import org.koin.ktor.plugin.Koin
+import kotlin.math.sin
 
 fun main() {
     embeddedServer(
@@ -57,6 +71,7 @@ fun main() {
         port = System.getenv()["PORT"]?.toInt() ?: 8080
     ) {
         setupKoin()
+        setupRabbitMq(get())
         setupPlugins(get(), get())
 
         setupStaticContent()
@@ -69,6 +84,8 @@ fun main() {
                 route("/tracks") {
                     getRandomTrack(get(), get())
                     getRandomTrackId(get())
+
+                    getAdditionalTrackData(get(), get())
 
                     getTrack(get(), get())
 
@@ -106,6 +123,22 @@ fun main() {
     }.start(wait = true)
 }
 
+fun Application.setupRabbitMq(
+    dotenv: Dotenv
+) {
+    install(RabbitMQ) {
+        uri = "amqp://${dotenv["RABBIT_USER"]}:${dotenv["RABBIT_PASSWORD"]}@${dotenv["RABBIT_ADDRESS"]}:${dotenv["RABBIT_PORT"]}"
+        defaultConnectionName = "inwave-main-backend"
+        connectionAttempts = 20
+        attemptDelay = 10
+        dispatcherThreadPollSize = 2
+        tlsEnabled = false
+    }
+
+    setupTrackAdditionalDataExchange()
+    setupLyricsExchange()
+}
+
 fun Application.setupKoin() {
     install(Koin) {
         modules(envModule)
@@ -119,8 +152,36 @@ fun Application.setupKoin() {
 
                 JWTTokenServiceImpl(get(), verifier)
             }
+
             single<PasswordCryptographyService> {
                 PasswordCryptographyServiceBCrypt()
+            }
+
+            single<Connection> {
+                val dotenv = get<Dotenv>()
+
+                ConnectionFactory().apply {
+                    username = dotenv["RABBIT_USER"]
+                    password = dotenv["RABBIT_PASSWORD"]
+                    host = dotenv["RABBIT_ADDRESS"]
+                    port = dotenv["RABBIT_PORT"].toInt()
+                }.newConnection().also {
+                    Runtime.getRuntime().addShutdownHook(Thread {
+                        this.close()
+                    })
+                }
+            }
+
+            single<com.rabbitmq.client.Channel> {
+                get<Connection>().createChannel()
+            }
+
+            single<TrackAdditionalDataService> {
+                TrackAdditionalDataRabbitMqService(get(), get())
+            }
+
+            single<FetchAdditionalDataUseCase> {
+                FetchAdditionalDataUseCase(get(), get(), get())
             }
         })
         modules(useCaseModule, repositoryModule, databaseModule)

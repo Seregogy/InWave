@@ -78,8 +78,13 @@ data class TrackLyricsDto(
 @Serializable
 data class TrackAdditionalDataDto(
     val fullTitle: String? = null,
+    val descriptionMarkdown: String? = null,
     val descriptionPreviewPlainText: String? = null,
+    val videoShotUrl: String? = null,
     val producers: List<String> = emptyList(),
     val writers: List<String> = emptyList(),
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val credits: Map<String, List<String>> = emptyMap(),
+    val recordingLocation: String? = null,
+    val textLanguage: String? = null
 )

@@ -1,5 +1,6 @@
 package com.inwave.backend.db.entity
 
+import com.inwave.backend.db.migration.AdditionalTrackDataEntity
 import com.inwave.backend.db.table.ArtistOnTrackType
 import com.inwave.backend.db.table.ArtistTable
 import com.inwave.backend.db.table.ArtistTrackTable
@@ -159,23 +160,7 @@ class TrackEntity(id: EntityID<Int>) : IntEntity(id) {
     }
 
     fun updateAdditionalData(additionalDataEntity: TrackAdditionalDataEntity): Result<Unit> = runCatching {
-        fetchAdditionalData()?.apply {
-            additionalDataEntity.fullTitle?.let { fullTitle = it }
-            additionalDataEntity.descriptionMd?.let { descriptionMd = it }
-            additionalDataEntity.descriptionPreviewPlain?.let { descriptionPreviewPlain = it }
-            additionalDataEntity.videoShotUrl?.let { videoShotUrl = it }
-            additionalDataEntity.producers?.let { producers = it }
-            additionalDataEntity.writers?.let { writers = it }
-            additionalDataEntity.tags?.let { tags = it }
-            additionalDataEntity.recordingLocation?.let { recordingLocation = it }
-            additionalDataEntity.textLanguage?.let { textLanguage = it }
-
-            if (additionalDataEntity.credits.isNotEmpty()) {
-                credits = additionalDataEntity.credits
-            }
-        } ?: additionalDataEntity.apply {
-            track = this@TrackEntity
-        }
+        additionalDataEntity.track = this@TrackEntity
     }
 
     fun increasePlayCount(): Result<Unit> = runCatching {

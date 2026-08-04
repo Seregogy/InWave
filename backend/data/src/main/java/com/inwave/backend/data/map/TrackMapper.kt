@@ -11,6 +11,7 @@ import com.inwave.domain.entity.Statistics
 import com.inwave.domain.entity.Track
 import org.jetbrains.exposed.v1.core.Transaction
 
+//TODO: убрать запросы к бд отсюда
 context(_: Transaction)
 fun TrackEntity.toDomain(
     audioUrl: String = ""
@@ -30,7 +31,6 @@ fun TrackEntity.toDomain(
         genres = fetchGenres().map { it.genre.name },
         metadata = fetchMetadata()?.toDomain(),
         statistics = fetchStatistics()?.toDomain(),
-        hasLyrics = (lyrics != null),
         lyrics = lyrics?.toDomain(),
         additionalData = fetchAdditionalData()?.toDomain(),
         artists = fetchArtists().map { it.toDomain() },
