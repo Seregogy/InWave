@@ -16,10 +16,10 @@ class Env(
     }
 
     val databaseUser: String get() {
-        return dotenv["DB_USER"]
+        return dotenv["POSTGRES_USER"]
     }
     val databasePassword: String get() {
-        return dotenv["DB_PASS"]
+        return dotenv["POSTGRES_PASSWORD"]
     }
 
     val isDatabaseInitRequired: Boolean get() {

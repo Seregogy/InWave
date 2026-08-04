@@ -1,6 +1,7 @@
 package com.inwave.api.dto.map
 
 import com.inwave.api.dto.artist.ArtistSummaryDto
+import com.inwave.api.dto.track.AdditionalTrackData
 import com.inwave.api.dto.track.FullTrackDto
 import com.inwave.api.dto.track.TrackAdditionalDataDto
 import com.inwave.api.dto.track.TrackArtistDetailsDto
@@ -10,6 +11,7 @@ import com.inwave.api.dto.track.TrackMetadataDto
 import com.inwave.api.dto.track.TrackSummaryDto
 import com.inwave.domain.entity.Artist
 import com.inwave.domain.entity.Track
+import com.inwave.domain.service.VideoShotProviderService
 
 fun Track.toFullTrackDto(): FullTrackDto {
     val release = this.release?.toFullReleaseDto()
@@ -108,10 +110,15 @@ fun Track.Lyrics.toTrackLyricsDto(): TrackLyricsDto {
 fun Track.AdditionalData.toTrackAdditionalDataDto(): TrackAdditionalDataDto {
     return TrackAdditionalDataDto(
         fullTitle = this.fullTitle,
+        descriptionMarkdown = this.descriptionMarkdown,
         descriptionPreviewPlainText = this.descriptionPreviewPlainText,
+        videoShotUrl = this.videoShotUrl,
         producers = this.producers,
         writers = this.writers,
-        tags = this.tags
+        tags = this.tags,
+        credits = this.credits,
+        recordingLocation = this.recordingLocation,
+        textLanguage = this.textLanguage
     )
 }
 
@@ -159,15 +166,15 @@ fun FullTrackDto.toDomain(): Track {
         additionalData = additionalData?.let {
             Track.AdditionalData(
                 fullTitle = it.fullTitle,
-                descriptionMarkdown = null,
+                descriptionMarkdown = it.descriptionMarkdown,
                 descriptionPreviewPlainText = it.descriptionPreviewPlainText,
-                videoShotUrl = null,
+                videoShotUrl = it.videoShotUrl,
                 producers = it.producers,
                 writers = it.writers,
                 tags = it.tags,
-                credits = emptyMap(),
-                recordingLocation = null,
-                textLanguage = null
+                credits = it.credits,
+                recordingLocation = it.recordingLocation,
+                textLanguage = it.textLanguage
             )
         },
         artists = artists.map { it.toDomain() },
@@ -201,3 +208,19 @@ fun TrackArtistDto.toDomain(): Track.ArtistOnTrack {
         }
     )
 }
+
+fun AdditionalTrackData.toDomain(
+    trackId: String,
+    videoShotProviderService: VideoShotProviderService
+): Track.AdditionalData = Track.AdditionalData(
+    fullTitle = this.fullTitle,
+    descriptionMarkdown = this.description,
+    descriptionPreviewPlainText = this.shortDescription,
+    videoShotUrl = videoShotProviderService.provideUrl(trackId),
+    producers = this.producers,
+    writers = this.writers,
+    tags = this.tags,
+    credits = this.credits,
+    recordingLocation = this.recordingLocation,
+    textLanguage = null
+)
