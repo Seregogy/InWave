@@ -21,10 +21,14 @@ class UserQueryRepositoryImpl(
     }
 
     override suspend fun getUserByToken(token: String): Result<User> = runCatching {
-        httpClient.get("$baseUrl/users/") {
+        val a = httpClient.get("$baseUrl/users/") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")
             }
-        }.body<FullUserDto>().toDomain()
+        }
+            .body<FullUserDto>()
+            .toDomain()
+
+        return@runCatching a
     }
 }

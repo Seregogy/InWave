@@ -1,6 +1,6 @@
 package com.inwave
 
-import android.app.Activity
+import android.accounts.NetworkErrorException
 import android.app.Application
 import android.os.Build
 import android.os.Bundle
@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,15 +18,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,20 +34,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.inwave.control.scaffold.ErrorDrawer
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
 import com.inwave.di.RemoteRepo
+import com.inwave.di.UserRemoteRepo
 import com.inwave.domain.repository.command.UserCommandRepository
+import com.inwave.domain.repository.query.UserQueryRepository
 import com.inwave.domain.usecase.release.query.GetReleaseTracksUseCase
 import com.inwave.domain.usecase.track.query.GetTracksUseCase
 import com.inwave.page.AuthScreen
 import com.inwave.page.TracksPlaylist
-import com.inwave.page.artist.ArtistPage
 import com.inwave.page.artist.ArtistPageRefreshable
 import com.inwave.page.main.MainPage
-import com.inwave.page.release.ReleasePage
 import com.inwave.page.release.ReleasePageRefreshable
-import com.inwave.page.user.UserProfilePage
 import com.inwave.page.user.UserProfilePageRefreshable
 import com.inwave.player.MediaControllerInitializer
 import com.inwave.player.state.PlayerStateSource
@@ -56,6 +55,9 @@ import com.inwave.player.ui.AudioPlayerScaffold
 import com.inwave.tool.TokenManager
 import com.inwave.ui.theme.InWaveTheme
 import com.inwave.viewmodel.AudioPlayerViewModel
+import com.inwave.viewmodel.MainViewModel
+import com.inwave.viewmodel.MainViewModelState
+import com.valentinilk.shimmer.shimmer
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
 import dev.chrisbanes.haze.HazePositionStrategy
@@ -76,11 +78,8 @@ class MainApplication : Application() {
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject lateinit var playerStateSource: PlayerStateSource
-    @Inject lateinit var userRepository: UserCommandRepository
-    @Inject lateinit var tokenManager: TokenManager
-    @RemoteRepo  @Inject lateinit var getTrackUseCase: GetTracksUseCase
-    @RemoteRepo @Inject lateinit var getReleaseTracksUseCase: GetReleaseTracksUseCase
+
+    val viewModel: MainViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,15 +113,17 @@ class MainActivity : ComponentActivity() {
                         navController = navController
                     ) { sheetPeekHeight, padding, miniPlayerHeight ->
                         NavRoutes(
+                            viewModel = viewModel,
                             innerPadding = innerPadding,
                             hazeState = hazeState,
                             miniPlayerHeight = miniPlayerHeight,
                             navController = navController,
-                            userRepository = userRepository,
-                            tokenManager = tokenManager,
-                            playerStateSource = playerStateSource,
-                            getTracksUseCase = getTrackUseCase,
-                            getReleaseTracksUseCase = getReleaseTracksUseCase,
+                            userRepository = viewModel.userRepository,
+                            userQueryRepository = viewModel.userQueryRepository,
+                            tokenManager = viewModel.tokenManager,
+                            playerStateSource = viewModel.playerStateSource,
+                            getTracksUseCase = viewModel.getTrackUseCase,
+                            getReleaseTracksUseCase = viewModel.getReleaseTracksUseCase,
                             audioPlayerViewModel = audioPlayerViewModel
                         )
                     }
@@ -135,11 +136,13 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavRoutes(
+    viewModel: MainViewModel,
     innerPadding: PaddingValues,
     hazeState: HazeState,
     miniPlayerHeight: State<Dp>,
     navController: NavHostController,
     userRepository: UserCommandRepository,
+    userQueryRepository: UserQueryRepository,
     tokenManager: TokenManager,
     playerStateSource: PlayerStateSource,
     getTracksUseCase: GetTracksUseCase,
@@ -147,19 +150,58 @@ fun NavRoutes(
     audioPlayerViewModel: AudioPlayerViewModel
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val startDestination = if (tokenManager.hasToken()) "/" else "/auth"
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel.state) {
+        if (tokenManager.hasToken().not() || userQueryRepository.getUserByToken(tokenManager.getTokenForce()).isFailure)
+            navController.navigate("/auth")
+    }
+
+    when(val currentState = state) {
+        MainViewModelState.Idle -> {
+
+        }
+        MainViewModelState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .shimmer()
+            )
+        }
+        MainViewModelState.Offline -> {
+            ErrorDrawer(Modifier.fillMaxSize(), NetworkErrorException("No internet connection")) {
+                viewModel.initialize()
+            }
+        }
+        is MainViewModelState.Authorized -> {
+            navController.navigate("/")
+        }
+        is MainViewModelState.Error -> {
+            ErrorDrawer(Modifier.fillMaxSize(), currentState.exception) {
+                viewModel.initialize()
+            }
+        }
+        is MainViewModelState.Unauthorized -> {
+            navController.navigate("/auth")
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = "/idle"
     ) {
+        composable("/idle") { }
         composable("/") {
             ColoredScaffold(
                 state = rememberColoredScaffoldState {
                     audioPlayerViewModel.imagePaletteExtractor.palette.collectAsState()
                 }
             ) {
-                Box(Modifier.fillMaxSize().background(backgroundColorAnimated.value.copy(.25f)))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundColorAnimated.value.copy(.25f))
+                )
 
                 MainPage(
                     padding = innerPadding,
