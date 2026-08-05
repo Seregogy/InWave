@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Album
@@ -48,6 +51,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.inwave.control.trackCreditsControlLazyListScope
 import com.inwave.domain.entity.Track
 import com.inwave.layout.TagsRow
 import com.inwave.tool.formatMinuteTimer
@@ -114,15 +118,16 @@ fun TrackAdditionalDataMenu(
                 )
         )
 
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
             modifier = Modifier
                 .padding(padding)
                 .padding(horizontal = 20.dp)
                 .heightIn(max = screenHeight - 100.dp)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Column {
                     Text(
                         text = track.additionalData?.fullTitle ?: track.name,
@@ -147,7 +152,7 @@ fun TrackAdditionalDataMenu(
                 }
             }
 
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -167,9 +172,6 @@ fun TrackAdditionalDataMenu(
                             color = Color.White.copy(.7f)
                         )
                     }
-
-
-
                     //TODO: добавить в доменную модель дату релиза
                     /*Text(
                         text = track.additionalData?.toDate() ?: "",
@@ -179,7 +181,7 @@ fun TrackAdditionalDataMenu(
                 }
             }
 
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 ContextButtons(
                     onLikeClick = onLikeClick,
                     onAddToPlaylistClick = onAddToPlaylistClick,
@@ -190,7 +192,7 @@ fun TrackAdditionalDataMenu(
                 )
             }
 
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Box(
                     modifier = Modifier
                         .animateContentSize()
@@ -205,7 +207,7 @@ fun TrackAdditionalDataMenu(
                         markdown = if(!descriptionExpanded)
                                 (track.additionalData?.descriptionPreviewPlainText + "...")
                             else
-                                track.additionalData?.descriptionMarkdown ?: "ass",
+                                track.additionalData?.descriptionMarkdown ?: "...",
                         syntaxHighlightColor = Color.White.copy(.07f),
                         style = TextStyle(
                             color = Color.White.copy(.7f),
@@ -215,37 +217,43 @@ fun TrackAdditionalDataMenu(
                 }
             }
 
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 track.additionalData?.tags?.let { tags ->
-                    TagsRow(
-                        horizontalSpace = 8.dp,
-                        verticalSpace = 8.dp
-                    ) {
-                        tags.forEach { tag ->
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(.07f))
-                                    .clickable {
-                                        //TODO: Поиск по тегу при нажатии
-                                    }
-                                    .padding(horizontal = 10.dp)
-                                    .padding(vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = "#${tag}",
-                                    fontWeight = FontWeight.W500,
-                                    fontSize = 12.sp,
-                                    color = Color.White.copy(.7f)
-                                )
+                    Box {
+                        TagsRow(
+                            horizontalSpace = 8.dp,
+                            verticalSpace = 8.dp
+                        ) {
+                            tags.forEach { tag ->
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(Color.White.copy(.07f))
+                                        .clickable {
+                                            //TODO: Поиск по тегу при нажатии
+                                        }
+                                        .padding(horizontal = 10.dp)
+                                        .padding(vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "#${tag}",
+                                        fontWeight = FontWeight.W500,
+                                        fontSize = 12.sp,
+                                        color = Color.White.copy(.7f)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            item {
-                Spacer(Modifier.height(25.dp))
+            track.additionalData?.credits?.let {
+                trackCreditsControlLazyListScope(it)
+            }
+
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Spacer(Modifier.height(50.dp))
             }
         }
     }
