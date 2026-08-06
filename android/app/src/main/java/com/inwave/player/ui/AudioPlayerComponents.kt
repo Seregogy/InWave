@@ -567,8 +567,8 @@ fun ColoredScaffoldState.TimingText(
                     }.roundToInt().coerceIn(-currentTrackDuration.toInt()..currentTrackDuration.toInt())
                 ),
                 textStyle = TextStyle.Default.copy(
-                    fontWeight = FontWeight.W800,
-                    fontSize = 13.sp,
+                    fontWeight = FontWeight.W700,
+                    fontSize = 14.sp,
                     color = secondaryColorWithLoadingState
                 ),
                 identifyZeros = false
@@ -576,11 +576,13 @@ fun ColoredScaffoldState.TimingText(
             Text(
                 text = "/",
                 fontSize = 13.sp,
+                fontWeight = FontWeight.W500,
                 color = secondaryColorWithLoadingState
             )
             Text(
                 formatMinuteTimer((currentTrackDuration / 1000).toInt()),
                 fontSize = 13.sp,
+                fontWeight = FontWeight.W500,
                 color = secondaryColorWithLoadingState
             )
         }

@@ -20,4 +20,5 @@
     <string name="cancel_timer">Отменить таймер</string>
     <string name="artists">Артисты</string>
     <string name="participate_in_the_release">Учавствующие в этом релизе</string>
+    <string name="description">Описание</string>
 </resources>
