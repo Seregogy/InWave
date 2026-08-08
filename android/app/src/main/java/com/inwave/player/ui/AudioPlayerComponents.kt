@@ -516,7 +516,7 @@ fun ColoredScaffoldState.TimingText(
     val haptic = LocalHapticFeedback.current
 
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
+        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value)
                 tween(0)
             else
