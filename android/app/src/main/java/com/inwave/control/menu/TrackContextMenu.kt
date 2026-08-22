@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -225,23 +224,7 @@ fun TrackAdditionalDataMenu(
                             verticalSpace = 8.dp
                         ) {
                             tags.forEach { tag ->
-                                Box(
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(Color.White.copy(.07f))
-                                        .clickable {
-                                            //TODO: Поиск по тегу при нажатии
-                                        }
-                                        .padding(horizontal = 10.dp)
-                                        .padding(vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = "#${tag}",
-                                        fontWeight = FontWeight.W500,
-                                        fontSize = 12.sp,
-                                        color = Color.White.copy(.7f)
-                                    )
-                                }
+                                Tag(tag) { }
                             }
                         }
                     }
@@ -256,6 +239,30 @@ fun TrackAdditionalDataMenu(
                 Spacer(Modifier.height(50.dp))
             }
         }
+    }
+}
+
+@Composable
+fun Tag(
+    tag: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(Color.White.copy(.07f))
+            .clickable {
+                onClick()
+            }
+            .padding(horizontal = 10.dp)
+            .padding(vertical = 2.dp)
+    ) {
+        Text(
+            text = "#${tag}",
+            fontWeight = FontWeight.W500,
+            fontSize = 12.sp,
+            color = Color.White.copy(.7f)
+        )
     }
 }
 

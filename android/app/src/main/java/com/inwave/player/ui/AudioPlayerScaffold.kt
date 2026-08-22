@@ -1,6 +1,5 @@
 package com.inwave.player.ui
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,17 +34,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.plus
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.inwave.control.scaffold.color.ColoredScaffold
 import com.inwave.control.scaffold.color.rememberColoredScaffoldState
-import com.inwave.tool.times
 import com.inwave.viewmodel.AudioPlayerViewModel
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.delay
@@ -239,8 +234,6 @@ fun BottomSheetAudioPlayer(
                 viewModel.imagePaletteExtractor.palette.collectAsState()
             }
         ) {
-            Log.d("AAA", targetMiniPlayerAlpha.value.toString())
-
             Box(
                 modifier = Modifier
                     .alpha(targetMiniPlayerAlpha.value)
