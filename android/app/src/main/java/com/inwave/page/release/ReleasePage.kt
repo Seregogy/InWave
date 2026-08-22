@@ -10,9 +10,12 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,12 +23,17 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,7 +60,9 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -87,6 +97,8 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.ArraySerializer
+import kotlin.math.max
 
 @Composable
 fun ReleasePageRefreshable(
@@ -300,6 +312,16 @@ private fun ColoredScaffoldState.AlbumHeader(
     onReleasePlayClick: (releaseId: String) -> Unit,
     onLike: () -> Unit
 ) {
+    val buttonBackgroundColor = remember {
+        SolidColor(
+            lerp(
+                start = primaryOrBackgroundColor.value.copy(alpha = .9f),
+                stop = Color.Black.copy(alpha = .9f),
+                fraction = .5f
+            )
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -356,42 +378,76 @@ private fun ColoredScaffoldState.AlbumHeader(
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier
-                        .fillMaxWidth(.85f)
+                        .padding(top = 15.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .widthIn(max = 250.dp)
+                        .height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    CircleButton(
-                        containerColor = onPrimaryOrBackgroundColor.value,
-                        onClick = onLike,
-                        underscoreText = stringResource(R.string.like),
-                        underscoreTextColor = Color.White
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.FavoriteBorder,
-                            modifier = Modifier
-                                .size(28.dp),
-                            contentDescription = "",
-                            tint = primaryOrBackgroundColorAnimated.value
-                        )
-                    }
-
-                    CircleButton(
-                        containerColor = onPrimaryOrBackgroundColor.value,
-                        onClick = {
-                            onReleasePlayClick(release.id)
-                        },
-                        underscoreText = "Слушать",
-                        underscoreTextColor = Color.White
+                    Row(
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 100.dp,
+                                    bottomStart = 100.dp,
+                                    topEnd = 5.dp,
+                                    bottomEnd = 5.dp
+                                )
+                            )
+                            .clickable {
+                                onReleasePlayClick(release.id)
+                            }
+                            .background(buttonBackgroundColor)
+                            .padding(vertical = 12.dp , horizontal = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.PlayArrow,
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(24.dp),
                             contentDescription = "",
-                            tint = primaryOrBackgroundColorAnimated.value
+                            tint = Color.White
+                        )
+
+                        Text(
+                            text = stringResource(R.string.listen),
+                            fontWeight = FontWeight.W700,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 5.dp,
+                                    bottomStart = 5.dp,
+                                    topEnd = 100.dp,
+                                    bottomEnd = 100.dp
+                                )
+                            )
+                            .fillMaxHeight()
+                            .clickable {
+                                onLike()
+                            }
+                            .background(buttonBackgroundColor)
+                            .padding(vertical = 12.dp , horizontal = 15.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Favorite,
+                            modifier = Modifier
+                                .size(20.dp),
+                            contentDescription = "",
+                            tint = Color.White
                         )
                     }
                 }
+
+
             }
         }
     }

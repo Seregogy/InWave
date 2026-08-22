@@ -29,8 +29,6 @@ fun ColoredScaffold(
 
 @Composable
 private fun ColoredScaffoldState.CalculateColors() {
-    val colorScheme = MaterialTheme.colorScheme
-
     primaryOrBackgroundColor = remember {
         derivedStateOf {
             return@derivedStateOf if (currentPalette.value?.vibrantSwatch == null) {
@@ -102,6 +100,15 @@ private fun ColoredScaffoldState.CalculateColors() {
             )
         }
     }
+
+    lastPaletteColor = remember {
+        derivedStateOf {
+            Color(
+                currentPalette.value?.swatches?.lastOrNull()?.rgb
+                    ?: Color.White.copy(.1f).toArgb()
+            ).copy(.2f)
+        }
+    }
 }
 
 @Composable
@@ -139,6 +146,12 @@ private fun ColoredScaffoldState.CalculateColorAnimations() {
     textOnPrimaryOrBackgroundColorAnimated = animateColorAsState(
         targetValue = textOnPrimaryOrBackgroundColor.value,
         label = "animated background value",
+        animationSpec = animationSpec
+    )
+
+    lastPaletteColorAnimated = animateColorAsState(
+        targetValue = lastPaletteColor.value,
+        label = "animated last palette value",
         animationSpec = animationSpec
     )
 }

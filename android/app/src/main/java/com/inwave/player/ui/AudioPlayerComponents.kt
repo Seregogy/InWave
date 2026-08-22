@@ -82,6 +82,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -97,6 +98,7 @@ import com.inwave.R
 import com.inwave.control.BorderedIconToggleButton
 import com.inwave.control.CircleButton
 import com.inwave.control.MarqueeText
+import com.inwave.control.SlidablyNumberedCounter
 import com.inwave.control.menu.ContextMenu
 import com.inwave.control.menu.TimerMenu
 import com.inwave.control.scaffold.color.ColoredScaffoldState
@@ -514,7 +516,7 @@ fun ColoredScaffoldState.TimingText(
     val haptic = LocalHapticFeedback.current
 
     val currentPositionAnimated = animateFloatAsState(
-        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),//.coerceIn(0f..currentTrackDuration.toFloat()),
+        targetValue = (currentPosition.value / currentTrackDuration.toFloat()),
         animationSpec = if (isSliding.value)
                 tween(0)
             else
@@ -552,37 +554,38 @@ fun ColoredScaffoldState.TimingText(
             .padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        fontSize = 13.sp
-                    )
-                ) {
-                    withStyle(
-                        style = SpanStyle(
-                            fontWeight = FontWeight.W800
-                        )
-                    ) {
-                        append(
-                            formatMinuteTimer(
-                                if (currentTextState == TimingTextState.CurrentTime) {
-                                    (currentPositionAnimated.value * currentTrackDuration.toFloat() / 1000)
-                                } else {
-                                    -(currentTrackDuration - currentPositionAnimated.value * currentTrackDuration.toFloat()) / 1000
-                                }.roundToInt().coerceIn(-currentTrackDuration.toInt()..currentTrackDuration.toInt())
-                            )
-                        )
-                    }
-
-                    append(" / ")
-
-                    append(formatMinuteTimer((currentTrackDuration / 1000).toInt()))
-                }
-            },
-            textAlign = TextAlign.Center,
-            color = secondaryColorWithLoadingState
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            SlidablyNumberedCounter(
+                value = formatMinuteTimer(
+                    if (currentTextState == TimingTextState.CurrentTime) {
+                        (currentPositionAnimated.value * currentTrackDuration.toFloat() / 1000)
+                    } else {
+                        -(currentTrackDuration - currentPositionAnimated.value * currentTrackDuration.toFloat()) / 1000
+                    }.roundToInt().coerceIn(-currentTrackDuration.toInt()..currentTrackDuration.toInt())
+                ),
+                textStyle = TextStyle.Default.copy(
+                    fontWeight = FontWeight.W700,
+                    fontSize = 14.sp,
+                    color = secondaryColorWithLoadingState
+                ),
+                identifyZeros = false
+            )
+            Text(
+                text = "/",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.W500,
+                color = secondaryColorWithLoadingState
+            )
+            Text(
+                formatMinuteTimer((currentTrackDuration / 1000).toInt()),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.W500,
+                color = secondaryColorWithLoadingState
+            )
+        }
     }
 }
 

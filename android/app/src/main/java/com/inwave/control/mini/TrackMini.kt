@@ -133,7 +133,6 @@ fun TrackMini(
                 .align(Alignment.CenterEnd),
             onClick = {
                 onContextAction(track)
-                Log.d("ContextAction", "AAAAAAAAA")
             }
         ) {
             Icon(

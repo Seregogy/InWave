@@ -152,39 +152,7 @@ fun NavRoutes(
     val coroutineScope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel.state) {
-        if (tokenManager.hasToken().not() || userQueryRepository.getUserByToken(tokenManager.getTokenForce()).isFailure)
-            navController.navigate("/auth")
-    }
 
-    when(val currentState = state) {
-        MainViewModelState.Idle -> {
-
-        }
-        MainViewModelState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .shimmer()
-            )
-        }
-        MainViewModelState.Offline -> {
-            ErrorDrawer(Modifier.fillMaxSize(), NetworkErrorException("No internet connection")) {
-                viewModel.initialize()
-            }
-        }
-        is MainViewModelState.Authorized -> {
-            navController.navigate("/")
-        }
-        is MainViewModelState.Error -> {
-            ErrorDrawer(Modifier.fillMaxSize(), currentState.exception) {
-                viewModel.initialize()
-            }
-        }
-        is MainViewModelState.Unauthorized -> {
-            navController.navigate("/auth")
-        }
-    }
 
     NavHost(
         navController = navController,
@@ -359,6 +327,35 @@ fun NavRoutes(
                 },
                 onReleaseClick = { navController.navigate("/releases/${it}") }
             )
+        }
+    }
+
+    when(val currentState = state) {
+        MainViewModelState.Idle -> {
+
+        }
+        MainViewModelState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .shimmer()
+            )
+        }
+        MainViewModelState.Offline -> {
+            ErrorDrawer(Modifier.fillMaxSize(), NetworkErrorException("No internet connection")) {
+                viewModel.initialize()
+            }
+        }
+        is MainViewModelState.Authorized -> {
+            navController.navigate("/")
+        }
+        is MainViewModelState.Error -> {
+            ErrorDrawer(Modifier.fillMaxSize(), currentState.exception) {
+                viewModel.initialize()
+            }
+        }
+        is MainViewModelState.Unauthorized -> {
+            navController.navigate("/auth")
         }
     }
 }

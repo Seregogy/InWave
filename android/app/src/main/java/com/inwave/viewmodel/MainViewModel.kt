@@ -72,10 +72,14 @@ class MainViewModel @Inject constructor(
                     return@launch
                 }
 
-                if (
-                    tokenManager.hasToken().not() ||
-                    userQueryRepository.getUserByToken(tokenManager.getTokenForce()).isFailure
-                ) {
+                if (tokenManager.hasToken().not()) {
+                    _state.value = MainViewModelState.Unauthorized()
+                    return@launch
+                }
+
+
+                //TODO: добавить проверку на Unauthorized (сейчас падает даже если запрос не прошел из за сети)
+                if (userQueryRepository.getUserByToken(tokenManager.getTokenForce()).isFailure) {
                     _state.value = MainViewModelState.Unauthorized()
                     return@launch
                 }

@@ -1,28 +1,37 @@
 // android/app/src/main/java/com/inwave/page/user/UserProfilePage.kt
 package com.inwave.page.user
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -37,8 +46,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -47,7 +60,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.inwave.R
+import com.inwave.control.RadarChart
 import com.inwave.control.Section
+import com.inwave.control.menu.ContextMenu
+import com.inwave.control.menu.Tag
 import com.inwave.control.mini.ReleaseMini
 import com.inwave.control.mini.TrackMiniWithImage
 import com.inwave.control.scaffold.ErrorDrawer
@@ -59,11 +75,14 @@ import com.inwave.control.scaffold.tool.rememberToolScaffoldState
 import com.inwave.domain.entity.Release
 import com.inwave.domain.entity.Track
 import com.inwave.domain.entity.User
+import com.inwave.layout.TagsRow
 import com.inwave.viewmodel.UserProfilePageState
 import com.inwave.viewmodel.UserProfileViewModel
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import kotlin.random.Random
 
 private const val TOP_PART_WEIGHT = .55f
 
@@ -159,8 +178,14 @@ private fun DrawUserProfilePage(
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (releaseId: String) -> Unit,
 ) {
+    val density = LocalDensity.current
+
     val toolScaffoldState = rememberToolScaffoldState(onBackRequest)
     val topBarHazeState = rememberHazeState()
+
+    val isGenresChartExpanded = remember {
+        mutableStateOf(false)
+    }
 
     ToolScaffold(
         modifier = Modifier
@@ -204,12 +229,55 @@ private fun DrawUserProfilePage(
             }
         ) {
             ProfileContent(
+                user = state.user,
+                chart = state.bestGenres,
                 likedTracks = state.likedTracks,
                 likedReleases = state.likedReleases,
                 bottomPadding = bottomPadding,
+                isGenresChartExpanded = isGenresChartExpanded,
                 onTrackClick = onTrackClick,
                 onReleaseClick = onReleaseClick
             )
+        }
+    }
+
+    ContextMenu(
+        expanded = isGenresChartExpanded,
+        label = stringResource(R.string.genres)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            RadarChart(
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .fillMaxWidth()
+                    .height(
+                        with(density) {
+                            1200f.toDp()
+                        }
+                    ),
+                chart = state.bestGenres,
+                radius = 600f
+            )
+
+            TagsRow(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .padding(vertical = 60.dp),
+                horizontalSpace = 8.dp,
+                verticalSpace = 8.dp
+            ) {
+                val total = state.bestGenres.sumOf { it.second }
+
+                state.bestGenres.forEach { (tag, amount) ->
+                    val percentage = amount / total.toFloat() * 100
+
+                    Tag("$tag %${percentage.toInt()}") { }
+                }
+            }
         }
     }
 }
@@ -247,7 +315,7 @@ private fun ProfileBackground(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .blur(15.dp)
+                    .blur(100.dp)
             )
         }
     }
@@ -318,9 +386,12 @@ private fun ProfileHeader(
 
 @Composable
 private fun ProfileContent(
+    user: User,
+    chart: List<Pair<String, Int>>,
     likedTracks: List<Track>,
     likedReleases: List<Release>,
     bottomPadding: Dp,
+    isGenresChartExpanded: MutableState<Boolean>,
     onTrackClick: (trackId: String) -> Unit,
     onReleaseClick: (releaseId: String) -> Unit,
 ) {
@@ -329,12 +400,184 @@ private fun ProfileContent(
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 30.dp)
+                .animateContentSize()
+                .clip(MaterialTheme.shapes.small)
+                .clickable { }
+                .background(Color.White.copy(.07f))
+                .padding(15.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.about_me),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.W700
+            )
+
+            Text(
+                text = LoremIpsum(100).values.joinToString(),
+                maxLines = 3,
+                style = TextStyle(
+                    color = Color.White.copy(.7f),
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        val rand = remember {
+            Random(228)
+        }
+
+        val currentDate = remember {
+            LocalDate.now()
+        }
+
+        val activity = remember {
+            val startDate = currentDate.run {
+                LocalDate.of(year, month, 1)
+            }
+
+            val endDate = currentDate.run {
+                LocalDate.of(year, month, lengthOfMonth())
+            }
+
+            startDate.datesUntil(endDate.plusDays(1))
+                .toList()
+                .associateWith { (rand.nextInt(0, 10) - 5).coerceIn(0..5) }
+        }
+
+        Row(
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .padding(horizontal = 30.dp),
+            horizontalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(IntrinsicSize.Min),
+                verticalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .background(Color.White.copy(.07f))
+                        .padding(15.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.activity),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W700
+                    )
+
+                    ActivityMonth(
+                        now = currentDate
+                    ) {
+                        activity.values.forEach {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(
+                                        if (it == 0)
+                                            Color(30, 30, 30)
+                                        else
+                                            Color(0, 50 + ((it / 5.toFloat()) * 100).toInt(), 0)
+                                    )
+                            )
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .background(Color.White.copy(.07f))
+                        .padding(15.dp)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.hours_amount_of_music),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W700
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        Text(
+                            text = "7ч. 38мин.",
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.W700
+                        )
+                    }
+                }
+
+            }
+
+            Column(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.small)
+                    .background(Color.White.copy(.07f))
+                    .clickable {
+                        isGenresChartExpanded.value = !isGenresChartExpanded.value
+                    }
+                    .padding(15.dp)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.genres),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W700
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Column {
+                        chart.take(3).forEach { (genre, _) ->
+                            Text(
+                                text = genre,
+                                style = TextStyle.Default.copy(
+                                    color = Color.White.copy(.6f),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.W500
+                                )
+                            )
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.BottomStart
+                ) {
+                    RadarChart(
+                        modifier = Modifier.padding(top = 150.dp),
+                        chart = chart,
+                        radius = 500f
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(25.dp))
+
         if (likedTracks.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.liked_tracks),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.W700,
-                modifier = Modifier.padding(start = 25.dp)
+                modifier = Modifier.padding(start = 30.dp)
             )
 
             Spacer(Modifier.height(15.dp))
@@ -342,7 +585,7 @@ private fun ProfileContent(
             likedTracks.forEach { track ->
                 TrackMiniWithImage(
                     modifier = Modifier
-                        .padding(start = 20.dp, end = 10.dp)
+                        .padding(start = 30.dp, end = 15.dp)
                         .padding(vertical = 5.dp),
                     track = track,
                     onPrimaryColor = Color.White,
@@ -366,6 +609,77 @@ private fun ProfileContent(
 
         Spacer(modifier = Modifier.height(bottomPadding))
         Spacer(modifier = Modifier.height(120.dp))
+    }
+}
+
+@Composable
+fun ActivityMonth(
+    modifier: Modifier = Modifier,
+    now: LocalDate = LocalDate.now(),
+    spaceBetween: Dp = 5.dp,
+    content: @Composable () -> Unit
+) {
+    val spaceBetweenPx = with(LocalDensity.current) {
+        spaceBetween.roundToPx()
+    }
+
+    val firstDateOfMonth = now.run {
+        LocalDate.of(year, month, 1)
+    }
+
+    val lastDateOfMonth = now.run {
+        LocalDate.of(year, month, now.lengthOfMonth())
+    }
+
+    val daysOfMonth = firstDateOfMonth
+        .datesUntil(lastDateOfMonth.plusDays(1))
+        .toList()
+
+    var lastSunday = -1
+    var rowsCount = daysOfMonth.count {
+        if (it.dayOfWeek.value == 7) {
+            lastSunday = it.dayOfMonth
+
+            true
+        } else {
+            false
+        }
+    }
+
+    if (lastSunday != now.lengthOfMonth()) rowsCount++
+
+    Layout(
+        modifier = modifier,
+        content = content
+    ) { measurables, constraints ->
+        val placeables = measurables.take(now.lengthOfMonth()).map { measurable ->
+            measurable.measure(constraints)
+        }.zip(daysOfMonth)
+
+        val totalWidth = (placeables.first().first.width * 7) + (spaceBetweenPx * 6)
+        val totalHeight = (placeables.first().first.height * rowsCount) + (spaceBetweenPx * (rowsCount - 2))
+
+        var weekIndex = 0
+
+        layout(
+            width = totalWidth,
+            height = totalHeight
+        ) {
+            var xPosition: Int
+            var yPosition: Int
+
+            placeables.forEach { (placeable, date) ->
+                xPosition = (placeable.width * (date.dayOfWeek.value - 1)) + (spaceBetweenPx * (date.dayOfWeek.value - 1))
+                yPosition = (placeable.height * weekIndex) + (spaceBetweenPx * (weekIndex - 1))
+
+                placeable.placeRelative(
+                    xPosition,
+                    yPosition
+                )
+
+                if (date.dayOfWeek.value == 7) weekIndex++
+            }
+        }
     }
 }
 

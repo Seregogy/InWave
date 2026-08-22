@@ -26,6 +26,7 @@ sealed class UserProfilePageState {
         val user: User,
         val likedTracks: List<Track>,
         val likedReleases: List<Release>,
+        val bestGenres: List<Pair<String, Int>>
     ) : UserProfilePageState()
     data class Error(val exception: Throwable) : UserProfilePageState()
 }
@@ -45,6 +46,14 @@ class UserProfileViewModel @Inject constructor(
     init {
         loadUserProfile()
     }
+
+    private val bestGenresMock = listOf(
+        "hip-hop" to 113,
+        "alternative" to 12,
+        "emo-rock" to 80,
+        "country" to 90,
+        "pop" to 60,
+    )
 
     fun loadUserProfile() {
         viewModelScope.launch {
@@ -66,7 +75,8 @@ class UserProfileViewModel @Inject constructor(
                         _state.value = UserProfilePageState.Success(
                             user = user,
                             likedReleases = releases,
-                            likedTracks = tracks
+                            likedTracks = tracks,
+                            bestGenres = bestGenresMock
                         )
                     }
                     .onFailure { exception ->

@@ -24,7 +24,8 @@ fun SlidablyNumberedCounter(
     textStyle: TextStyle = LocalTextStyle.current.copy(
         fontSize = 50.sp,
         color = Color.White
-    )
+    ),
+    identifyZeros: Boolean = true
 ) {
     Row(modifier) {
         value.forEachIndexed { index, char ->
@@ -39,7 +40,7 @@ fun SlidablyNumberedCounter(
                 Text(
                     text = digitItem.char.toString(),
                     style = textStyle,
-                    color = if (digitItem.char == '0')
+                    color = if (digitItem.char == '0' && identifyZeros)
                             textStyle.color.copy(.5f)
                         else
                             textStyle.color,
